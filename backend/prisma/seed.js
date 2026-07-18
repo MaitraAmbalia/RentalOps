@@ -64,6 +64,29 @@ async function main() {
     },
   });
 
+  console.log('Seeding Deposit/Downpayment and Warranty Service Products...');
+  await prisma.product.create({
+    data: {
+      vendorId: vendor.id,
+      name: 'deposit/downpayment',
+      type: 'SERVICE',
+      rentalPrice: 0.00,
+      isPublished: true,
+      quantityOnHand: 1,
+    },
+  });
+
+  await prisma.product.create({
+    data: {
+      vendorId: vendor.id,
+      name: 'warranty',
+      type: 'SERVICE',
+      rentalPrice: 0.00,
+      isPublished: true,
+      quantityOnHand: 1,
+    },
+  });
+
   // 5. Seed Vendor Settings
   console.log('Seeding Vendor Settings...');
   const settings = await prisma.vendorSettings.create({
