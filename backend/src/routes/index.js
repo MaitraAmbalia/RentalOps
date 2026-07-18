@@ -1,7 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const authRoutes = require("./auth.routes");
+const categoriesRoutes = require("./categories.routes");
+const attributesRoutes = require("./attributes.routes");
+const productsRoutes = require("./products.routes");
+const vendorsRoutes = require("./vendors.routes");
+const settingsRoutes = require("./settings.routes");
+const clientsRoutes = require("./clients.routes");
+const addressesRoutes = require("./addresses.routes");
 
 router.use("/auth", authRoutes);
+router.use("/categories", categoriesRoutes);
+router.use("/attributes", attributesRoutes);
+router.use("/products", productsRoutes);
+router.use("/vendors", vendorsRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/clients", clientsRoutes);
+router.use("/addresses", addressesRoutes);
 
 module.exports = router;

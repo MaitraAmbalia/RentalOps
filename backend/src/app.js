@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const morgan = require("morgan");
+const path = require("path");
 const apiRoutes = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Root endpoint
 app.get("/", (req, res) => {
