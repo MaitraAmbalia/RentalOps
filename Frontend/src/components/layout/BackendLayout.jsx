@@ -44,7 +44,7 @@ export default function BackendLayout() {
     }
     fetchProfile();
     fetchNotifications();
-  }, []);
+  }, [location.pathname]);
 
   // Auto-expand config section when on a config route
   useEffect(() => {

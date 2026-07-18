@@ -2,6 +2,12 @@ const { prisma } = require("../config/db");
 const ApiError = require("../utils/apiError");
 
 const createWorkflow = async (data) => {
+  const deliveryId = (data.deliveryId && String(data.deliveryId).trim()) ? String(data.deliveryId).trim() : null;
+  let scheduledDate = new Date();
+  if (data.scheduledDate && !isNaN(new Date(data.scheduledDate).getTime())) {
+    scheduledDate = new Date(data.scheduledDate);
+  }
+
   return await prisma.$transaction(async (tx) => {
     // 1. Verify order exists
     const order = await tx.order.findUnique({
@@ -12,9 +18,9 @@ const createWorkflow = async (data) => {
     }
 
     // 2. Verify delivery partner if provided
-    if (data.deliveryId) {
+    if (deliveryId) {
       const partner = await tx.deliveryPartner.findUnique({
-        where: { id: data.deliveryId },
+        where: { id: deliveryId },
       });
       if (!partner) {
         throw new ApiError(404, "Delivery partner not found");
@@ -25,9 +31,9 @@ const createWorkflow = async (data) => {
     const workflow = await tx.pickupReturnWorkflow.create({
       data: {
         orderId: data.orderId,
-        deliveryId: data.deliveryId || null,
+        deliveryId: deliveryId,
         workflowType: data.workflowType || "PICKUP",
-        scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : new Date(),
+        scheduledDate: scheduledDate,
         workflowStatus: "SCHEDULED",
       },
       include: {
@@ -42,9 +48,9 @@ const createWorkflow = async (data) => {
     });
 
     // 4. Update delivery partner status if assigned
-    if (data.deliveryId) {
+    if (deliveryId) {
       await tx.deliveryPartner.update({
-        where: { id: data.deliveryId },
+        where: { id: deliveryId },
         data: {
           currentStatus: "OUT_ON_DELIVERY",
           currentOrderId: data.orderId,

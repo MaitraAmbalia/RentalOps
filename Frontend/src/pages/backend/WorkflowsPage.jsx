@@ -24,7 +24,8 @@ export default function WorkflowsPage() {
     firstName: '',
     lastName: '',
     phone: '',
-    companyName: ''
+    companyName: '',
+    password: 'password123'
   });
   const [onboardLoading, setOnboardLoading] = useState(false);
 
@@ -84,14 +85,11 @@ export default function WorkflowsPage() {
     }
     setOnboardLoading(true);
     try {
-      const newDp = await deliveryPartnerService.createDeliveryPartner({
-        ...partnerForm,
-        password: 'password123'
-      });
+      const newDp = await deliveryPartnerService.createDeliveryPartner(partnerForm);
       setPartners(prev => [...prev, newDp]);
-      setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '' });
+      setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '', password: 'password123' });
       setOnboardOpen(false);
-      alert('Delivery partner onboarded successfully! (Default Password: password123)');
+      alert(`Delivery partner onboarded successfully! (Login Password: ${partnerForm.password})`);
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Failed to onboard partner.');
@@ -112,7 +110,7 @@ export default function WorkflowsPage() {
         orderId: scheduleForm.orderId,
         workflowType: scheduleForm.workflowType,
         deliveryId: scheduleForm.deliveryId || undefined,
-        scheduledDate: scheduleForm.scheduledDate
+        scheduledDate: scheduleForm.scheduledDate ? new Date(scheduleForm.scheduledDate).toISOString() : new Date().toISOString()
       });
       setWorkflows(prev => [newWf, ...prev]);
       setScheduleModalOpen(false);
@@ -331,6 +329,18 @@ export default function WorkflowsPage() {
                   value={partnerForm.companyName}
                   onChange={(e) => setPartnerForm(prev => ({ ...prev, companyName: e.target.value }))}
                   className="w-full bg-bg-main border border-border-main rounded-xl p-2 text-text-main"
+                />
+              </div>
+
+              <div>
+                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Access Password / PIN</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="password123"
+                  value={partnerForm.password}
+                  onChange={(e) => setPartnerForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full bg-bg-main border border-border-main rounded-xl p-2 text-text-main font-mono"
                 />
               </div>
 

@@ -83,6 +83,24 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // Handle 403 Forbidden globally by redirecting unauthorized roles
+    if (error.response?.status === 403) {
+      const currentPath = window.location.pathname;
+      if (currentPath.startsWith('/vendor')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        localStorage.removeItem('user');
+        window.location.href = '/login?role=vendor';
+        return Promise.reject(error);
+      } else if (currentPath.startsWith('/delivery')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        localStorage.removeItem('user');
+        window.location.href = '/delivery/login';
+        return Promise.reject(error);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

@@ -42,6 +42,9 @@ export default function LoginPage() {
         if (data && data.accessToken) {
           localStorage.setItem('token', data.accessToken);
           localStorage.setItem('role', 'DELIVERY');
+          if (data.deliveryPartner) {
+            localStorage.setItem('user', JSON.stringify({ ...data.deliveryPartner, role: 'DELIVERY' }));
+          }
         }
         navigate('/delivery/dashboard');
       }
@@ -111,21 +114,25 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block font-bold text-slate-550 uppercase tracking-wider mb-1.5">Email Address</label>
+            <label className="block font-bold text-slate-550 uppercase tracking-wider mb-1.5">
+              {role === 'DELIVERY' ? 'Mobile Phone Number' : 'Email Address'}
+            </label>
             <input
-              type="email"
+              type={role === 'DELIVERY' ? 'text' : 'email'}
               required
-              placeholder="name@domain.com"
+              placeholder={role === 'DELIVERY' ? '9876543210' : 'name@domain.com'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-blue-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 font-semibold"
             />
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <label className="block font-bold text-slate-550 uppercase tracking-wider">Password</label>
-              <Link to="/reset-password" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot password?</Link>
+              {role !== 'DELIVERY' && (
+                <Link to="/reset-password" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot password?</Link>
+              )}
             </div>
             <input
               type="password"
@@ -148,7 +155,7 @@ export default function LoginPage() {
                 <span>Signing in...</span>
               </>
             ) : (
-              <span>Sign In Workspace</span>
+              <span>{role === 'DELIVERY' ? 'Sign In to Courier Console' : 'Sign In Workspace'}</span>
             )}
           </button>
         </form>
@@ -165,7 +172,16 @@ export default function LoginPage() {
               <Link to="/vendor-signup" className="font-bold text-blue-600 hover:underline">Register your business</Link>
             </p>
           ) : (
-            <p className="text-slate-400">Courier accounts are registered by vendor fleet managers.</p>
+            <div className="space-y-1.5">
+              <p className="text-slate-400">Courier accounts are onboarded by Vendor Fleet Admins.</p>
+              <button
+                type="button"
+                onClick={() => { setEmail('9876543210'); setPassword('password123'); }}
+                className="text-blue-600 font-bold hover:underline block mx-auto text-[11px]"
+              >
+                Auto-fill Courier Demo (9876543210 / password123)
+              </button>
+            </div>
           )}
         </div>
 

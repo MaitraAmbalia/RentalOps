@@ -29,6 +29,7 @@ export default function DeliveryLoginPage() {
       const { accessToken, deliveryPartner } = response;
       if (accessToken) {
         localStorage.setItem('token', accessToken);
+        localStorage.setItem('role', 'DELIVERY');
         localStorage.setItem('user', JSON.stringify({ ...deliveryPartner, role: 'DELIVERY' }));
         navigate('/delivery/dashboard');
       } else {
