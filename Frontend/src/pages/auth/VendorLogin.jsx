@@ -14,8 +14,9 @@ export default function VendorLogin() {
     setLoading(true);
     try {
       const res = await authService.vendorLogin(email, password);
-      if (res.data && res.data.token) {
-        localStorage.setItem('token', res.data.token);
+      const token = res.accessToken || res.token || res.data?.token || res.data?.accessToken;
+      if (token) {
+        localStorage.setItem('token', token);
       }
       navigate('/dashboard'); 
     } catch (err) {
@@ -93,12 +94,12 @@ export default function VendorLogin() {
               </div>
 
               <div className="mt-6">
-                <a
-                  href="#"
+                <Link
+                  to="/vendor-signup"
                   className="w-full flex justify-center py-2.5 px-4 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-transparent hover:bg-slate-700 transition-colors"
                 >
                   Become a Vendor
-                </a>
+                </Link>
               </div>
             </div>
           </form>

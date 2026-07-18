@@ -20,5 +20,25 @@ export const productService = {
       console.error(`Failed to fetch product ${id}:`, error);
       throw error;
     }
+  },
+
+  createProduct: async (productData) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.PRODUCTS.BASE, productData);
+      return response.product || response;
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      throw error;
+    }
+  },
+
+  getCategories: async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.CATEGORIES.BASE);
+      return response.categories || response;
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      throw error;
+    }
   }
 };
