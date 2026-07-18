@@ -1,0 +1,764 @@
+generator client {
+  provider     = "prisma-client-js"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum AuthSubjectType {
+  VENDOR
+  CLIENT
+  DELIVERY
+}
+
+enum ProductType {
+  GOODS
+  SERVICE
+}
+
+enum ProductStatus {
+  AVAILABLE
+  IN_MAINTENANCE
+  RENTED
+}
+
+enum DisplayType {
+  RADIO
+  PILLS
+  CHECKBOX
+  IMAGE
+}
+
+enum Periodicity {
+  HOUR
+  DAY
+  NIGHT
+  WEEK
+}
+
+enum PriceType {
+  DISCOUNT
+  FIXED
+}
+
+enum DepositCalcType {
+  FIXED
+  PERCENT_OF_RENTAL
+}
+
+enum FulfillmentType {
+  COLLECT_FROM_STORE
+  HOME_DELIVERY
+}
+
+enum OrderSource {
+  ONLINE
+  OFFLINE
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  CONFIRMED
+}
+
+enum OrderStatus {
+  PROCESSING
+  RENTED
+  OVERDUE
+  RETURNED
+  CANCELLED
+}
+
+enum InvoiceStatusOnOrder {
+  NOTHING_TO_INVOICE
+  TO_INVOICE
+  INVOICED
+}
+
+enum InvoiceState {
+  DRAFT
+  POSTED
+  CANCELLED
+}
+
+enum DepositStatus {
+  HELD
+  PARTIALLY_REFUNDED
+  REFUNDED
+  FORFEITED
+}
+
+enum WorkflowType {
+  PICKUP
+  RETURN
+}
+
+enum WorkflowStatus {
+  SCHEDULED
+  CUSTOMER_NOTIFIED
+  COMPLETED
+  LATE
+  MISSED
+}
+
+enum QueryType {
+  PRODUCT_MISSING
+  DAMAGED_GOOD
+  OTHER
+}
+
+enum QueryStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum DeliveryStatus {
+  AVAILABLE
+  OUT_ON_DELIVERY
+  ABSENT
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum NotificationType {
+  QUOTATION_SENT
+  PAYMENT_CONFIRMATION
+  PICKUP_REMINDER
+  RETURN_REMINDER
+  OVERDUE_ALERT
+  DEPOSIT_REFUND
+  QUERY_UPDATE
+  GENERAL
+}
+
+// ─────────────────────────────────────────────
+// VENDOR (Company / Admin) + per-vendor Settings
+// ─────────────────────────────────────────────
+
+model Vendor {
+  id                     String   @id @default(uuid())
+  firstName              String
+  lastName               String
+  email                  String   @unique
+  passwordHash           String
+  companyName            String
+  companyProductCategory String                          // primary line of business, captured at signup
+  gstNo                  String
+  companyLogo            String?
+  role                   String   @default("ADMIN")        // "organization-wide rental management" owner
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  settings           VendorSettings?
+  categories         ProductCategory[]
+  attributes         Attribute[]
+  products           Product[]
+  priceLists         PriceList[]
+  coupons            Coupon[]
+  quotationTemplates QuotationTemplate[]
+  quotations         Quotation[]
+  orders             Order[]
+  deliveryPartners   DeliveryPartner[]
+}
+
+// "Settings" screen — visible only to the Vendor/Admin, per wireframe note
+model VendorSettings {
+  id                      String   @id @default(uuid())
+  vendorId                String   @unique
+  vendor                  Vendor   @relation(fields: [vendorId], references: [id])
+
+  lateFeeEnabled          Boolean  @default(true)
+  defaultLateFeeRatePerHour Decimal @db.Decimal(10, 2) @default(0)  // applied to all products unless overridden per-product
+  lateFeeGracePeriodMinutes Int    @default(0)                       // grace period before penalty starts
+  maxLateFeeCap           Decimal? @db.Decimal(10, 2)                 // optional cap on total late fee
+  defaultLateFeeProductId String?                                    // auto-seeded "Late Fees" Service Product used on every late return
+  defaultDepositCalcType  DepositCalcType @default(PERCENT_OF_RENTAL)
+  defaultDepositValue     Decimal  @db.Decimal(10, 2) @default(100)   // 100% of rental price by default
+  defaultTaxPercent       Decimal  @db.Decimal(5, 2) @default(0)      // GST %, since Vendor carries gstNo
+  defaultPriceListId      String?                                    // "one default price list applicable to all products"
+  updatedAt               DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// CLIENT / PORTAL USER + ADDRESSES
+// ─────────────────────────────────────────────
+
+model Client {
+  id           String   @id @default(uuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  phone        String
+  passwordHash String
+  profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  addresses  Address[]
+  cart       Cart?
+  wishlist   WishlistItem[]
+  quotations Quotation[]
+  orders     Order[]
+  payments   Payment[]
+  queries    SupportQuery[]
+  couponsUsed CouponRedemption[]
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  label      String?                 // "Main Address", "Billing"
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String
+  isBilling  Boolean  @default(false)
+  isDelivery Boolean  @default(false)
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// DELIVERY PARTNER
+// ─────────────────────────────────────────────
+
+model DeliveryPartner {
+  id             String         @id @default(uuid())
+  vendorId       String
+  vendor         Vendor         @relation(fields: [vendorId], references: [id])
+  firstName      String
+  lastName       String
+  phone          String
+  passwordHash   String
+  currentStatus  DeliveryStatus @default(AVAILABLE)
+  currentOrderId String?
+  currentOrder   Order?         @relation(fields: [currentOrderId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  workflows PickupReturnWorkflow[]
+}
+
+// ─────────────────────────────────────────────
+// PRODUCT CATALOG — Categories, Attributes/Variants, Products
+// ─────────────────────────────────────────────
+
+model ProductCategory {
+  id        String    @id @default(uuid())
+  vendorId  String
+  vendor    Vendor    @relation(fields: [vendorId], references: [id])
+  name      String                                  // Electronics, Furniture, etc.
+  createdAt DateTime  @default(now())
+  products  Product[]
+
+  @@unique([vendorId, name])
+}
+
+// Attributes with configurable Display Type + per-value extra price ("Brand", "Color", "Size")
+model Attribute {
+  id          String       @id @default(uuid())
+  vendorId    String
+  vendor      Vendor       @relation(fields: [vendorId], references: [id])
+  name        String
+  displayType DisplayType  @default(RADIO)
+  createdAt   DateTime     @default(now())
+
+  values       AttributeValue[]
+  productLinks ProductAttribute[]
+}
+
+model AttributeValue {
+  id          String    @id @default(uuid())
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  value       String                                  // "Red", "42 inch", "Sony"
+  extraPrice  Decimal   @db.Decimal(10, 2) @default(0) // Default Extra Price, added on top of rentalPrice
+  imageUrl    String?                                  // used when displayType = IMAGE
+
+  productAttributeValues ProductAttributeValue[]
+}
+
+// Which attributes are configurable on a product ("Attributes & Variants" tab)
+model ProductAttribute {
+  id          String    @id @default(uuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+
+  @@unique([productId, attributeId])
+}
+
+// A specific sellable variant = product + a combination of attribute values (own stock)
+model ProductVariant {
+  id                String   @id @default(uuid())
+  productId         String
+  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku               String   @unique
+  quantityOnHand    Int      @default(0)
+  quantityAvailable Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  attributeValues ProductAttributeValue[]
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  quotationItems  QuotationItem[]
+}
+
+model ProductAttributeValue {
+  id               String         @id @default(uuid())
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+
+  @@unique([productVariantId, attributeValueId])
+}
+
+model Product {
+  id                  String        @id @default(uuid())
+  vendorId            String
+  vendor              Vendor        @relation(fields: [vendorId], references: [id])
+  categoryId          String?
+  category            ProductCategory? @relation(fields: [categoryId], references: [id])
+
+  name                String
+  productDefinition   String?
+  type                ProductType   @default(GOODS)   // GOODS = rentable item; SERVICE = Late Fee/Deposit/Downpayment/Warranty line
+  images              String[]      @default([])
+  currentStatus       ProductStatus @default(AVAILABLE)
+  isPublished         Boolean      @default(false)     // only the owning Vendor(=Admin) may publish, per wireframe note
+
+  rentalPrice         Decimal       @db.Decimal(10, 2)   // base price per ONE unit of `periodicity`
+  costPrice           Decimal       @db.Decimal(10, 2) @default(0)
+  quantityOnHand      Int           @default(0)          // used only when the product has no variants
+
+  // ── Rental tab ──
+  periodicity         Periodicity   @default(DAY)         // Hours / Day / Night / Weekly
+  pickupTime          String?                              // "10:00" — only meaningful when periodicity = HOUR
+  returnTime          String?                              // "19:00"
+  paddingTimeMinutes  Int?                                  // buffer between bookings (Hours only)
+  lateFeeRatePerHour  Decimal?      @db.Decimal(10, 2)       // per-product override of VendorSettings.defaultLateFeeRatePerHour
+  securityDepositCalcType DepositCalcType? // per-product override; null = use VendorSettings default
+  securityDepositValue    Decimal?  @db.Decimal(10, 2)       // fixed amount OR percent, per securityDepositCalcType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attributes     ProductAttribute[]
+  variants       ProductVariant[]
+  priceListRules PriceListRule[]
+  quotationItems QuotationItem[]
+  orderItems     OrderItem[]
+  cartItems      CartItem[]
+  wishlistItems  WishlistItem[]
+}
+
+// ─────────────────────────────────────────────
+// PRICE LISTS (rule engine) — "one default price list applicable to all products by default"
+// ─────────────────────────────────────────────
+
+model PriceList {
+  id           String    @id @default(uuid())
+  vendorId     String
+  vendor       Vendor    @relation(fields: [vendorId], references: [id])
+  name         String                                     // "My Price list"
+  isSelectable Boolean   @default(true)
+  validFrom    DateTime?
+  validTo      DateTime?
+  createdAt    DateTime  @default(now())
+
+  rules PriceListRule[]
+}
+
+model PriceListRule {
+  id              String     @id @default(uuid())
+  priceListId     String
+  priceList       PriceList  @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+  productId       String?                                  // null = "All Products"
+  product         Product?   @relation(fields: [productId], references: [id])
+
+  priceType       PriceType  @default(DISCOUNT)
+  discountPercent Decimal?   @db.Decimal(5, 2)
+  fixedPrice      Decimal?   @db.Decimal(10, 2)
+
+  minQty          Decimal    @db.Decimal(10, 2) @default(0)
+  validFrom       DateTime?
+  validTo         DateTime?
+  createdAt       DateTime   @default(now())
+}
+
+// ─────────────────────────────────────────────
+// COUPONS
+// ─────────────────────────────────────────────
+
+model Coupon {
+  id                  String   @id @default(uuid())
+  vendorId            String
+  vendor              Vendor   @relation(fields: [vendorId], references: [id])
+  code                String
+  discountPercent     Decimal? @db.Decimal(5, 2)
+  fixedAmount         Decimal? @db.Decimal(10, 2)
+  forNewCustomersOnly Boolean  @default(false)
+  usageLimit          Int?
+  timesUsed           Int      @default(0)
+  validFrom           DateTime?
+  validTo             DateTime?
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  redemptions CouponRedemption[]
+  orders      Order[]
+
+  @@unique([vendorId, code])
+}
+
+model CouponRedemption {
+  id         String   @id @default(uuid())
+  couponId   String
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id])
+  orderId    String?
+  redeemedAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// CART, WISHLIST, SAVE FOR LATER
+// ─────────────────────────────────────────────
+
+model Cart {
+  id        String     @id @default(uuid())
+  clientId  String     @unique
+  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id               String          @id @default(uuid())
+  cartId           String
+  cart             Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  quantity         Int             @default(1)
+  rentalStart      DateTime
+  rentalEnd        DateTime
+  savedForLater    Boolean         @default(false)      // "Save for Later" button
+  createdAt        DateTime        @default(now())
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, productId])
+}
+
+// ─────────────────────────────────────────────
+// QUOTATION TEMPLATE (Quote Builder screen — header/footer, validity, payment terms)
+// ─────────────────────────────────────────────
+
+model QuotationTemplate {
+  id                    String   @id @default(uuid())
+  vendorId              String
+  vendor                Vendor   @relation(fields: [vendorId], references: [id])
+  name                  String                          // "Home Rental Furniture", "Office Rental Furniture"
+  headerHtml            String?
+  footerHtml            String?
+  quotationValidityDays Int      @default(7)
+  paymentTermsPercent   Decimal  @db.Decimal(5, 2) @default(100)
+  isDefault             Boolean  @default(false)
+  createdAt             DateTime @default(now())
+
+  lines QuotationTemplateLine[]
+}
+
+model QuotationTemplateLine {
+  id         String            @id @default(uuid())
+  templateId String
+  template   QuotationTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  productId  String
+  quantity   Int               @default(1)
+  unit       String?
+}
+
+// ─────────────────────────────────────────────
+// QUOTATIONS (Draft → Sent → Confirmed → becomes an Order)
+// ─────────────────────────────────────────────
+
+model Quotation {
+  id                    String          @id @default(uuid())
+  clientId              String
+  client                Client          @relation(fields: [clientId], references: [id])
+  vendorId              String
+  vendor                Vendor          @relation(fields: [vendorId], references: [id])
+  quotationTemplateId   String?
+  priceListId           String?
+  status                QuotationStatus @default(DRAFT)
+  quotationValidityDays Int             @default(7)      // copied from template, editable
+  paymentTermsPercent   Decimal         @db.Decimal(5, 2) @default(100)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  items QuotationItem[]
+}
+
+model QuotationItem {
+  id               String          @id @default(uuid())
+  quotationId      String
+  quotation        Quotation       @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  quantity         Int             @default(1)
+  unit             String?
+  rentalStart      DateTime
+  rentalEnd        DateTime
+}
+
+// ─────────────────────────────────────────────
+// ORDERS / RENTALS — real multi-line order (Order Line: Product/Qty/Unit/Unit Price/Amount)
+// ─────────────────────────────────────────────
+
+model Order {
+  id                    String          @id @default(uuid())
+  orderNumber           String          @unique             // "SO0001"
+  clientId              String
+  client                Client          @relation(fields: [clientId], references: [id])
+  vendorId              String
+  vendor                Vendor          @relation(fields: [vendorId], references: [id])
+  quotationId           String?                              // set if this order originated from a confirmed quotation
+
+  fulfillmentType       FulfillmentType
+  orderSource           OrderSource
+  billingAddressId      String?
+  deliveryAddressId     String?
+
+  priceListId           String?
+  couponId              String?
+  coupon                Coupon?         @relation(fields: [couponId], references: [id])
+
+  rentalStartDate       DateTime                              // overall [Start Date -> End Date] on the order header
+  scheduledReturnDate   DateTime
+  actualReturnDate      DateTime?
+
+  untaxedAmount         Decimal         @db.Decimal(10, 2) @default(0)  // Σ item.amount (main rental lines only, at booking time)
+  taxPercent            Decimal         @db.Decimal(5, 2) @default(0)
+  taxAmount             Decimal         @db.Decimal(10, 2) @default(0)
+  totalAmount           Decimal         @db.Decimal(10, 2) @default(0)  // untaxedAmount + taxAmount (excludes deposit)
+  securityDepositAmount Decimal         @db.Decimal(10, 2) @default(0)  // computed at confirm time (fixed or % of untaxedAmount)
+
+  status                OrderStatus     @default(PROCESSING)
+  invoiceStatus         InvoiceStatusOnOrder @default(NOTHING_TO_INVOICE)
+  note                  String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  items              OrderItem[]
+  payments           Payment[]
+  depositInvoice     SecurityDepositInvoice?
+  invoice            Invoice?
+  workflows          PickupReturnWorkflow[]
+  queries            SupportQuery[]
+  assignedDeliveries DeliveryPartner[]                       // reverse of DeliveryPartner.currentOrderId
+}
+
+// A line is either a rentable Product (GOODS) or an auto/manual Service line (Late Fee, Deposit, Downpayment, Warranty)
+model OrderItem {
+  id               String          @id @default(uuid())
+  orderId          String
+  order            Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+
+  quantity   Decimal   @db.Decimal(10, 2) @default(1)
+  unit       String?
+  unitPrice  Decimal   @db.Decimal(10, 2)
+  amount     Decimal   @db.Decimal(10, 2)           // quantity * unitPrice (or lateHours * rate for the auto Late Fee line)
+
+  rentalStart DateTime?
+  rentalEnd   DateTime?
+
+  isAutoGenerated Boolean @default(false)           // true for the auto-inserted Late Fee line
+}
+
+// ─────────────────────────────────────────────
+// PAYMENTS (Razorpay)
+// ─────────────────────────────────────────────
+
+model Payment {
+  id                String        @id @default(uuid())
+  orderId           String
+  order             Order         @relation(fields: [orderId], references: [id])
+  clientId          String
+  client            Client        @relation(fields: [clientId], references: [id])
+
+  amount            Decimal       @db.Decimal(10, 2)   // order.totalAmount + order.securityDepositAmount, charged together
+  currency          String        @default("INR")
+
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  method            String?                              // card / upi / netbanking / wallet / cash (in-store)
+  status            PaymentStatus @default(CREATED)
+
+  createdAt DateTime  @default(now())
+  paidAt    DateTime?
+}
+
+// ─────────────────────────────────────────────
+// SECURITY DEPOSIT (tracking, distinct from the printable Invoice document)
+// ─────────────────────────────────────────────
+
+model SecurityDepositInvoice {
+  id                    String        @id @default(uuid())
+  orderId               String        @unique
+  order                 Order         @relation(fields: [orderId], references: [id])
+
+  depositAmount         Decimal       @db.Decimal(10, 2)
+  depositStatus         DepositStatus @default(HELD)
+  penaltyAmountDeducted Decimal       @db.Decimal(10, 2) @default(0)   // = the late-fee amount, capped at depositAmount
+  refundedAmount        Decimal       @db.Decimal(10, 2) @default(0)
+  outstandingBalance    Decimal       @db.Decimal(10, 2) @default(0)   // penalty beyond the held deposit, still payable
+
+  razorpayRefundId      String?
+  refundedAt            DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// PICKUP & RETURN WORKFLOW
+// ─────────────────────────────────────────────
+
+model PickupReturnWorkflow {
+  id                      String          @id @default(uuid())
+  orderId                 String
+  order                   Order           @relation(fields: [orderId], references: [id])
+  deliveryId              String
+  deliveryPartner         DeliveryPartner @relation(fields: [deliveryId], references: [id])
+
+  workflowType             WorkflowType
+  scheduledDate            DateTime
+  routeSequence            Int?                          // Route/sequence planning for the day
+  qrCode                   String?                        // Barcode/QR code used for pickup confirmation
+
+  checklist                Json?                          // Pickup checklist (key -> boolean)
+  conditionInspectionNotes String?
+  missingAccessories       String[]        @default([])
+  damageReported           Boolean         @default(false)
+  damageDescription        String?
+  damageImages             String[]        @default([])
+  repairWorkflowTriggered  Boolean         @default(false)
+
+  workflowStatus WorkflowStatus @default(SCHEDULED)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// INVOICE — separate printable/emailable document, own Draft→Posted lifecycle
+// ─────────────────────────────────────────────
+
+model Invoice {
+  id                String       @id @default(uuid())
+  orderId           String       @unique
+  order             Order        @relation(fields: [orderId], references: [id])
+  invoiceNumber     String       @unique                    // "INV/2026/0001"
+  state             InvoiceState @default(DRAFT)
+  invoiceDate       DateTime     @default(now())
+  billingAddressId  String?
+  deliveryAddressId String?
+  untaxedAmount     Decimal      @db.Decimal(10, 2)
+  taxPercent        Decimal      @db.Decimal(5, 2) @default(0)
+  taxAmount         Decimal      @db.Decimal(10, 2) @default(0)
+  totalAmount       Decimal      @db.Decimal(10, 2)
+  fileUrl           String?
+  postedAt          DateTime?
+  createdAt         DateTime     @default(now())
+
+  lines InvoiceLine[]
+}
+
+model InvoiceLine {
+  id        String  @id @default(uuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId String
+  quantity  Decimal @db.Decimal(10, 2) @default(1)
+  unit      String?
+  unitPrice Decimal @db.Decimal(10, 2)
+  amount    Decimal @db.Decimal(10, 2)
+  isAutoGenerated Boolean @default(false)
+}
+
+// ─────────────────────────────────────────────
+// QUERIES / SUPPORT
+// ─────────────────────────────────────────────
+
+model SupportQuery {
+  id          String      @id @default(uuid())
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id])
+  clientId    String
+  client      Client      @relation(fields: [clientId], references: [id])
+  queryType   QueryType
+  description String?
+  status      QueryStatus @default(OPEN)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// SHARED: AUTH + NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model RefreshToken {
+  id          String          @id @default(uuid())
+  token       String          @unique
+  subjectId   String                                  // Vendor.id / Client.id / DeliveryPartner.id
+  subjectType AuthSubjectType
+  expiresAt   DateTime
+  revoked     Boolean         @default(false)
+  replacedBy  String?
+  createdAt   DateTime        @default(now())
+}
+
+model Notification {
+  id            String           @id @default(uuid())
+  recipientId   String                                  // Vendor.id / Client.id / DeliveryPartner.id
+  recipientType AuthSubjectType
+  type          NotificationType @default(GENERAL)
+  title         String
+  message       String
+  isRead        Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+}
