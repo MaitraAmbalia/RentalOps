@@ -16,9 +16,36 @@ export const ENDPOINTS = {
   },
   ORDERS: {
     BASE: '/orders',
+    GET_BY_ID: (id) => `/orders/${id}`,
     UPDATE_STATUS: (id) => `/orders/${id}/status`,
+  },
+  QUOTATIONS: {
+    BASE: '/quotations',
+    GET_BY_ID: (id) => `/quotations/${id}`,
+    UPDATE_STATUS: (id) => `/quotations/${id}/status`,
+  },
+  QUOTATION_TEMPLATES: {
+    BASE: '/quotation-templates',
+    GET_BY_ID: (id) => `/quotation-templates/${id}`,
+  },
+  SETTINGS: {
+    BASE: '/settings',
+  },
+  VENDORS: {
+    BASE: '/vendors',
+    ME: '/vendors/me',
+  },
+  ATTRIBUTES: {
+    BASE: '/attributes',
+    VALUE: (id) => `/attributes/${id}/values`,
+    VALUE_DELETE: (id, valueId) => `/attributes/${id}/values/${valueId}`,
   },
   CATEGORIES: {
     BASE: '/categories',
+  },
+  PAYMENTS: {
+    CREATE_RAZORPAY_ORDER: (id) => `/orders/${id}/payments/razorpay-order`,
+    VERIFY_PAYMENT: '/payments/verify',
   }
 };
+

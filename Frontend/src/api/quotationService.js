@@ -1,0 +1,75 @@
+import axiosInstance from './axiosInstance';
+import { ENDPOINTS } from './endpoints';
+
+export const quotationService = {
+  getQuotations: async (filters = {}) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.QUOTATIONS.BASE, { params: filters });
+      return response.quotations || response;
+    } catch (error) {
+      console.error("Failed to fetch quotations:", error);
+      throw error;
+    }
+  },
+
+  getQuotationById: async (id) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.QUOTATIONS.GET_BY_ID(id));
+      return response.quotation || response;
+    } catch (error) {
+      console.error(`Failed to fetch quotation ${id}:`, error);
+      throw error;
+    }
+  },
+
+  createQuotation: async (quotationData) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.QUOTATIONS.BASE, quotationData);
+      return response.quotation || response;
+    } catch (error) {
+      console.error("Failed to create quotation:", error);
+      throw error;
+    }
+  },
+
+  updateQuotationStatus: async (id, status) => {
+    try {
+      const response = await axiosInstance.patch(ENDPOINTS.QUOTATIONS.UPDATE_STATUS(id), { status });
+      return response.quotation || response;
+    } catch (error) {
+      console.error(`Failed to update quotation status for ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Templates
+  getQuotationTemplates: async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.QUOTATION_TEMPLATES.BASE);
+      return response.templates || response;
+    } catch (error) {
+      console.error("Failed to fetch quotation templates:", error);
+      throw error;
+    }
+  },
+
+  createQuotationTemplate: async (templateData) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.QUOTATION_TEMPLATES.BASE, templateData);
+      return response.template || response;
+    } catch (error) {
+      console.error("Failed to create quotation template:", error);
+      throw error;
+    }
+  },
+
+  deleteQuotationTemplate: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`${ENDPOINTS.QUOTATION_TEMPLATES.BASE}/${id}`);
+      return response;
+    } catch (error) {
+      console.error(`Failed to delete quotation template ${id}:`, error);
+      throw error;
+    }
+  }
+};
