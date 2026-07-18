@@ -260,7 +260,7 @@ export default function CheckoutAddressPage() {
                   <span className="text-[10px] text-slate-400">Qty: {item.qty} units</span>
                 </div>
                 <span className="font-extrabold text-slate-900">
-                  ${((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)).toFixed(2)}
+                  ₹{((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -269,12 +269,12 @@ export default function CheckoutAddressPage() {
           <div className="border-t border-slate-150 pt-4 space-y-2.5">
             <div className="flex justify-between">
               <span>Rental Charges:</span>
-              <span className="font-semibold text-slate-800">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{subtotal.toFixed(2)}</span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-emerald-600">
                 <span>Coupon discount:</span>
-                <span>-${discountAmount.toFixed(2)}</span>
+                <span>-₹{discountAmount.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between items-start">
@@ -284,11 +284,11 @@ export default function CheckoutAddressPage() {
                   <ShieldCheck className="h-4 w-4 ml-1 text-emerald-500 shrink-0" />
                 </span>
               </div>
-              <span className="font-semibold text-slate-800">${securityDeposit.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{securityDeposit.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-slate-900 text-sm border-t border-slate-100 pt-3">
               <span>Total Payable:</span>
-              <span>${total.toFixed(2)}</span>
+              <span>₹{total.toFixed(2)}</span>
             </div>
           </div>
         </div>

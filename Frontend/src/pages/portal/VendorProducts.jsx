@@ -146,16 +146,16 @@ export default function VendorProducts() {
               <div className="bg-slate-900/40 rounded-xl border border-slate-850 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-400">
                 <div className="space-y-1">
                   <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Base Rental</span>
-                  <span className="font-bold text-slate-200 block">${Number(p.rentalPrice).toLocaleString()} / {p.periodicity}</span>
+                  <span className="font-bold text-slate-200 block">₹{Number(p.rentalPrice).toLocaleString()} / {p.periodicity}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Cost Price</span>
-                  <span className="font-bold text-slate-200 block">${Number(p.costPrice).toLocaleString()}</span>
+                  <span className="font-bold text-slate-200 block">₹{Number(p.costPrice).toLocaleString()}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Late Fee</span>
                   <span className="font-bold text-slate-200 block">
-                    {p.lateFeeRatePerHour ? `$${p.lateFeeRatePerHour}/Hr` : 'Default Policy'}
+                    {p.lateFeeRatePerHour ? `₹${p.lateFeeRatePerHour}/Hr` : 'Default Policy'}
                   </span>
                 </div>
                 <div className="space-y-1">
@@ -164,7 +164,7 @@ export default function VendorProducts() {
                     {p.securityDepositValue 
                       ? p.securityDepositCalcType === 'PERCENT_OF_RENTAL'
                         ? `${p.securityDepositValue}% of Rental`
-                        : `$${p.securityDepositValue}`
+                        : `₹${p.securityDepositValue}`
                       : 'Default Policy'}
                   </span>
                 </div>

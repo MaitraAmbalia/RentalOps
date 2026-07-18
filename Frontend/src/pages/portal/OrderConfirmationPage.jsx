@@ -112,7 +112,7 @@ export default function OrderConfirmationPage() {
                   <tr key={idx}>
                     <td className="p-3 font-semibold text-slate-800">{o.productName}</td>
                     <td className="p-3 text-center text-slate-655">{o.qty} units</td>
-                    <td className="p-3 text-right font-bold text-slate-855">${o.subtotal?.toFixed(2)}</td>
+                    <td className="p-3 text-right font-bold text-slate-855">₹{o.subtotal?.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -123,15 +123,15 @@ export default function OrderConfirmationPage() {
         <div className="border-t border-slate-100 pt-4 flex flex-col items-end text-xs space-y-2 text-slate-500">
           <div className="flex justify-between w-64">
             <span>Rental Cost Subtotal:</span>
-            <span className="font-semibold text-slate-800">${subtotal?.toFixed(2)}</span>
+            <span className="font-semibold text-slate-800">₹{subtotal?.toFixed(2)}</span>
           </div>
           <div className="flex justify-between w-64">
             <span>Held Security Deposit Escrow:</span>
-            <span className="font-semibold text-slate-800">${securityDeposit?.toFixed(2)}</span>
+            <span className="font-semibold text-slate-800">₹{securityDeposit?.toFixed(2)}</span>
           </div>
           <div className="flex justify-between w-64 border-t border-slate-150 pt-2 font-bold text-slate-900 text-sm">
             <span>Paid Grand Total:</span>
-            <span className="text-blue-600 font-black">${total?.toFixed(2)}</span>
+            <span className="text-blue-600 font-black">₹{total?.toFixed(2)}</span>
           </div>
         </div>
       </div>

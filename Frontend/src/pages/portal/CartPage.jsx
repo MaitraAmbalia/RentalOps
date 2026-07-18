@@ -190,7 +190,7 @@ export default function CartPage() {
                   )}
                   
                   <div className="flex items-center space-x-2 text-[11px] text-slate-500 font-semibold pt-1">
-                    <span>Rate: ${basePrice} / {periodicityLabel}</span>
+                    <span>Rate: ₹{basePrice} / {periodicityLabel}</span>
                     <span>•</span>
                     <span className="text-blue-600 font-bold">{days} days duration</span>
                   </div>
@@ -218,7 +218,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="flex sm:flex-col items-center sm:items-end justify-between gap-3 text-xs">
-                  <span className="font-extrabold text-slate-900 text-sm">${(basePrice * item.qty * days).toFixed(2)}</span>
+                  <span className="font-extrabold text-slate-900 text-sm">₹{(basePrice * item.qty * days).toFixed(2)}</span>
                   
                   <div className="flex items-center space-x-2">
                     <button
@@ -272,13 +272,13 @@ export default function CartPage() {
           <div className="space-y-3.5">
             <div className="flex justify-between">
               <span>Rental Charges subtotal:</span>
-              <span className="font-semibold text-slate-800">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{subtotal.toFixed(2)}</span>
             </div>
             
             {appliedDiscount > 0 && (
               <div className="flex justify-between text-emerald-600">
                 <span>Coupon discount:</span>
-                <span>-${appliedDiscount.toFixed(2)}</span>
+                <span>-₹{appliedDiscount.toFixed(2)}</span>
               </div>
             )}
 
@@ -290,7 +290,7 @@ export default function CartPage() {
                 </span>
                 <span className="text-[9px] text-slate-400 mt-0.5 block">Held securely until equipment return</span>
               </div>
-              <span className="font-semibold text-slate-800">${securityDeposit.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{securityDeposit.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between">
@@ -300,7 +300,7 @@ export default function CartPage() {
 
             <div className="border-t border-slate-100 pt-3.5 flex justify-between items-end text-sm font-bold text-slate-900">
               <span>Grand Total:</span>
-              <span className="text-xl font-black text-blue-600">${total.toFixed(2)}</span>
+              <span className="text-xl font-black text-blue-600">₹{total.toFixed(2)}</span>
             </div>
           </div>
 
@@ -489,7 +489,7 @@ export default function CartPage() {
                   disabled={paymentLoading}
                   className="flex-1 py-3 bg-blue-600 hover:bg-blue-755 text-white font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-colors"
                 >
-                  {paymentLoading ? 'Verifying payment...' : `Pay $${total.toFixed(2)} Now`}
+                  {paymentLoading ? 'Verifying payment...' : `Pay ₹${total.toFixed(2)} Now`}
                 </button>
               </div>
 

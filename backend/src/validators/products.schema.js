@@ -34,6 +34,10 @@ const productSchema = z.object({
   securityDepositCalcType: z.enum(['FIXED', 'PERCENT_OF_RENTAL']).optional(),
   securityDepositValue: z.number().min(0).optional(),
 
+  brand: z.string().optional().nullable(),
+  color: z.string().optional().nullable(),
+  duration: z.string().optional().nullable(),
+
   attributes: z.array(productAttributeSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
 });

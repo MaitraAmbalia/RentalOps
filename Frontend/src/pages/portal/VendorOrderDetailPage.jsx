@@ -295,8 +295,8 @@ export default function VendorOrderDetailPage() {
                     <tr key={idx}>
                       <td className="py-3 text-slate-200 font-semibold">{item.product?.name || 'Rentable item'}</td>
                       <td className="py-3 text-center text-slate-300">{item.quantity}</td>
-                      <td className="py-3 text-right text-slate-300">${parseFloat(item.unitPrice || item.product?.dailyCharge || item.product?.rentalPrice || 0).toFixed(2)}</td>
-                      <td className="py-3 text-right text-slate-100 font-bold">${parseFloat(item.amount || (item.quantity * (item.product?.dailyCharge || 0))).toFixed(2)}</td>
+                      <td className="py-3 text-right text-slate-300">₹{parseFloat(item.unitPrice || item.product?.dailyCharge || item.product?.rentalPrice || 0).toFixed(2)}</td>
+                      <td className="py-3 text-right text-slate-100 font-bold">₹{parseFloat(item.amount || (item.quantity * (item.product?.dailyCharge || 0))).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -323,16 +323,16 @@ export default function VendorOrderDetailPage() {
               <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-850 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <span className="text-xs text-slate-500 block mb-1">Held Security Deposit</span>
-                  <span className="text-xl font-bold text-white">${parseFloat(record.securityDepositAmount || 0).toFixed(2)}</span>
+                  <span className="text-xl font-bold text-white">₹{parseFloat(record.securityDepositAmount || 0).toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block mb-1">Deducted Penalties</span>
-                  <span className="text-xl font-bold text-rose-400">${parseFloat(penaltyAmount || 0).toFixed(2)}</span>
+                  <span className="text-xl font-bold text-rose-400">₹{parseFloat(penaltyAmount || 0).toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block mb-1">Refund Amount</span>
                   <span className="text-xl font-bold text-emerald-400">
-                    ${parseFloat(Math.max(0, (record.securityDepositAmount || 0) - penaltyAmount)).toFixed(2)}
+                    ₹{parseFloat(Math.max(0, (record.securityDepositAmount || 0) - penaltyAmount)).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function VendorOrderDetailPage() {
                         <div>
                           <label className="block text-xs text-slate-400 mb-1.5 uppercase font-bold">Calculated Overdue Penalty</label>
                           <span className="block p-2 bg-slate-950 border border-slate-850 rounded-lg text-rose-400 font-bold">
-                            ${penaltyAmount.toFixed(2)}
+                            ₹{penaltyAmount.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -397,21 +397,21 @@ export default function VendorOrderDetailPage() {
             <div className="space-y-2 border-b border-slate-800 pb-4 text-sm text-slate-400">
               <div className="flex justify-between">
                 <span>Untaxed Amount:</span>
-                <span className="text-slate-100">${parseFloat(record.untaxedAmount || 0).toFixed(2)}</span>
+                <span className="text-slate-100">₹{parseFloat(record.untaxedAmount || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax Amount ({record.taxPercent || 18}%):</span>
-                <span className="text-slate-100">${parseFloat(record.taxAmount || 0).toFixed(2)}</span>
+                <span className="text-slate-100">₹{parseFloat(record.taxAmount || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Security Deposit (2x):</span>
-                <span className="text-cyan-400 font-semibold">${parseFloat(record.securityDepositAmount || 0).toFixed(2)}</span>
+                <span className="text-cyan-400 font-semibold">₹{parseFloat(record.securityDepositAmount || 0).toFixed(2)}</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center text-lg font-bold text-white pt-2">
               <span>Total Price:</span>
-              <span className="text-primary font-black">${parseFloat(record.totalAmount || 0).toFixed(2)}</span>
+              <span className="text-primary font-black">₹{parseFloat(record.totalAmount || 0).toFixed(2)}</span>
             </div>
           </div>
 

@@ -517,11 +517,11 @@ export default function VendorSettingsPage() {
       </div>
 
       {/* Tabs list */}
-      <div className="flex flex-wrap border-b border-border-main bg-bg-card p-1 rounded-xl self-start gap-1">
+      <div className="flex flex-wrap border-b border-border-main bg-bg-card p-1.5 rounded-xl self-start gap-1">
         <button
           onClick={() => handleTabChange('pickup')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'pickup' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'pickup' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <Settings className="h-4 w-4" />
@@ -530,7 +530,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('product-settings')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'product-settings' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'product-settings' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <Package className="h-4 w-4" />
@@ -539,7 +539,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('pricelists')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'pricelists' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'pricelists' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <RupeeIcon className="h-4 w-4" />
@@ -548,7 +548,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('attributes')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'attributes' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'attributes' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -557,7 +557,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('profile')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'profile' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'profile' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <User className="h-4 w-4" />
@@ -566,7 +566,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('password')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'password' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            activeTab === 'password' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main hover:bg-bg-main/50'
           }`}
         >
           <Key className="h-4 w-4" />
@@ -575,13 +575,13 @@ export default function VendorSettingsPage() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-semibold">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl text-sm font-semibold flex items-center space-x-2 animate-in fade-in">
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-semibold flex items-center space-x-2 animate-in fade-in">
           <CheckCircle className="h-4.5 w-4.5" />
           <span>{success}</span>
         </div>
@@ -777,7 +777,7 @@ export default function VendorSettingsPage() {
                       >
                         <span className="truncate">{pl.name}</span>
                         {isDefault && (
-                          <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-extrabold uppercase ml-2 flex-shrink-0">
+                          <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-extrabold uppercase ml-2 flex-shrink-0">
                             Default
                           </span>
                         )}
@@ -815,8 +815,8 @@ export default function VendorSettingsPage() {
                         <div className="flex items-center space-x-2">
                           <h3 className="text-base font-extrabold text-text-main">{currentPricelist.name}</h3>
                           {defaultPriceListId === currentPricelist.id ? (
-                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold uppercase flex items-center space-x-1">
-                              <CheckCircle className="h-3 w-3" />
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold uppercase flex items-center space-x-1">
+                              <CheckCircle className="h-3.5 w-3.5" />
                               <span>Default for All Products</span>
                             </span>
                           ) : null}

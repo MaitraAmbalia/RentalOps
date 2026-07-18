@@ -434,7 +434,7 @@ export default function QuotationsPage() {
                       >
                         <option value="">-- Select Product --</option>
                         {products.map(p => (
-                          <option key={p.id} value={p.id}>{p.name} (${Number(p.price || 0).toFixed(2)})</option>
+                          <option key={p.id} value={p.id}>{p.name} (₹{Number(p.price || 0).toFixed(2)})</option>
                         ))}
                       </select>
                     </div>

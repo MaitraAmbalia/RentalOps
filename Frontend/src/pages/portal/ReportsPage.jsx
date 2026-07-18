@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  BarChart2, TrendingUp, ShoppingBag, RefreshCw, Download, Printer 
+  BarChart2, TrendingUp, ShoppingBag, RefreshCw, Download, Printer, ChevronDown
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 
@@ -106,6 +106,26 @@ function LineChart({ data, title, isCurrency }) {
               </g>
             );
           })}
+
+          {/* Y Axis Solid Line */}
+          <line 
+            x1={paddingLeft} 
+            y1={paddingTop} 
+            x2={paddingLeft} 
+            y2={paddingTop + chartHeight} 
+            className="stroke-border-main" 
+            strokeWidth="1.5"
+          />
+
+          {/* X Axis Solid Line */}
+          <line 
+            x1={paddingLeft} 
+            y1={paddingTop + chartHeight} 
+            x2={width - paddingRight} 
+            y2={paddingTop + chartHeight} 
+            className="stroke-border-main" 
+            strokeWidth="1.5"
+          />
 
           {/* X axis labels */}
           {points.map((p, i) => (
@@ -379,22 +399,17 @@ export default function ReportsPage() {
             <p className="text-xs text-text-muted mt-0.5">Comparing sales revenue and order counts over time.</p>
           </div>
 
-          <div className="flex items-center">
+          <div className="relative flex items-center">
             <select
               value={timespan}
               onChange={(e) => setTimespan(e.target.value)}
-              className="bg-bg-main text-text-main text-xs border border-border-main rounded-xl px-4 py-2 font-bold transition-all hover:bg-bg-main/80 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm appearance-none pr-8 relative"
-              style={{
-                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
-                backgroundPosition: 'right 0.65rem center',
-                backgroundSize: '1.1rem',
-                backgroundRepeat: 'no-repeat'
-              }}
+              className="bg-bg-card text-text-main text-xs border border-border-main rounded-xl pl-4 pr-10 py-2.5 font-bold transition-all hover:bg-bg-main/80 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm appearance-none"
             >
               <option value="WEEK">Last 7 Days</option>
-              <option value="MONTH">Last 4 Weeks (Monthly)</option>
+              <option value="MONTH">Last 4 Weeks</option>
               <option value="YEAR">Last 6 Months</option>
             </select>
+            <ChevronDown className="h-4 w-4 text-text-muted absolute right-3 pointer-events-none" />
           </div>
         </div>
 

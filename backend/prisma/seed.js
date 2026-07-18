@@ -136,6 +136,10 @@ async function main() {
             quantityOnHand: 5,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Canon',
+            color: 'Amber',
+            duration: '1M',
+            images: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Sony A7 IV Camera Body',
@@ -144,6 +148,10 @@ async function main() {
             quantityOnHand: 8,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Sony',
+            color: 'Purple',
+            duration: '6M',
+            images: ['https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Blackmagic Pocket Cinema 6K Pro',
@@ -152,6 +160,10 @@ async function main() {
             quantityOnHand: 3,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Sony',
+            color: 'Orange',
+            duration: '1Y',
+            images: ['https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Fujifilm X-T4 Camera',
@@ -160,6 +172,10 @@ async function main() {
             quantityOnHand: 6,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Sony',
+            color: 'Light Blue',
+            duration: '1M',
+            images: ['https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?w=600&auto=format&fit=crop&q=60'],
         },
 
         // --- Laptops ---
@@ -170,6 +186,10 @@ async function main() {
             quantityOnHand: 4,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Apple',
+            color: 'Purple',
+            duration: '1Y',
+            images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Dell XPS 15 (16GB RAM, 512GB SSD)',
@@ -178,6 +198,10 @@ async function main() {
             quantityOnHand: 7,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Dell',
+            color: 'Light Blue',
+            duration: '6M',
+            images: ['https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Lenovo ThinkPad X1 Carbon Gen 10',
@@ -186,6 +210,10 @@ async function main() {
             quantityOnHand: 10,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Dell',
+            color: 'Amber',
+            duration: '1M',
+            images: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'ASUS ROG Zephyrus G14 Gaming Laptop',
@@ -194,6 +222,10 @@ async function main() {
             quantityOnHand: 5,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Apple',
+            color: 'Orange',
+            duration: '6M',
+            images: ['https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600&auto=format&fit=crop&q=60'],
         },
 
         // --- Lighting ---
@@ -204,6 +236,10 @@ async function main() {
             quantityOnHand: 4,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Aputure',
+            color: 'Orange',
+            duration: '1Y',
+            images: ['https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Godox FV150 High Speed Sync LED',
@@ -212,6 +248,10 @@ async function main() {
             quantityOnHand: 12,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Aputure',
+            color: 'Amber',
+            duration: '1M',
+            images: ['https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Nanlite PavoTube II 30C RGB LED Tube',
@@ -220,6 +260,10 @@ async function main() {
             quantityOnHand: 15,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Aputure',
+            color: 'Light Blue',
+            duration: '6M',
+            images: ['https://images.unsplash.com/photo-1506157786151-b8491531f063?w=600&auto=format&fit=crop&q=60'],
         },
 
         // --- Audio ---
@@ -230,6 +274,10 @@ async function main() {
             quantityOnHand: 6,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Rode',
+            color: 'Purple',
+            duration: '1Y',
+            images: ['https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Zoom H6 Handy Recorder',
@@ -238,6 +286,10 @@ async function main() {
             quantityOnHand: 8,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Rode',
+            color: 'Amber',
+            duration: '6M',
+            images: ['https://images.unsplash.com/photo-1615247001958-f4bc92fa6a4a?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Rode Wireless GO II Dual Channel Mic',
@@ -246,6 +298,10 @@ async function main() {
             quantityOnHand: 12,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Rode',
+            color: 'Orange',
+            duration: '1M',
+            images: ['https://images.unsplash.com/photo-1590602846989-e20a967f6f9c?w=600&auto=format&fit=crop&q=60'],
         },
         {
             name: 'Shure SM7B Cardioid Dynamic Vocal Mic',
@@ -254,6 +310,10 @@ async function main() {
             quantityOnHand: 10,
             periodicity: 'DAY',
             isPublished: true,
+            brand: 'Rode',
+            color: 'Light Blue',
+            duration: '1Y',
+            images: ['https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=60'],
         },
     ];
 

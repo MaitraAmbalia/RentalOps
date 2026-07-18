@@ -1,8 +1,8 @@
 import { Filter } from 'lucide-react';
 
 export default function FiltersSidebar({ filters, onFilterChange }) {
-  const categories = ['All', 'Excavators', 'Laptops', 'Projectors', 'Furniture', 'Electronics'];
-  const brands = ['Caterpillar', 'Dell', 'Sony', 'IKEA', 'Apple'];
+  const categories = ['All', 'Cameras', 'Laptops', 'Lighting', 'Audio'];
+  const brands = ['Apple', 'Dell', 'Sony', 'Canon', 'Rode', 'Aputure'];
   const colors = [
     { name: 'Light Blue', value: '#38bdf8' },
     { name: 'Purple', value: '#a855f7' },
@@ -27,7 +27,10 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
 
   return (
     <aside className="w-full md:w-68 flex-shrink-0">
-      <div className="bg-bg-card p-6 rounded-3xl border border-border-main shadow-sm sticky top-24 space-y-6">
+      <div 
+        style={{ maxHeight: 'calc(100vh - 8rem)' }}
+        className="bg-bg-card p-6 rounded-3xl border border-border-main shadow-sm sticky top-24 space-y-6 overflow-y-auto"
+      >
         
         {/* Header */}
         <div className="flex items-center space-x-2 border-b border-border-main pb-3">
@@ -127,8 +130,8 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
               className="w-full h-1 bg-border-main rounded-lg appearance-none cursor-pointer accent-blue-600"
             />
             <div className="flex justify-between items-center text-[10px] text-text-muted font-semibold">
-              <span>$13</span>
-              <span>Max: ${filters.maxPrice || 10000}</span>
+              <span>₹13</span>
+              <span>Max: ₹{filters.maxPrice || 10000}</span>
             </div>
           </div>
         </div>

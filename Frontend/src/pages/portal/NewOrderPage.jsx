@@ -494,7 +494,7 @@ export default function NewOrderPage() {
                       <option value="">Select a rentable product...</option>
                       {products.map(p => (
                         <option key={p.id} value={p.id} disabled={p.currentStatus !== 'AVAILABLE'}>
-                          {p.name} {p.currentStatus !== 'AVAILABLE' ? '(Rented/Maintenance)' : `(Daily: $${p.dailyCharge || p.rentalPrice})`}
+                          {p.name} {p.currentStatus !== 'AVAILABLE' ? '(Rented/Maintenance)' : `(Daily: ₹${p.dailyCharge || p.rentalPrice})`}
                         </option>
                       ))}
                     </select>
@@ -518,7 +518,7 @@ export default function NewOrderPage() {
                   </td>
                   <td className="py-3 px-2">
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-xs text-slate-500">$</span>
+                      <span className="absolute left-3 top-2.5 text-xs text-slate-500">₹</span>
                       <input
                         type="number"
                         min="0"
@@ -532,7 +532,7 @@ export default function NewOrderPage() {
                     {line.taxPercent}% (GST)
                   </td>
                   <td className="py-3 px-2 text-right text-sm text-slate-100 font-bold">
-                    ${parseFloat(line.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{parseFloat(line.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="py-3 text-center">
                     <button
@@ -561,19 +561,19 @@ export default function NewOrderPage() {
         <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 w-full md:w-96 space-y-3 self-stretch md:self-auto">
           <div className="flex justify-between text-sm text-slate-400">
             <span>Untaxed Amount:</span>
-            <span className="text-slate-200">${untaxedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span className="text-slate-200">₹{untaxedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
           <div className="flex justify-between text-sm text-slate-400">
             <span>Taxes ({taxPercent}%):</span>
-            <span className="text-slate-200">${taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span className="text-slate-200">₹{taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
           <div className="flex justify-between border-b border-slate-800 pb-3 text-sm text-slate-400">
             <span>Security Deposit (2x):</span>
-            <span className="text-cyan-400 font-semibold">${securityDepositAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span className="text-cyan-400 font-semibold">₹{securityDepositAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
           <div className="flex justify-between text-lg font-extrabold text-white pt-2">
             <span>Total:</span>
-            <span className="text-primary">${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span className="text-primary">₹{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
         </div>
       </div>

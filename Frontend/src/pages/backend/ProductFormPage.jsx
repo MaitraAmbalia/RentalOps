@@ -6,6 +6,10 @@ import {
 import { productService } from '../../api/productService';
 import { settingsService } from '../../api/settingsService';
 
+const BRAND_OPTIONS = ['Apple', 'Dell', 'Sony', 'Canon', 'Rode', 'Aputure'];
+const COLOR_OPTIONS = ['Light Blue', 'Purple', 'Orange', 'Amber'];
+const DURATION_OPTIONS = ['1M', '6M', '1Y', '2Y', '3Y'];
+
 export default function ProductFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,6 +24,7 @@ export default function ProductFormPage() {
   const [categories, setCategories] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [globalLateFeeEnabled, setGlobalLateFeeEnabled] = useState(true);
+  const [defaultPricelist, setDefaultPricelist] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,7 +43,10 @@ export default function ProductFormPage() {
     paddingTimeMinutes: '0',
     lateFeeRatePerHour: '',
     securityDepositCalcType: 'PERCENT_OF_RENTAL',
-    securityDepositValue: ''
+    securityDepositValue: '',
+    brand: '',
+    color: '',
+    duration: ''
   });
 
   const [imageUrlInput, setImageUrlInput] = useState('');
@@ -87,7 +95,10 @@ export default function ProductFormPage() {
             paddingTimeMinutes: prod.paddingTimeMinutes?.toString() || '0',
             lateFeeRatePerHour: prod.lateFeeRatePerHour?.toString() || '',
             securityDepositCalcType: prod.securityDepositCalcType || 'PERCENT_OF_RENTAL',
-            securityDepositValue: prod.securityDepositValue?.toString() || ''
+            securityDepositValue: prod.securityDepositValue?.toString() || '',
+            brand: prod.brand || '',
+            color: prod.color || '',
+            duration: prod.duration || ''
           });
 
           const initialSelection = {};
@@ -179,6 +190,27 @@ export default function ProductFormPage() {
       return;
     }
 
+    if (formData.type === 'GOODS') {
+      if (!formData.brand) {
+        setError('Brand is compulsory.');
+        setActiveTab('general');
+        setSaveLoading(false);
+        return;
+      }
+      if (!formData.color) {
+        setError('Color is compulsory.');
+        setActiveTab('general');
+        setSaveLoading(false);
+        return;
+      }
+      if (!formData.duration) {
+        setError('Duration is compulsory.');
+        setActiveTab('general');
+        setSaveLoading(false);
+        return;
+      }
+    }
+
     try {
       const selectedAttributesList = Object.keys(selectedAttrValues)
         .filter(attrId => selectedAttrValues[attrId])
@@ -202,7 +234,11 @@ export default function ProductFormPage() {
         paddingTimeMinutes: formData.paddingTimeMinutes ? parseInt(formData.paddingTimeMinutes) : undefined,
         lateFeeRatePerHour: formData.lateFeeRatePerHour ? parseFloat(formData.lateFeeRatePerHour) : undefined,
         securityDepositCalcType: formData.securityDepositCalcType,
-        securityDepositValue: formData.securityDepositValue ? parseFloat(formData.securityDepositValue) : undefined
+        securityDepositValue: formData.securityDepositValue ? parseFloat(formData.securityDepositValue) : undefined,
+
+        brand: formData.type === 'GOODS' ? formData.brand : undefined,
+        color: formData.type === 'GOODS' ? formData.color : undefined,
+        duration: formData.type === 'GOODS' ? formData.duration : undefined
       };
 
       if (isEditMode) {
@@ -340,6 +376,64 @@ export default function ProductFormPage() {
                     ))}
                   </select>
                 </div>
+
+                {formData.type === 'GOODS' && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                        Brand <span className="text-rose-500 font-extrabold">*</span>
+                      </label>
+                      <select
+                        name="brand"
+                        required
+                        value={formData.brand}
+                        onChange={handleInputChange}
+                        className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      >
+                        <option value="">Select Brand...</option>
+                        {BRAND_OPTIONS.map(br => (
+                          <option key={br} value={br}>{br}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                        Color <span className="text-rose-500 font-extrabold">*</span>
+                      </label>
+                      <select
+                        name="color"
+                        required
+                        value={formData.color}
+                        onChange={handleInputChange}
+                        className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      >
+                        <option value="">Select Color...</option>
+                        {COLOR_OPTIONS.map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                        Duration <span className="text-rose-500 font-extrabold">*</span>
+                      </label>
+                      <select
+                        name="duration"
+                        required
+                        value={formData.duration}
+                        onChange={handleInputChange}
+                        className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      >
+                        <option value="">Select Duration...</option>
+                        {DURATION_OPTIONS.map(dur => (
+                          <option key={dur} value={dur}>{dur}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
 
                 <div>
                   <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Product Type</label>

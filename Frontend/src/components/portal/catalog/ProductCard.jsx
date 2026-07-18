@@ -88,7 +88,7 @@ export default function ProductCard({ product }) {
           <div>
             <p className="text-[10px] text-text-muted uppercase font-black tracking-wider mb-0.5">Rental price</p>
             <p className="text-lg font-black text-blue-600">
-              ${Number(displayPrice).toFixed(2)}
+              ₹{Number(displayPrice).toFixed(2)}
               <span className="text-xs font-semibold text-text-muted"> / per {periodicityLabel}</span>
             </p>
           </div>

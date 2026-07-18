@@ -119,9 +119,9 @@ const generateInvoicePDF = (invoice, resStream) => {
     const prodName = line.product?.name || "Rental Charge";
     doc.text(prodName, 50, doc.y, { width: 220 });
     doc.text(Number(line.quantity).toString(), 280, doc.y - 10);
-    doc.text(`$${Number(line.unitPrice).toFixed(2)}`, 340, doc.y - 10);
+    doc.text(`₹${Number(line.unitPrice).toFixed(2)}`, 340, doc.y - 10);
     doc.text(`${invoice.taxPercent}%`, 420, doc.y - 10);
-    doc.text(`$${Number(line.amount).toFixed(2)}`, 480, doc.y - 10);
+    doc.text(`₹${Number(line.amount).toFixed(2)}`, 480, doc.y - 10);
     doc.moveDown(0.5);
   });
 
@@ -129,9 +129,9 @@ const generateInvoicePDF = (invoice, resStream) => {
 
   // Totals Section
   doc.fontSize(10).font("Helvetica-Bold");
-  doc.text(`Subtotal: $${Number(invoice.untaxedAmount).toFixed(2)}`, { align: "right" });
-  doc.text(`Tax Amount: $${Number(invoice.taxAmount).toFixed(2)}`, { align: "right" });
-  doc.fontSize(12).text(`Total Amount: $${Number(invoice.totalAmount).toFixed(2)}`, { align: "right" });
+  doc.text(`Subtotal: ₹${Number(invoice.untaxedAmount).toFixed(2)}`, { align: "right" });
+  doc.text(`Tax Amount: ₹${Number(invoice.taxAmount).toFixed(2)}`, { align: "right" });
+  doc.fontSize(12).text(`Total Amount: ₹${Number(invoice.totalAmount).toFixed(2)}`, { align: "right" });
 
   doc.end();
 };

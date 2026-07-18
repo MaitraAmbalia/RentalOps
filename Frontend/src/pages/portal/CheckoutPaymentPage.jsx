@@ -31,6 +31,8 @@ export default function CheckoutPaymentPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [signatureData, setSignatureData] = useState(null);
+  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
 
   if (!shippingForm) {
     return (
@@ -52,9 +54,6 @@ export default function CheckoutPaymentPage() {
     const diff = Math.abs(e - s);
     return Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
   };
-
-  const [signatureData, setSignatureData] = useState(null);
-  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
 
   const mockAgreementData = {
     orderNumber: `SO_${Date.now().toString().slice(-4)}`,
@@ -318,12 +317,12 @@ export default function CheckoutPaymentPage() {
               ) : !signatureData ? (
                 <>
                   <PenTool className="h-4.5 w-4.5" />
-                  <span>Sign Agreement to Pay ${total?.toFixed(2)}</span>
+                  <span>Sign Agreement to Pay ₹{total?.toFixed(2)}</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck className="h-4.5 w-4.5" />
-                  <span>Pay ${total?.toFixed(2)} Now</span>
+                  <span>Pay ₹{total?.toFixed(2)} Now</span>
                 </>
               )}
             </button>
@@ -336,7 +335,7 @@ export default function CheckoutPaymentPage() {
           <div className="space-y-3.5">
             <div className="flex justify-between">
               <span>Rental Charges:</span>
-              <span className="font-semibold text-slate-800">${subtotal?.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{subtotal?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-start">
               <div>
@@ -345,11 +344,11 @@ export default function CheckoutPaymentPage() {
                   <ShieldCheck className="h-4 w-4 ml-1 text-emerald-500 shrink-0" />
                 </span>
               </div>
-              <span className="font-semibold text-slate-800">${securityDeposit?.toFixed(2)}</span>
+              <span className="font-semibold text-slate-800">₹{securityDeposit?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-slate-900 text-sm border-t border-slate-100 pt-3">
               <span>Grand Total:</span>
-              <span>${total?.toFixed(2)}</span>
+              <span>₹{total?.toFixed(2)}</span>
             </div>
           </div>
         </div>

@@ -177,12 +177,12 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                 <span className="text-slate-500 font-bold block mb-1">Periodicity Price</span>
-                <span className="font-black text-slate-900 text-sm">${basePrice} / {periodicityLabel}</span>
+                <span className="font-black text-slate-900 text-sm">₹{basePrice} / {periodicityLabel}</span>
               </div>
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                 <span className="text-slate-500 font-bold block mb-1">Overdue Penalty</span>
                 <span className="font-black text-slate-900 text-sm">
-                  {product.lateFeeRatePerHour ? `$${product.lateFeeRatePerHour}/Hr` : 'Grace Defaults'}
+                  {product.lateFeeRatePerHour ? `₹${product.lateFeeRatePerHour}/Hr` : 'Grace Defaults'}
                 </span>
               </div>
             </div>
@@ -238,11 +238,11 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-600">Refundable Security Deposit:</span>
-                <span className="font-bold text-slate-900">${securityDeposit * quantity}</span>
+                <span className="font-bold text-slate-900">₹{securityDeposit * quantity}</span>
               </div>
               <div className="flex justify-between text-sm border-t border-slate-100 pt-2 font-bold text-slate-900">
                 <span>Total Payable:</span>
-                <span>${totalPrice}</span>
+                <span>₹{totalPrice}</span>
               </div>
             </div>
 
