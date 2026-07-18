@@ -34,10 +34,9 @@ export default function ProductsPage() {
     try {
       await productService.deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
-      alert('Product deleted successfully.');
     } catch (err) {
       console.error(err);
-      alert('Failed to delete product.');
+      setError('Failed to delete product.');
     }
   };
 
