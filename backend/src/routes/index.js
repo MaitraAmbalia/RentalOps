@@ -15,6 +15,8 @@ const ordersRoutes = require("./orders.routes");
 const paymentsRoutes = require("./payments.routes");
 const quotationsRoutes = require("./quotations.routes");
 const quotationTemplatesRoutes = require("./quotationTemplates.routes");
+const invoicesRoutes = require("./invoices.routes");
+const depositInvoicesRoutes = require("./depositInvoices.routes");
 
 router.use("/auth", authRoutes);
 router.use("/categories", categoriesRoutes);
@@ -30,5 +32,7 @@ router.use("/orders", ordersRoutes);
 router.use("/payments", paymentsRoutes);
 router.use("/quotations", quotationsRoutes);
 router.use("/quotation-templates", quotationTemplatesRoutes);
+router.use("/invoices", invoicesRoutes);
+router.use("/deposit-invoices", depositInvoicesRoutes);
 
 module.exports = router;
