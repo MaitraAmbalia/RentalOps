@@ -43,6 +43,9 @@ export const ENDPOINTS = {
   CATEGORIES: {
     BASE: '/categories',
   },
+  CART: {
+    APPLY_COUPON: '/cart/apply-coupon',
+  },
   PAYMENTS: {
     CREATE_RAZORPAY_ORDER: (id) => `/orders/${id}/payments/razorpay-order`,
     VERIFY_PAYMENT: '/payments/verify',

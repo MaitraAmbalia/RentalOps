@@ -8,10 +8,9 @@ import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function PortalHeader({ clientProfile }) {
-  const { cart, wishlist } = useCart();
+  const { cart } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchVal, setSearchVal] = useState('');
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,15 +19,7 @@ export default function PortalHeader({ clientProfile }) {
     navigate('/');
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchVal.trim()) {
-      navigate(`/dashboard?search=${encodeURIComponent(searchVal.trim())}`);
-    }
-  };
-
   const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
-  const wishlistCount = wishlist.length;
 
   const initials = clientProfile
     ? `${clientProfile.firstName?.[0] || ''}${clientProfile.lastName?.[0] || ''}`.toUpperCase() || 'C'
@@ -58,19 +49,7 @@ export default function PortalHeader({ clientProfile }) {
             <span className="hover:text-primary transition-colors cursor-pointer">Contact</span>
           </nav>
 
-          {/* Search */}
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md mx-4 relative hidden sm:block">
-            <input
-              type="text"
-              placeholder="Search rental gear..."
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              className="w-full bg-bg-main text-text-main placeholder-text-muted text-xs border border-border-main rounded-xl pl-4 pr-10 py-2 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all"
-            />
-            <button type="submit" className="absolute right-3 top-2.5 text-text-muted hover:text-primary">
-              <Search className="h-4 w-4" />
-            </button>
-          </form>
+
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-2 shrink-0">
@@ -84,19 +63,7 @@ export default function PortalHeader({ clientProfile }) {
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
-            {/* Wishlist */}
-            <button
-              onClick={() => navigate('/dashboard?tab=wishlist')}
-              className="p-2 text-text-muted hover:text-rose-500 bg-bg-main rounded-xl border border-border-main hover:bg-bg-card transition-colors relative"
-              title="Wishlist"
-            >
-              <Heart className="h-4 w-4" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black rounded-full h-4 w-4 flex items-center justify-center border-2 border-bg-card">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
+
 
             {/* Cart */}
             <Link

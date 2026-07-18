@@ -48,7 +48,7 @@ exports.removeItem = async (req, res, next) => {
 
 exports.applyCoupon = async (req, res, next) => {
   try {
-    const result = await cartService.applyCouponToCart(req.user.id, req.body.code);
+    const result = await cartService.applyCouponToCart(req.user.id, req.body.code, req.body.cartItems);
     res.status(200).json(result);
   } catch (error) {
     next(error);

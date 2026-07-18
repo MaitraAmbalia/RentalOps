@@ -15,6 +15,8 @@ export default function CheckoutPaymentPage() {
     shippingForm,
     billingSame,
     subtotal,
+    discountAmount = 0,
+    couponCode,
     securityDeposit,
     total
   } = location.state || {};
@@ -42,6 +44,13 @@ export default function CheckoutPaymentPage() {
     setPaymentForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const calculateDays = (start, end) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    const diff = Math.abs(e - s);
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
+  };
+
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,14 +61,22 @@ export default function CheckoutPaymentPage() {
 
       for (const item of cart) {
         // 1. Create Order
-        const orderRes = await orderService.createOrder({
+        const orderPayload = {
           productId: item.product.id,
           quantity: item.qty,
           fulfillmentType: deliveryMethod,
           orderSource: 'ONLINE',
           rentalStartDate: new Date(item.rentalStartDate),
-          scheduledReturnDate: new Date(item.scheduledReturnDate)
-        });
+          scheduledReturnDate: new Date(item.scheduledReturnDate),
+          untaxedAmount: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
+          totalAmount: ((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)) + (item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2)),
+          securityDepositAmount: item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2),
+        };
+        if (couponCode) {
+          orderPayload.couponCode = couponCode;
+        }
+
+        const orderRes = await orderService.createOrder(orderPayload);
 
         const orderId = orderRes.id;
         const orderNo = orderRes.orderNumber || `SO_GEN_${Date.now().toString().slice(-4)}`;

@@ -31,6 +31,7 @@ const saveForLaterSchema = z.object({
 
 const applyCouponSchema = z.object({
   code: z.string().min(3),
+  cartItems: z.array(z.any()).optional(),
 });
 
 const wishlistSchema = z.object({

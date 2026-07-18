@@ -11,7 +11,7 @@ const orderItemSchema = z.object({
 });
 
 const orderSchema = z.object({
-  clientId: z.string().uuid(),
+  clientId: z.string().uuid().optional(),
   fulfillmentType: z.enum(['COLLECT_FROM_STORE', 'HOME_DELIVERY']),
   orderSource: z.enum(['ONLINE', 'OFFLINE']),
   rentalStartDate: z.string().datetime(),
@@ -21,6 +21,7 @@ const orderSchema = z.object({
   taxAmount: z.number().min(0).default(0),
   totalAmount: z.number().min(0),
   securityDepositAmount: z.number().min(0).default(0),
+  couponCode: z.string().optional(),
   items: z.array(orderItemSchema).min(1, 'Order must contain at least one item'),
 });
 

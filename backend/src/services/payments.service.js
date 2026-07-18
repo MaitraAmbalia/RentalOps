@@ -2,6 +2,13 @@ const paymentRepo = require('../repositories/payment.repository');
 const orderRepo = require('../repositories/order.repository');
 const ApiError = require('../utils/apiError');
 const crypto = require('crypto');
+const Razorpay = require('razorpay');
+
+// 1. Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+});
 
 exports.initiatePayment = async (vendorId, orderId) => {
   const order = await orderRepo.findById(orderId, vendorId);

@@ -39,6 +39,17 @@ async function main() {
         },
     });
 
+    console.log('Seeding Coupons...');
+    await prisma.coupon.create({
+        data: {
+            vendorId: vendor.id,
+            code: 'RENT10',
+            discountPercent: 10,
+            isActive: true,
+            usageLimit: 100
+        }
+    });
+
     // 3. Seed Client
     console.log('Seeding Client...');
     const client = await prisma.client.create({
