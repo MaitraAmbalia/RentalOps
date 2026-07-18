@@ -1,47 +1,138 @@
 import { Filter } from 'lucide-react';
 
 export default function FiltersSidebar({ filters, onFilterChange }) {
-  const categories = ['All', 'Heavy Machinery', 'Electronics', 'Vehicles', 'Tools'];
+  const categories = ['All', 'Excavators', 'Laptops', 'Projectors', 'Furniture', 'Electronics'];
+  const brands = ['Caterpillar', 'Dell', 'Sony', 'IKEA', 'Apple'];
+  const colors = [
+    { name: 'Light Blue', value: '#38bdf8' },
+    { name: 'Purple', value: '#a855f7' },
+    { name: 'Orange', value: '#f97316' },
+    { name: 'Amber', value: '#f59e0b' }
+  ];
+
+  const handleBrandChange = (brand, checked) => {
+    const activeBrands = filters.brands ? [...filters.brands] : [];
+    if (checked) {
+      activeBrands.push(brand);
+    } else {
+      const idx = activeBrands.indexOf(brand);
+      if (idx > -1) activeBrands.splice(idx, 1);
+    }
+    onFilterChange('brands', activeBrands);
+  };
+
+  const handleColorChange = (colorName) => {
+    onFilterChange('color', filters.color === colorName ? '' : colorName);
+  };
 
   return (
-    <aside className="w-full md:w-64 flex-shrink-0">
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm sticky top-24">
-        <div className="flex items-center space-x-2 mb-6">
-          <Filter className="h-5 w-5 text-slate-500" />
-          <h2 className="text-lg font-bold text-slate-900">Filters</h2>
+    <aside className="w-full md:w-68 flex-shrink-0">
+      <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm sticky top-24 space-y-6">
+        
+        {/* Header */}
+        <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+          <Filter className="h-4.5 w-4.5 text-slate-500" />
+          <h2 className="text-base font-extrabold text-slate-900">Filters</h2>
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-slate-900 mb-3">Category</h3>
-          <div className="space-y-2">
+        {/* Category Radio Group */}
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Category</h3>
+          <div className="space-y-2 text-sm text-slate-700">
             {categories.map(cat => (
               <label key={cat} className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   name="category"
-                  checked={filters.category === cat}
+                  checked={(filters.category || 'All') === cat}
                   onChange={() => onFilterChange('category', cat)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-slate-300"
+                  className="h-4.5 w-4.5 text-blue-600 focus:ring-blue-500 border-slate-350"
                 />
-                <span className="text-sm text-slate-700">{cat}</span>
+                <span className="font-medium text-slate-700">{cat}</span>
               </label>
             ))}
           </div>
         </div>
 
+        {/* Brand Checkbox List */}
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 mb-3">Max Daily Price</h3>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-slate-500">$</span>
-            <input
-              type="number"
-              placeholder="Any"
-              value={filters.maxPrice}
-              onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Brand</h3>
+          <div className="space-y-2 text-sm text-slate-700">
+            {brands.map(brand => {
+              const isChecked = filters.brands?.includes(brand) || false;
+              return (
+                <label key={brand} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => handleBrandChange(brand, e.target.checked)}
+                    className="h-4.5 w-4.5 rounded text-blue-600 focus:ring-blue-500 border-slate-350"
+                  />
+                  <span className="font-medium text-slate-700">{brand}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
+
+        {/* Color Dot Palette */}
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Color</h3>
+          <div className="flex flex-wrap gap-2">
+            {colors.map(col => {
+              const isSelected = filters.color === col.name;
+              return (
+                <button
+                  key={col.name}
+                  type="button"
+                  onClick={() => handleColorChange(col.name)}
+                  style={{ backgroundColor: col.value }}
+                  className={`w-6 h-6 rounded-full border-2 transition-all transform hover:scale-110 ${
+                    isSelected ? 'border-slate-900 ring-2 ring-slate-400/50 scale-105' : 'border-transparent hover:border-slate-300'
+                  }`}
+                  title={col.name}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Duration Select Dropdown */}
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Duration</h3>
+          <select
+            value={filters.duration || ''}
+            onChange={(e) => onFilterChange('duration', e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 cursor-pointer"
+          >
+            <option value="">All Duration</option>
+            <option value="1M">1 Month</option>
+            <option value="6M">6 Months</option>
+            <option value="1Y">1 Year</option>
+            <option value="2Y">2 Years</option>
+            <option value="3Y">3 Years</option>
+          </select>
+        </div>
+
+        {/* Price Slider Range */}
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Price Range</h3>
+          <div className="space-y-2">
+            <input
+              type="range"
+              min="13"
+              max="10000"
+              value={filters.maxPrice || 10000}
+              onChange={(e) => onFilterChange('maxPrice', e.target.value)}
+              className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <div className="flex justify-between items-center text-[10px] text-slate-500 font-semibold">
+              <span>$13</span>
+              <span>Max: ${filters.maxPrice || 10000}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </aside>
   );
