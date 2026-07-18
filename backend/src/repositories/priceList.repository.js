@@ -52,6 +52,12 @@ const deleteRule = async (ruleId) => {
   });
 };
 
+const deletePriceList = async (id) => {
+  return prisma.priceList.delete({
+    where: { id }
+  });
+};
+
 module.exports = {
   create,
   findAll,
@@ -59,4 +65,5 @@ module.exports = {
   update,
   createRule,
   deleteRule,
+  deletePriceList,
 };

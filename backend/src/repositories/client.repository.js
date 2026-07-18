@@ -19,9 +19,22 @@ const update = async (id, data) => {
   });
 };
 
+const findAll = async () => {
+  return prisma.client.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+    }
+  });
+};
+
 module.exports = {
   create,
   findByEmail,
   findById,
   update,
+  findAll,
 };

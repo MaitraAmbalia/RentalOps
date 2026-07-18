@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { CreditCard, ShieldCheck, ArrowLeft, RefreshCw } from 'lucide-react';
+import { CreditCard, ShieldCheck, ArrowLeft, RefreshCw, FileText, CheckCircle, PenTool } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { paymentService } from '../../api/paymentService';
+import { agreementService } from '../../api/agreementService';
+import SignaturePadModal from '../../components/common/SignaturePadModal';
 
 export default function CheckoutPaymentPage() {
   const location = useLocation();
@@ -51,8 +53,38 @@ export default function CheckoutPaymentPage() {
     return Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
   };
 
+  const [signatureData, setSignatureData] = useState(null);
+  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
+
+  const mockAgreementData = {
+    orderNumber: `SO_${Date.now().toString().slice(-4)}`,
+    vendorName: 'RentHub Direct Operations',
+    clientName: shippingForm.fullName || 'Valued Client',
+    rentalPeriod: cart.length > 0 ? `${new Date(cart[0].rentalStartDate).toLocaleDateString()} to ${new Date(cart[0].scheduledReturnDate).toLocaleDateString()}` : 'Standard Duration',
+    items: cart.map(c => ({
+      productName: c.product.name,
+      quantity: c.qty,
+      totalPrice: (c.product.rentalPrice || c.product.dailyCharge || 0) * c.qty
+    })),
+    financialSummary: {
+      totalRentalAmount: subtotal,
+      securityDepositAmount: securityDeposit
+    },
+    clauses: [
+      { title: '1. Custody & Maintenance', text: 'Lessee agrees to use equipment for intended purposes only and return all enclosed accessories intact.' },
+      { title: '2. Security Deposit Guarantee', text: `A refundable security deposit of ₹${(securityDeposit || 0).toFixed(2)} is held. Penalties for broken/missing parts will be deducted.` },
+      { title: '3. Timely Return Policy', text: 'Equipment must be handed over by scheduled return date. Overdue charges apply daily.' },
+      { title: '4. Liability Disclaimer', text: 'RentHub holds no liability for damages or delays caused during operations.' }
+    ]
+  };
+
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+    if (!signatureData) {
+      alert('Please review and digitally sign the Rental Agreement before placing order.');
+      setAgreementModalOpen(true);
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -77,9 +109,15 @@ export default function CheckoutPaymentPage() {
         }
 
         const orderRes = await orderService.createOrder(orderPayload);
-
         const orderId = orderRes.id;
         const orderNo = orderRes.orderNumber || `SO_GEN_${Date.now().toString().slice(-4)}`;
+
+        // Attach E-Signature to Order
+        try {
+          await agreementService.signAgreement(orderId, signatureData);
+        } catch (signErr) {
+          console.warn("Signature attachment warning:", signErr);
+        }
 
         // 2. Razorpay Order details
         const payRes = await paymentService.createRazorpayOrder(orderId);
@@ -202,6 +240,47 @@ export default function CheckoutPaymentPage() {
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h2 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+              <FileText className="h-5 w-5 text-blue-600" />
+              <span>Rental Terms & E-Signature</span>
+            </h2>
+
+            {signatureData ? (
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-6 w-6 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-extrabold text-slate-900 block text-xs">Agreement Digitally Signed</span>
+                    <span className="text-[10px] text-slate-500">Legal contract bound to current session.</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAgreementModalOpen(true)}
+                  className="px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-bold rounded-xl shadow-sm"
+                >
+                  View Signed Contract
+                </button>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="font-bold text-slate-800 block text-xs">E-Sign Required Before Payment</span>
+                  <span className="text-[10px] text-slate-500">Review dynamic rental terms, deposit policy, & equipment manifest.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAgreementModalOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow flex items-center space-x-1.5"
+                >
+                  <PenTool className="h-4 w-4" />
+                  <span>Review & Sign Agreement</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h2 className="text-base font-extrabold text-slate-900">Billing Address</h2>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-150 space-y-2 text-slate-500">
               <p><span className="font-bold text-slate-700">Billing Name:</span> {shippingForm.fullName}</p>
@@ -216,7 +295,7 @@ export default function CheckoutPaymentPage() {
             <button 
               type="button"
               onClick={() => navigate('/checkout/address')}
-              className="text-xs font-bold text-slate-455 hover:text-slate-700 flex items-center space-x-1"
+              className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Address</span>
@@ -225,12 +304,21 @@ export default function CheckoutPaymentPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center space-x-2 transition-all shadow-md"
+              className={`px-6 py-3 rounded-xl font-bold flex items-center space-x-2 transition-all shadow-md ${
+                !signatureData
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/20'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'
+              }`}
             >
               {loading ? (
                 <>
                   <RefreshCw className="h-4.5 w-4.5 animate-spin" />
                   <span>Processing Payment...</span>
+                </>
+              ) : !signatureData ? (
+                <>
+                  <PenTool className="h-4.5 w-4.5" />
+                  <span>Sign Agreement to Pay ${total?.toFixed(2)}</span>
                 </>
               ) : (
                 <>
@@ -266,6 +354,20 @@ export default function CheckoutPaymentPage() {
           </div>
         </div>
       </div>
+
+      <SignaturePadModal
+        isOpen={agreementModalOpen}
+        onClose={() => setAgreementModalOpen(false)}
+        agreementData={{
+          ...mockAgreementData,
+          signatureData
+        }}
+        readOnly={!!signatureData}
+        onSignSuccess={(sigUrl) => {
+          setSignatureData(sigUrl);
+          setAgreementModalOpen(false);
+        }}
+      />
     </div>
   );
 }

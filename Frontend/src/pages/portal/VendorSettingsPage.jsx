@@ -94,6 +94,7 @@ export default function VendorSettingsPage() {
   // 5. Tab: Pricelist State
   const [pricelists, setPricelists] = useState([]);
   const [selectedPricelistId, setSelectedPricelistId] = useState('');
+  const [defaultPriceListId, setDefaultPriceListId] = useState('');
   const [newPricelistName, setNewPricelistName] = useState('');
   const [products, setProducts] = useState([]);
   
@@ -171,10 +172,16 @@ export default function VendorSettingsPage() {
           });
         }
       } else if (activeTab === 'pricelists') {
-        const list = await settingsService.getPricelists();
+        const [list, policy] = await Promise.all([
+          settingsService.getPricelists().catch(() => []),
+          settingsService.getSettings().catch(() => null)
+        ]);
         setPricelists(list);
+        if (policy?.defaultPriceListId) {
+          setDefaultPriceListId(policy.defaultPriceListId);
+        }
         if (list.length > 0 && !selectedPricelistId) {
-          setSelectedPricelistId(list[0].id);
+          setSelectedPricelistId(policy?.defaultPriceListId || list[0].id);
         }
       }
     } catch (err) {
@@ -424,6 +431,65 @@ export default function VendorSettingsPage() {
     } catch (err) {
       console.error(err);
       setError('Failed to delete pricing rule.');
+    }
+  };
+
+  const handleSetDefaultPricelist = async (targetId) => {
+    setSaveLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const policy = await settingsService.getSettings();
+      await settingsService.updateSettings({
+        lateFeeEnabled: policy.lateFeeEnabled ?? true,
+        defaultLateFeeRatePerHour: parseFloat(policy.defaultLateFeeRatePerHour || 0),
+        lateFeeGracePeriodMinutes: parseInt(policy.lateFeeGracePeriodMinutes || 0),
+        defaultDepositCalcType: policy.defaultDepositCalcType || 'PERCENT_OF_RENTAL',
+        defaultDepositValue: parseFloat(policy.defaultDepositValue || 100),
+        defaultTaxPercent: parseFloat(policy.defaultTaxPercent || 0),
+        defaultPriceListId: targetId
+      });
+      setDefaultPriceListId(targetId);
+      setSuccess('Default price list set successfully! This price list will apply to all products by default.');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to set default price list.');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeletePricelist = async (targetId) => {
+    const listToDelete = pricelists.find(pl => pl.id === targetId);
+    if (!listToDelete) return;
+
+    if (!confirm(`Are you sure you want to delete "${listToDelete.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setSaveLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      await settingsService.deletePricelist(targetId);
+      
+      const updatedList = pricelists.filter(pl => pl.id !== targetId);
+      setPricelists(updatedList);
+
+      if (defaultPriceListId === targetId) {
+        setDefaultPriceListId('');
+      }
+
+      if (selectedPricelistId === targetId) {
+        setSelectedPricelistId(updatedList.length > 0 ? updatedList[0].id : '');
+      }
+
+      setSuccess(`Price list "${listToDelete.name}" deleted successfully.`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to delete price list.');
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -697,19 +763,27 @@ export default function VendorSettingsPage() {
               <div className="xl:col-span-1 space-y-4">
                 <h3 className="text-base font-bold text-text-main uppercase tracking-wider text-xs border-b border-border-main pb-2">Pricelists</h3>
                 <div className="space-y-1.5">
-                  {pricelists.map(pl => (
-                    <button
-                      key={pl.id}
-                      onClick={() => setSelectedPricelistId(pl.id)}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl font-semibold transition-all border ${
-                        selectedPricelistId === pl.id 
-                          ? 'bg-bg-main border-primary text-text-main font-bold' 
-                          : 'bg-transparent border-transparent hover:bg-bg-main/60 text-text-muted hover:text-text-main'
-                      }`}
-                    >
-                      {pl.name}
-                    </button>
-                  ))}
+                  {pricelists.map(pl => {
+                    const isDefault = defaultPriceListId === pl.id;
+                    return (
+                      <button
+                        key={pl.id}
+                        onClick={() => setSelectedPricelistId(pl.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-xl font-semibold transition-all border flex items-center justify-between ${
+                          selectedPricelistId === pl.id 
+                            ? 'bg-bg-main border-primary text-text-main font-bold' 
+                            : 'bg-transparent border-transparent hover:bg-bg-main/60 text-text-muted hover:text-text-main'
+                        }`}
+                      >
+                        <span className="truncate">{pl.name}</span>
+                        {isDefault && (
+                          <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-extrabold uppercase ml-2 flex-shrink-0">
+                            Default
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <form onSubmit={handleCreatePricelist} className="pt-4 border-t border-border-main space-y-3">
@@ -736,9 +810,41 @@ export default function VendorSettingsPage() {
               <div className="xl:col-span-2 space-y-4">
                 {currentPricelist ? (
                   <>
-                    <div className="border-b border-border-main pb-2 flex justify-between items-center">
-                      <h3 className="text-base font-extrabold text-text-main">{currentPricelist.name} Rules</h3>
-                      <span className="text-xs text-text-muted font-semibold">Active Rules Count: {currentPricelist.rules?.length || 0}</span>
+                    <div className="border-b border-border-main pb-3 flex flex-wrap justify-between items-center gap-2">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-base font-extrabold text-text-main">{currentPricelist.name}</h3>
+                          {defaultPriceListId === currentPricelist.id ? (
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold uppercase flex items-center space-x-1">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>Default for All Products</span>
+                            </span>
+                          ) : null}
+                        </div>
+                        <span className="text-xs text-text-muted font-semibold block mt-0.5">Active Rules: {currentPricelist.rules?.length || 0}</span>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        {defaultPriceListId !== currentPricelist.id && (
+                          <button
+                            onClick={() => handleSetDefaultPricelist(currentPricelist.id)}
+                            disabled={saveLoading}
+                            className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                          >
+                            <CheckCircle className="h-3.5 w-3.5" />
+                            <span>Set as Default Price List</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeletePricelist(currentPricelist.id)}
+                          disabled={saveLoading}
+                          className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                          title="Delete this Price List"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete Price List</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="overflow-x-auto bg-bg-main/20 border border-border-main rounded-2xl p-4">

@@ -45,3 +45,27 @@ exports.updateStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+const agreementService = require('../services/agreementService');
+
+exports.getAgreement = async (req, res, next) => {
+  try {
+    const agreement = await agreementService.generateOrderAgreement(req.params.id);
+    res.status(200).json({ success: true, agreement });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.signAgreement = async (req, res, next) => {
+  try {
+    const { signatureData } = req.body;
+    if (!signatureData) {
+      return res.status(400).json({ success: false, message: 'Signature payload is required.' });
+    }
+    const order = await agreementService.recordAgreementSignature(req.params.id, signatureData, req.ip);
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    next(error);
+  }
+};

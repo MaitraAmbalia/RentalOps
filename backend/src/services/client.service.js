@@ -43,8 +43,13 @@ const changePassword = async (clientId, { oldPassword, newPassword }) => {
   return { success: true };
 };
 
+const getAll = async () => {
+  return clientRepository.findAll();
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   changePassword,
+  getAll,
 };

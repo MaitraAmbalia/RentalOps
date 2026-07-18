@@ -20,6 +20,8 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    const targetUrl = searchParams.get('redirectTo');
+
     try {
       let data;
       if (role === 'CLIENT') {
@@ -28,14 +30,14 @@ export default function LoginPage() {
           localStorage.setItem('token', data.accessToken);
           localStorage.setItem('role', 'CLIENT');
         }
-        navigate('/dashboard');
+        navigate(targetUrl || '/dashboard');
       } else if (role === 'VENDOR') {
         data = await authService.vendorLogin(email, password);
         if (data && data.accessToken) {
           localStorage.setItem('token', data.accessToken);
           localStorage.setItem('role', 'VENDOR');
         }
-        navigate('/vendor/dashboard');
+        navigate(targetUrl || '/vendor/dashboard');
       } else {
         // For courier/delivery login, it expects phone and password
         data = await authService.partnerLogin(email, password);
@@ -46,7 +48,7 @@ export default function LoginPage() {
             localStorage.setItem('user', JSON.stringify({ ...data.deliveryPartner, role: 'DELIVERY' }));
           }
         }
-        navigate('/delivery/dashboard');
+        navigate(targetUrl || '/delivery/dashboard');
       }
     } catch (err) {
       console.error(err);

@@ -58,10 +58,27 @@ exports.updateProduct = async (vendorId, productId, data) => {
   const product = await productRepo.findById(productId, vendorId);
   if (!product) throw new ApiError(404, 'Product not found');
   
-  // For safety, simple updates are applied to top-level fields here.
-  // Managing nested variants/attributes after creation requires complex diffing or explicit endpoints.
   const { attributes, variants, ...productData } = data;
-  return await productRepo.update(productId, productData);
+
+  return await prisma.$transaction(async (tx) => {
+    // 1. Update basic product fields
+    const updated = await tx.product.update({
+      where: { id: productId },
+      data: productData
+    });
+
+    // 2. Sync attributes if provided
+    if (attributes !== undefined) {
+      await tx.productAttribute.deleteMany({ where: { productId } });
+      if (Array.isArray(attributes) && attributes.length > 0) {
+        await tx.productAttribute.createMany({
+          data: attributes.map(a => ({ productId, attributeId: a.attributeId }))
+        });
+      }
+    }
+
+    return updated;
+  });
 };
 
 exports.deleteProduct = async (vendorId, productId) => {

@@ -19,7 +19,7 @@ const quotationSchema = z.object({
 });
 
 const quotationStatusUpdateSchema = z.object({
-  status: z.enum(['DRAFT', 'SENT', 'CONFIRMED']),
+  status: z.enum(['DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED']),
 });
 
 module.exports = { quotationSchema, quotationStatusUpdateSchema };

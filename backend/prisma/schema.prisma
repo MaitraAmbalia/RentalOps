@@ -66,6 +66,7 @@ enum QuotationStatus {
   DRAFT
   SENT
   CONFIRMED
+  CANCELLED
 }
 
 enum OrderStatus {
@@ -373,6 +374,7 @@ model Product {
   orderItems     OrderItem[]
   cartItems      CartItem[]
   wishlistItems  WishlistItem[]
+  quotationTemplateLines QuotationTemplateLine[]
 }
 
 // ─────────────────────────────────────────────
@@ -506,6 +508,7 @@ model QuotationTemplateLine {
   templateId String
   template   QuotationTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   productId  String
+  product    Product           @relation(fields: [productId], references: [id])
   quantity   Int               @default(1)
   unit       String?
 }
@@ -580,6 +583,13 @@ model Order {
   status                OrderStatus     @default(PROCESSING)
   invoiceStatus         InvoiceStatusOnOrder @default(NOTHING_TO_INVOICE)
   note                  String?
+
+  // E-Signature & Rental Agreement
+  termsAccepted         Boolean         @default(false)
+  signatureData         String?                         // Base64 PNG image signature or e-sign ID
+  signedAt              DateTime?
+  signedIp              String?
+
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 

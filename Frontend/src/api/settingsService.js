@@ -150,5 +150,15 @@ export const settingsService = {
       console.error("Failed to delete price rule:", error);
       throw error;
     }
+  },
+
+  deletePricelist: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/pricelists/${id}`);
+      return response;
+    } catch (error) {
+      console.error("Failed to delete pricelist:", error);
+      throw error;
+    }
   }
 };

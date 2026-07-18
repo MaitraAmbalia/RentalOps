@@ -2,6 +2,7 @@ const { prisma } = require('../config/db');
 
 exports.findAllByVendor = (vendorId) => prisma.product.findMany({ 
   where: { vendorId },
+  orderBy: { createdAt: 'desc' },
   include: { category: true, attributes: { include: { attribute: true } } }
 });
 
@@ -15,6 +16,7 @@ exports.findAllPublished = (filters = {}) => {
   }
   return prisma.product.findMany({
     where,
+    orderBy: { createdAt: 'desc' },
     include: { category: true, attributes: { include: { attribute: true } } }
   });
 };

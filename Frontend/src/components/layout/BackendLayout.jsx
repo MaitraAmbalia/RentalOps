@@ -35,16 +35,18 @@ export default function BackendLayout() {
     localStorage.setItem('sidebar-collapsed', isCollapsed);
   }, [isCollapsed]);
 
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
     if (!token || (role && role !== 'VENDOR')) {
-      navigate('/login?role=vendor');
+      navigate(`/login?role=vendor&redirectTo=${encodeURIComponent(location.pathname)}`);
       return;
     }
     fetchProfile();
     fetchNotifications();
-  }, [location.pathname]);
+  }, [location.pathname, token, role]);
+
 
   // Auto-expand config section when on a config route
   useEffect(() => {
@@ -96,7 +98,8 @@ export default function BackendLayout() {
   const isAdmin = vendorProfile.role === 'ADMIN';
   const menuItems = [
     { name: 'Dashboard Stats', path: '/vendor/dashboard', icon: LayoutDashboard },
-    { name: 'Quotations & Orders', path: '/vendor/orders', icon: ShoppingBag },
+    { name: 'Quotations Proposal', path: '/vendor/quotations', icon: FileText },
+    { name: 'Orders & Rentals', path: '/vendor/orders', icon: ShoppingBag },
     { name: 'Schedule (Calendar)', path: '/vendor/schedule', icon: Calendar },
     { name: 'Fulfillment List', path: '/vendor/workflows', icon: Truck },
     { name: 'Rental Products', path: '/vendor/products', icon: Package },
@@ -111,6 +114,10 @@ export default function BackendLayout() {
   ].filter(item => !item.adminOnly || isAdmin);
 
   const isConfigActive = configItems.some(item => location.pathname.startsWith(item.path));
+
+  if (!token || (role && role !== 'VENDOR')) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex bg-bg-main text-text-main font-sans transition-colors duration-200">

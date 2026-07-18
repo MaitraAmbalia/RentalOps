@@ -52,15 +52,20 @@ export default function ProductFormPage() {
     setLoading(true);
     setError('');
     try {
-      const [cats, attrs, policy] = await Promise.all([
+      const [cats, attrs, policy, lists] = await Promise.all([
         settingsService.getCategories().catch(() => []),
         settingsService.getAttributes().catch(() => []),
-        settingsService.getSettings().catch(() => ({ lateFeeEnabled: true }))
+        settingsService.getSettings().catch(() => ({ lateFeeEnabled: true })),
+        settingsService.getPricelists().catch(() => [])
       ]);
 
       setCategories(Array.isArray(cats) ? cats : []);
       setAttributes(Array.isArray(attrs) ? attrs : []);
       setGlobalLateFeeEnabled(policy.lateFeeEnabled ?? true);
+
+      const priceListArray = Array.isArray(lists) ? lists : [];
+      const matched = priceListArray.find(pl => pl.id === policy?.defaultPriceListId) || priceListArray[0];
+      setDefaultPricelist(matched || null);
 
       if (isEditMode) {
         const prod = await productService.getProductById(id);
@@ -138,23 +143,58 @@ export default function ProductFormPage() {
     setError('');
     setSuccess('');
 
+    // Compulsory field validations
     if (!formData.name.trim()) {
-      setError('Product name is required.');
+      setError('Product Name is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (!formData.categoryId) {
+      setError('Category selection is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (!formData.rentalPrice || parseFloat(formData.rentalPrice) <= 0) {
+      setError('Base Sales/Rental Price is compulsory and must be greater than 0.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (formData.quantityOnHand === '' || parseInt(formData.quantityOnHand) < 0) {
+      setError('Quantity on Hand is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (formData.type === 'GOODS' && (formData.securityDepositValue === '' || parseFloat(formData.securityDepositValue) < 0)) {
+      setError('Security Deposit Value is compulsory for rentable items.');
+      setActiveTab('sales');
       setSaveLoading(false);
       return;
     }
 
     try {
+      const selectedAttributesList = Object.keys(selectedAttrValues)
+        .filter(attrId => selectedAttrValues[attrId])
+        .map(attrId => ({ attributeId: attrId }));
+
       const payload = {
-        name: formData.name,
-        categoryId: formData.categoryId || undefined,
-        productDefinition: formData.productDefinition || undefined,
+        name: formData.name.trim(),
+        categoryId: formData.categoryId,
+        productDefinition: formData.productDefinition ? formData.productDefinition.trim() : undefined,
         type: formData.type,
         images: formData.images,
         isPublished: formData.isPublished,
-        rentalPrice: parseFloat(formData.rentalPrice || 0),
+        rentalPrice: parseFloat(formData.rentalPrice),
         costPrice: parseFloat(formData.costPrice || 0),
-        quantityOnHand: parseInt(formData.quantityOnHand || 0),
+        quantityOnHand: parseInt(formData.quantityOnHand),
+        attributes: selectedAttributesList,
         
         periodicity: formData.periodicity,
         pickupTime: formData.pickupTime || undefined,
@@ -269,7 +309,9 @@ export default function ProductFormPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Product Name</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                    Product Name <span className="text-rose-500 font-extrabold">*</span>
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -282,9 +324,12 @@ export default function ProductFormPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Category</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                    Category <span className="text-rose-500 font-extrabold">*</span>
+                  </label>
                   <select
                     name="categoryId"
+                    required
                     value={formData.categoryId}
                     onChange={handleInputChange}
                     className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
@@ -322,10 +367,13 @@ export default function ProductFormPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Quantity on Hand</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                      Quantity on Hand <span className="text-rose-500 font-extrabold">*</span>
+                    </label>
                     <input
                       type="number"
                       name="quantityOnHand"
+                      required
                       value={formData.quantityOnHand}
                       onChange={handleInputChange}
                       className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
@@ -344,7 +392,9 @@ export default function ProductFormPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Base Sales Price (₹)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                    Base Sales / Daily Rental Price (₹) <span className="text-rose-500 font-extrabold">*</span>
+                  </label>
                   <input
                     type="number"
                     name="rentalPrice"
@@ -353,6 +403,25 @@ export default function ProductFormPage() {
                     onChange={handleInputChange}
                     className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
+                  
+                  <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-xl space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-primary flex items-center space-x-1">
+                        <DollarSign className="h-3.5 w-3.5" />
+                        <span>Default Price List: {defaultPricelist ? defaultPricelist.name : 'Standard Price List'}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/vendor/settings?tab=pricelists')}
+                        className="text-[11px] font-bold text-primary hover:underline"
+                      >
+                        Manage Pricelists ➔
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-text-muted">
+                      This new product automatically inherits active rules & quantity discount tiers defined in your vendor default price list.
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -549,10 +618,13 @@ export default function ProductFormPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Security Deposit Value</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">
+                    Security Deposit Value <span className="text-rose-500 font-extrabold">*</span>
+                  </label>
                   <input
                     type="number"
                     name="securityDepositValue"
+                    required
                     value={formData.securityDepositValue}
                     onChange={handleInputChange}
                     placeholder="200 for 200% / Flat price"

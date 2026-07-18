@@ -58,15 +58,20 @@ export default function ProductFormPage() {
     setError('');
     try {
       // 1. Fetch categories, attributes, global late fee settings
-      const [cats, attrs, policy] = await Promise.all([
+      const [cats, attrs, policy, lists] = await Promise.all([
         settingsService.getCategories().catch(() => []),
         settingsService.getAttributes().catch(() => []),
-        settingsService.getSettings().catch(() => ({ lateFeeEnabled: true }))
+        settingsService.getSettings().catch(() => ({ lateFeeEnabled: true })),
+        settingsService.getPricelists().catch(() => [])
       ]);
 
       setCategories(Array.isArray(cats) ? cats : []);
       setAttributes(Array.isArray(attrs) ? attrs : []);
       setGlobalLateFeeEnabled(policy.lateFeeEnabled ?? true);
+
+      const priceListArray = Array.isArray(lists) ? lists : [];
+      const matched = priceListArray.find(pl => pl.id === policy?.defaultPriceListId) || priceListArray[0];
+      setDefaultPricelist(matched || null);
 
       // 2. Fetch product details if in edit mode
       if (isEditMode) {
@@ -146,24 +151,58 @@ export default function ProductFormPage() {
     setError('');
     setSuccess('');
 
-    // Form validation
+    // Compulsory field validations
     if (!formData.name.trim()) {
-      setError('Product name is required.');
+      setError('Product Name is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (!formData.categoryId) {
+      setError('Category selection is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (!formData.rentalPrice || parseFloat(formData.rentalPrice) <= 0) {
+      setError('Base Sales/Rental Price is compulsory and must be greater than 0.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (formData.quantityOnHand === '' || parseInt(formData.quantityOnHand) < 0) {
+      setError('Quantity on Hand is compulsory.');
+      setActiveTab('general');
+      setSaveLoading(false);
+      return;
+    }
+
+    if (formData.type === 'GOODS' && (formData.securityDepositValue === '' || parseFloat(formData.securityDepositValue) < 0)) {
+      setError('Security Deposit Value is compulsory for rentable items.');
+      setActiveTab('sales');
       setSaveLoading(false);
       return;
     }
 
     try {
+      const selectedAttributesList = Object.keys(selectedAttrValues)
+        .filter(attrId => selectedAttrValues[attrId])
+        .map(attrId => ({ attributeId: attrId }));
+
       const payload = {
-        name: formData.name,
-        categoryId: formData.categoryId || undefined,
-        productDefinition: formData.productDefinition || undefined,
+        name: formData.name.trim(),
+        categoryId: formData.categoryId,
+        productDefinition: formData.productDefinition ? formData.productDefinition.trim() : undefined,
         type: formData.type,
         images: formData.images,
         isPublished: formData.isPublished,
-        rentalPrice: parseFloat(formData.rentalPrice || 0),
+        rentalPrice: parseFloat(formData.rentalPrice),
         costPrice: parseFloat(formData.costPrice || 0),
-        quantityOnHand: parseInt(formData.quantityOnHand || 0),
+        quantityOnHand: parseInt(formData.quantityOnHand),
+        attributes: selectedAttributesList,
         
         periodicity: formData.periodicity,
         pickupTime: formData.pickupTime || undefined,
@@ -175,7 +214,7 @@ export default function ProductFormPage() {
       };
 
       if (isEditMode) {
-        await productService.createProduct({ id, ...payload }); // Backend uses PATCH /products/:id or similar
+        await productService.updateProduct(id, payload);
         setSuccess('Product configurations updated successfully!');
       } else {
         await productService.createProduct(payload);
@@ -369,6 +408,25 @@ export default function ProductFormPage() {
                     onChange={handleInputChange}
                     className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
                   />
+
+                  <div className="mt-2 p-3 bg-primary/10 border border-primary/20 rounded-xl space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-primary flex items-center space-x-1">
+                        <DollarSign className="h-3.5 w-3.5" />
+                        <span>Default Price List: {defaultPricelist ? defaultPricelist.name : 'Standard Price List'}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/vendor/settings?tab=pricelists')}
+                        className="text-[11px] font-bold text-primary hover:underline"
+                      >
+                        Manage Pricelists ➔
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      This product automatically inherits active rules & discount tiers defined in your vendor default price list.
+                    </p>
+                  </div>
                 </div>
 
                 <div>

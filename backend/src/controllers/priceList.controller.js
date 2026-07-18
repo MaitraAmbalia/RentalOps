@@ -44,3 +44,12 @@ exports.deleteRule = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.remove = async (req, res, next) => {
+  try {
+    await priceListService.deletePriceList(req.params.id, req.user.id);
+    res.status(200).json({ success: true, message: "Price list deleted" });
+  } catch (error) {
+    next(error);
+  }
+};

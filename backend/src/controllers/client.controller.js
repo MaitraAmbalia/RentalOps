@@ -39,3 +39,12 @@ exports.changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAll = async (req, res, next) => {
+  try {
+    const clients = await clientService.getAll();
+    res.status(200).json({ success: true, clients });
+  } catch (error) {
+    next(error);
+  }
+};

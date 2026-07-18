@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:5001/api'; // Adjust port if backend runs elsewhere
+export const API_BASE_URL = 'http://localhost:5000/api'; // Backend runs on port 5000
 
 export const ENDPOINTS = {
   AUTH: {

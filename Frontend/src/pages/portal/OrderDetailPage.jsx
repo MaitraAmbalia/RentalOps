@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Info, AlertTriangle, Printer,
-  Package, CreditCard, Clock, MapPin, ShieldCheck
+  Package, CreditCard, Clock, MapPin, ShieldCheck, FileText, CheckCircle
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { depositInvoiceService } from '../../api/depositInvoiceService';
+import { agreementService } from '../../api/agreementService';
+import SignaturePadModal from '../../components/common/SignaturePadModal';
 
 const STATUS_CONFIG = {
   PROCESSING:  { badge: 'bg-primary/10 text-primary border border-primary/20',               label: 'Processing' },
@@ -29,6 +31,8 @@ export default function OrderDetailPage() {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [deposit, setDeposit] = useState(null);
+  const [agreementData, setAgreementData] = useState(null);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -169,42 +173,41 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Deposit Ledger */}
+          {/* Signed Rental Agreement */}
           <div className="bg-bg-card border border-border-main rounded-2xl p-6 space-y-4">
             <h3 className="text-xs font-extrabold text-text-main uppercase tracking-wider flex items-center space-x-2">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <span>Security Deposit</span>
+              <FileText className="h-4 w-4 text-primary" />
+              <span>Rental Agreement & E-Signature</span>
             </h3>
-            {deposit ? (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-text-muted font-semibold">Deposit Status:</span>
-                  <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${DEPOSIT_STATUS[deposit.depositStatus] || DEPOSIT_STATUS.SETTLED}`}>
-                    {deposit.depositStatus}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 bg-bg-main p-4 rounded-xl border border-border-main text-xs">
+            {order.termsAccepted || order.signatureData ? (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />
                   <div>
-                    <span className="text-text-muted font-semibold block">Amount Held</span>
-                    <span className="font-extrabold text-text-main text-sm">{fmtMoney(deposit.depositAmount)}</span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted font-semibold block">Refund Amount</span>
-                    <span className={`font-extrabold text-sm ${Number(deposit.refundedAmount) > 0 ? 'text-emerald-500' : 'text-text-muted'}`}>
-                      {Number(deposit.refundedAmount) > 0 ? fmtMoney(deposit.refundedAmount) : 'Pending inspection'}
-                    </span>
+                    <span className="font-extrabold text-text-main block text-xs">Contract Authenticated & Signed</span>
+                    <span className="text-[10px] text-text-muted">Signed on {fmt(order.signedAt || order.createdAt)}</span>
                   </div>
                 </div>
-                {deposit.settlementNotes && (
-                  <div className="p-3 bg-bg-main rounded-xl border border-border-main text-xs text-text-muted italic leading-relaxed">
-                    "{deposit.settlementNotes}"
-                  </div>
-                )}
+                <button
+                  onClick={async () => {
+                    try {
+                      const agr = await agreementService.getAgreement(order.id);
+                      setAgreementData(agr);
+                      setShowAgreementModal(true);
+                    } catch (err) {
+                      console.error(err);
+                      alert('Failed to load agreement document.');
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-bg-card border border-border-main text-text-main text-xs font-bold rounded-xl hover:bg-bg-main shadow-sm"
+                >
+                  View Document
+                </button>
               </div>
             ) : (
               <div className="p-4 bg-bg-main rounded-xl border border-border-main text-xs text-text-muted flex items-start space-x-2">
                 <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>Security deposit details are pending. They will appear once your order is processed by the vendor.</span>
+                <span>Standard rental terms apply to this booking. Digital signature recorded at checkout.</span>
               </div>
             )}
           </div>
@@ -256,6 +259,13 @@ export default function OrderDetailPage() {
         </div>
 
       </div>
+
+      <SignaturePadModal
+        isOpen={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+        agreementData={agreementData}
+        readOnly={true}
+      />
     </div>
   );
 }

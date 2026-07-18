@@ -163,24 +163,24 @@ export default function ProductDetailPage() {
               {product.productDefinition || 'No detailed specifications entered for this equipment catalog index.'}
             </p>
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-150 text-xs text-slate-500">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600">
               <div>
-                <span className="font-semibold text-slate-400 block uppercase tracking-wider text-[10px] mb-0.5">Pickup Hours</span>
-                <span className="font-bold text-slate-800">{product.pickupTime || '10:00 AM'}</span>
+                <span className="font-bold text-slate-500 block uppercase tracking-wider text-[10px] mb-0.5">Pickup Hours</span>
+                <span className="font-extrabold text-slate-900">{product.pickupTime || '10:00 AM'}</span>
               </div>
               <div>
-                <span className="font-semibold text-slate-400 block uppercase tracking-wider text-[10px] mb-0.5">Return Deadline</span>
-                <span className="font-bold text-slate-800">{product.returnTime || '07:00 PM'}</span>
+                <span className="font-bold text-slate-500 block uppercase tracking-wider text-[10px] mb-0.5">Return Deadline</span>
+                <span className="font-extrabold text-slate-900">{product.returnTime || '07:00 PM'}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
-                <span className="text-slate-450 font-bold block mb-1">Periodicity Price</span>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <span className="text-slate-500 font-bold block mb-1">Periodicity Price</span>
                 <span className="font-black text-slate-900 text-sm">${basePrice} / {periodicityLabel}</span>
               </div>
-              <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
-                <span className="text-slate-450 font-bold block mb-1">Overdue Penalty</span>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <span className="text-slate-500 font-bold block mb-1">Overdue Penalty</span>
                 <span className="font-black text-slate-900 text-sm">
                   {product.lateFeeRatePerHour ? `$${product.lateFeeRatePerHour}/Hr` : 'Grace Defaults'}
                 </span>
@@ -191,54 +191,54 @@ export default function ProductDetailPage() {
           <div className="border-t border-slate-100 pt-6 mt-6 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pickup Date</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Pickup Date</label>
                 <input 
                   type="date" 
                   value={startDate}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Return Date</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Return Date</label>
                 <input 
                   type="date" 
                   value={endDate}
                   min={startDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-155 text-xs">
-              <span className="font-bold text-slate-500">Order Quantity</span>
+            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+              <span className="font-bold text-slate-700">Order Quantity</span>
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-7 h-7 bg-white hover:bg-slate-100 border border-slate-250 font-bold rounded-lg"
+                  className="w-7 h-7 bg-white hover:bg-slate-100 border border-slate-300 font-bold text-slate-800 rounded-lg"
                 >
                   -
                 </button>
                 <span className="font-bold text-slate-900 w-6 text-center">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(q => q + 1)}
-                  className="w-7 h-7 bg-white hover:bg-slate-100 border border-slate-250 font-bold rounded-lg"
+                  className="w-7 h-7 bg-white hover:bg-slate-100 border border-slate-300 font-bold text-slate-800 rounded-lg"
                 >
                   +
                 </button>
               </div>
             </div>
 
-            <div className="text-xs text-slate-550 space-y-1.5 py-1">
+            <div className="text-xs text-slate-600 space-y-1.5 py-1">
               <div className="flex justify-between">
-                <span>Duration Days:</span>
-                <span className="font-semibold text-slate-800">{days} days</span>
+                <span className="font-semibold text-slate-600">Duration Days:</span>
+                <span className="font-bold text-slate-900">{days} days</span>
               </div>
               <div className="flex justify-between">
-                <span>Refundable Security Deposit:</span>
-                <span className="font-semibold text-slate-800">${securityDeposit * quantity}</span>
+                <span className="font-semibold text-slate-600">Refundable Security Deposit:</span>
+                <span className="font-bold text-slate-900">${securityDeposit * quantity}</span>
               </div>
               <div className="flex justify-between text-sm border-t border-slate-100 pt-2 font-bold text-slate-900">
                 <span>Total Payable:</span>

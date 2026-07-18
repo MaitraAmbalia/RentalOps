@@ -1,67 +1,82 @@
 const PDFDocument = require("pdfkit");
 
-const generateQuotationPDF = (quotation, resStream) => {
-  const doc = new PDFDocument({ margin: 50 });
+const generateQuotationPDFBuffer = (quotation) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50 });
+      const buffers = [];
+      doc.on("data", buffers.push.bind(buffers));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
 
-  // Stream directly to the HTTP response or file stream
-  doc.pipe(resStream);
+      // Header Section
+      doc.fontSize(20).text("RENTAL QUOTATION", { align: "right" });
+      doc.fontSize(10).text(`Quotation ID: ${quotation.id.slice(0, 8).toUpperCase()}`, { align: "right" });
+      doc.text(`Status: ${quotation.status}`, { align: "right" });
+      doc.moveDown();
 
-  // Header Section
-  doc.fontSize(20).text("RENTAL QUOTATION", { align: "right" });
-  doc.fontSize(10).text(`Quotation ID: ${quotation.id}`, { align: "right" });
-  doc.text(`Status: ${quotation.status}`, { align: "right" });
-  doc.moveDown();
+      // Vendor Details
+      doc.fontSize(12).font("Helvetica-Bold").text("Vendor Company:");
+      doc.font("Helvetica").fontSize(10).text(quotation.vendor?.companyName || `Vendor: ${quotation.vendorId.slice(0, 8)}`);
+      if (quotation.vendor?.email) doc.text(`Contact Email: ${quotation.vendor.email}`);
+      if (quotation.vendor?.gstNo) doc.text(`GST No: ${quotation.vendor.gstNo}`);
+      doc.moveDown();
 
-  // Vendor Details
-  doc.fontSize(12).font("Helvetica-Bold").text("Vendor Details:");
-  doc.font("Helvetica").fontSize(10).text(`Vendor ID: ${quotation.vendorId}`);
-  doc.moveDown();
+      // Client Details
+      doc.font("Helvetica-Bold").text("Prepared For:");
+      doc.font("Helvetica").text(`Client Name: ${quotation.client ? `${quotation.client.firstName} ${quotation.client.lastName}` : "Valued Customer"}`);
+      if (quotation.client?.email) {
+        doc.text(`Email: ${quotation.client.email}`);
+      }
+      if (quotation.client?.phone) {
+        doc.text(`Phone: ${quotation.client.phone}`);
+      }
+      doc.moveDown(1.5);
 
-  // Client Details
-  doc.font("Helvetica-Bold").text("Prepared For:");
-  doc.font("Helvetica").text(`Client Name: ${quotation.client ? `${quotation.client.firstName} ${quotation.client.lastName}` : "Valued Customer"}`);
-  if (quotation.client?.email) {
-    doc.text(`Email: ${quotation.client.email}`);
-  }
-  doc.moveDown(1.5);
+      // Divider Line
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor("#cccccc").stroke();
+      doc.moveDown();
 
-  // Divider Line
-  doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor("#cccccc").stroke();
-  doc.moveDown();
+      // Items Table Header
+      doc.font("Helvetica-Bold").text("Items / Products", 50);
+      doc.text("Qty", 250);
+      doc.text("Dates", 300);
+      doc.moveDown(0.5);
 
-  // Items Table Header
-  doc.font("Helvetica-Bold").text("Items / Products", 50);
-  doc.text("Qty", 250);
-  doc.text("Dates", 300);
-  doc.text("Total", 480);
-  doc.moveDown(0.5);
+      let y = doc.y;
+      doc.moveTo(50, y).lineTo(550, y).strokeColor("#eeeeee").stroke();
+      doc.moveDown(0.5);
 
-  let y = doc.y;
-  doc.moveTo(50, y).lineTo(550, y).strokeColor("#eeeeee").stroke();
-  doc.moveDown(0.5);
+      // Items Table Body
+      doc.font("Helvetica").fontSize(9);
+      (quotation.items || []).forEach(item => {
+        const prodName = item.product?.name || "Rental Product";
+        const startStr = item.rentalStart ? new Date(item.rentalStart).toISOString().split("T")[0] : "";
+        const endStr = item.rentalEnd ? new Date(item.rentalEnd).toISOString().split("T")[0] : "";
 
-  // Items Table Body
-  doc.font("Helvetica").fontSize(9);
-  (quotation.items || []).forEach(item => {
-    const prodName = item.product?.name || "Rental Product";
-    const startStr = item.rentalStart ? new Date(item.rentalStart).toISOString().split("T")[0] : "";
-    const endStr = item.rentalEnd ? new Date(item.rentalEnd).toISOString().split("T")[0] : "";
+        doc.text(prodName, 50, doc.y, { width: 180 });
+        doc.text(item.quantity.toString(), 250, doc.y - 10);
+        doc.text(`${startStr} to ${endStr}`, 300, doc.y - 10, { width: 170 });
+        doc.moveDown(0.5);
+      });
 
-    doc.text(prodName, 50, doc.y, { width: 180 });
-    doc.text(item.quantity.toString(), 250, doc.y - 10);
-    doc.text(`${startStr} to ${endStr}`, 300, doc.y - 10, { width: 170 });
-    doc.text(`N/A`, 480, doc.y - 10);
-    doc.moveDown(0.5);
+      doc.moveDown(2);
+      
+      // Footer / Terms
+      doc.fontSize(10).font("Helvetica-Bold").text("Terms & Conditions:");
+      doc.font("Helvetica").text(`- Validity: ${quotation.quotationValidityDays || 7} days from creation.`);
+      doc.text(`- Downpayment / Payment Required: ${quotation.paymentTermsPercent || 100}%.`);
+      
+      if (quotation.quotationTemplate?.footerHtml) {
+        doc.moveDown(0.5);
+        const cleanFooter = quotation.quotationTemplate.footerHtml.replace(/<[^>]*>?/gm, '');
+        doc.text(`- Template Terms: ${cleanFooter}`);
+      }
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
   });
-
-  doc.moveDown(2);
-  
-  // Footer / Terms
-  doc.fontSize(10).font("Helvetica-Bold").text("Terms & Conditions:");
-  doc.font("Helvetica").text(`- Validity: ${quotation.quotationValidityDays || 7} days.`);
-  doc.text(`- Downpayment required: ${quotation.paymentTermsPercent || 100}%.`);
-
-  doc.end();
 };
 
 const generateInvoicePDF = (invoice, resStream) => {
@@ -122,6 +137,6 @@ const generateInvoicePDF = (invoice, resStream) => {
 };
 
 module.exports = {
-  generateQuotationPDF,
+  generateQuotationPDFBuffer,
   generateInvoicePDF,
 };

@@ -42,6 +42,44 @@ export const quotationService = {
     }
   },
 
+  sendQuotationEmail: async (id) => {
+    try {
+      const response = await axiosInstance.post(`${ENDPOINTS.QUOTATIONS.BASE}/${id}/send-email`);
+      return response;
+    } catch (error) {
+      console.error(`Failed to send quotation email for ${id}:`, error);
+      throw error;
+    }
+  },
+
+  acceptQuotation: async (id, signatureData) => {
+    try {
+      const response = await axiosInstance.post(`${ENDPOINTS.QUOTATIONS.BASE}/${id}/accept`, { signatureData });
+      return response;
+    } catch (error) {
+      console.error(`Failed to accept quotation ${id}:`, error);
+      throw error;
+    }
+  },
+
+  downloadQuotationPDF: async (id) => {
+    try {
+      const response = await axiosInstance.get(`${ENDPOINTS.QUOTATIONS.BASE}/${id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `quotation-${id.slice(0, 8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error(`Failed to download quotation PDF for ${id}:`, error);
+      throw error;
+    }
+  },
+
   // Templates
   getQuotationTemplates: async () => {
     try {

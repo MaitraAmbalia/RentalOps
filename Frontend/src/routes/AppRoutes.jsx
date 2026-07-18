@@ -36,6 +36,8 @@ import QueriesPage from '../pages/backend/QueriesPage';
 import ProfilePageBackend from '../pages/backend/ProfilePage';
 import VendorSettingsPage from '../pages/portal/VendorSettingsPage';
 import QuotationTemplatesPage from '../pages/backend/QuotationTemplatesPage';
+import QuotationsPage from '../pages/backend/QuotationsPage';
+import ClientQuotationPage from '../pages/portal/ClientQuotationPage';
 
 // Previous Vendor Pages (Preserved for features compatibility)
 import NewOrderPage from '../pages/portal/NewOrderPage';
@@ -70,6 +72,7 @@ export default function AppRoutes() {
         <Route path="/checkout/confirmation" element={<OrderConfirmationPage />} />
         <Route path="/orders" element={<MyOrdersPage />} />
         <Route path="/account/orders/:id" element={<OrderDetailPagePortal />} />
+        <Route path="/account/quotations/:id" element={<ClientQuotationPage />} />
         <Route path="/profile" element={<ProfilePagePortal />} />
         <Route path="/account/support" element={<SupportPage />} />
       </Route>
@@ -80,6 +83,7 @@ export default function AppRoutes() {
         <Route path="/vendor/orders" element={<OrdersPage />} />
         <Route path="/vendor/orders/new" element={<NewOrderPage />} />
         <Route path="/vendor/orders/:id" element={<OrderDetailPageBackend />} />
+        <Route path="/vendor/quotations" element={<QuotationsPage />} />
         <Route path="/vendor/invoices/:id" element={<InvoicePage />} />
         <Route path="/vendor/products" element={<ProductsPage />} />
         <Route path="/vendor/products/new" element={<ProductFormPage />} />

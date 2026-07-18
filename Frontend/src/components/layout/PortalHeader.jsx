@@ -3,15 +3,35 @@ import {
   Package, User, LogOut, History, ShoppingCart, Search, Sun, Moon,
   Bell, Heart, ChevronDown, HelpCircle, Settings
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
+import { notificationService } from '../../api/notificationService';
 
 export default function PortalHeader({ clientProfile }) {
   const { cart } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const data = await notificationService.getNotifications();
+      if (Array.isArray(data)) setNotifications(data);
+    } catch (err) {
+      console.error("PortalHeader failed to load notifications:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -62,6 +82,67 @@ export default function PortalHeader({ clientProfile }) {
             >
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
+
+            {/* Notifications */}
+            <div className="relative">
+              <button 
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="p-2 text-text-muted hover:text-primary bg-bg-main rounded-xl border border-border-main hover:bg-bg-card transition-colors relative"
+                title="Notifications"
+              >
+                <Bell className="h-4 w-4" />
+                {notifications.some(n => !n.isRead) && (
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-primary" />
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-bg-card border border-border-main rounded-2xl py-3 shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-xs">
+                  <div className="px-4 pb-2 border-b border-border-main flex justify-between items-center text-text-main">
+                    <span className="font-extrabold text-sm">Notifications</span>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await Promise.all(notifications.filter(n => !n.isRead).map(n => notificationService.markAsRead(n.id)));
+                          setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                      className="text-[10px] text-primary hover:underline font-bold"
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-border-main">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-text-muted font-medium">
+                        No notifications found.
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div 
+                          key={n.id} 
+                          onClick={async () => {
+                            if (!n.isRead) {
+                              await notificationService.markAsRead(n.id);
+                              setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+                            }
+                          }}
+                          className={`p-3 hover:bg-bg-main cursor-pointer transition-colors ${!n.isRead ? 'bg-primary/5' : ''}`}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-bold text-text-main">{n.title || n.type?.replace('_', ' ')}</span>
+                            <span className="text-[9px] text-text-muted font-medium">{new Date(n.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-text-muted leading-relaxed font-medium">{n.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
 
 

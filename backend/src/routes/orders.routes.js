@@ -16,6 +16,8 @@ const depositInvoicesController = require('../controllers/depositInvoices.contro
 router.post('/', authorize('VENDOR', 'CLIENT'), validate(orderSchema), ordersController.create);
 router.get('/', authorize('VENDOR', 'CLIENT'), ordersController.getAll);
 router.get('/:id', authorize('VENDOR', 'CLIENT'), ordersController.getById);
+router.get('/:id/agreement', authorize('VENDOR', 'CLIENT'), ordersController.getAgreement);
+router.post('/:id/sign-agreement', authorize('VENDOR', 'CLIENT'), ordersController.signAgreement);
 router.patch('/:id/status', authorize('VENDOR'), validate(orderStatusUpdateSchema), ordersController.updateStatus);
 router.post('/:id/late-fee/calculate', authorize('VENDOR'), lateFeeController.calculate);
 router.post('/:id/payments/razorpay-order', authorize('VENDOR', 'CLIENT'), (req, res, next) => {

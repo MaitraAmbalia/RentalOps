@@ -12,6 +12,7 @@ const optionalAuthenticate = (req, res, next) => {
     req.user = {
       id: decoded.id,
       type: decoded.type,
+      role: decoded.type,
       vendorId: decoded.vendorId || null,
     };
   } catch (error) {

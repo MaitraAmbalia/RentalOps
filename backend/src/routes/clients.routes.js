@@ -30,6 +30,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+router.get('/', authenticate, authorize('VENDOR'), clientController.getAll);
+
 // Authenticated CLIENT only
 router.use(authenticate, authorize('CLIENT'));
 
