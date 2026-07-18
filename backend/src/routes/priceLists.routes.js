@@ -7,7 +7,7 @@ const { priceListSchema } = require("../validators/priceList.schema");
 
 const router = Router();
 
-router.get("/", controller.getAll);                                               // Public
+router.get("/", authenticate, authorize("VENDOR"), controller.getAll);                                               // Secured to Vendor
 router.post("/", authenticate, authorize("VENDOR"), validate(priceListSchema), controller.create);
 router.patch("/:id", authenticate, authorize("VENDOR"), validate(priceListSchema.partial()), controller.update);
 router.post("/:priceListId/rules", authenticate, authorize("VENDOR"), controller.addRule);
