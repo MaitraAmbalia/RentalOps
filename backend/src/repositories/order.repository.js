@@ -12,7 +12,12 @@ exports.findAllByVendor = (vendorId) => prisma.order.findMany({
 
 exports.findAllByClient = (clientId) => prisma.order.findMany({ 
   where: { clientId },
-  include: { payments: true }
+  include: { payments: true, items: { include: { product: true } } }
+});
+
+exports.findByIdForClient = (id, clientId) => prisma.order.findFirst({
+  where: { id, clientId },
+  include: { items: { include: { product: true } }, depositInvoice: true, payments: true }
 });
 
 exports.findById = (id, vendorId) => prisma.order.findFirst({ 

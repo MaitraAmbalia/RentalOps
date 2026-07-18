@@ -11,8 +11,9 @@ exports.create = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
-    // Only fetching current vendor's products in this scope
-    const products = await productService.getProducts(req.user.id);
+    const isVendor = req.user && req.user.type === 'VENDOR';
+    const vendorId = isVendor ? req.user.id : null;
+    const products = await productService.getProducts(vendorId, req.query);
     res.status(200).json({ success: true, products });
   } catch (error) {
     next(error);
@@ -21,7 +22,9 @@ exports.getAll = async (req, res, next) => {
 
 exports.getById = async (req, res, next) => {
   try {
-    const product = await productService.getProductById(req.user.id, req.params.id);
+    const isVendor = req.user && req.user.type === 'VENDOR';
+    const vendorId = isVendor ? req.user.id : null;
+    const product = await productService.getProductById(vendorId, req.params.id);
     res.status(200).json({ success: true, product });
   } catch (error) {
     next(error);

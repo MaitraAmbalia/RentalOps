@@ -11,7 +11,9 @@ exports.create = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
-    const categories = await categoryService.getCategories(req.user.id);
+    const isVendor = req.user && req.user.type === 'VENDOR';
+    const vendorId = isVendor ? req.user.id : null;
+    const categories = await categoryService.getCategories(vendorId);
     res.status(200).json({ success: true, categories });
   } catch (error) {
     next(error);

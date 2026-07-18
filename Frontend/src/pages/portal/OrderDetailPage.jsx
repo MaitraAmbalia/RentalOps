@@ -179,19 +179,19 @@ export default function OrderDetailPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-text-muted font-semibold">Deposit Status:</span>
-                  <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${DEPOSIT_STATUS[deposit.status] || DEPOSIT_STATUS.SETTLED}`}>
-                    {deposit.status}
+                  <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${DEPOSIT_STATUS[deposit.depositStatus] || DEPOSIT_STATUS.SETTLED}`}>
+                    {deposit.depositStatus}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 bg-bg-main p-4 rounded-xl border border-border-main text-xs">
                   <div>
                     <span className="text-text-muted font-semibold block">Amount Held</span>
-                    <span className="font-extrabold text-text-main text-sm">{fmtMoney(deposit.amount)}</span>
+                    <span className="font-extrabold text-text-main text-sm">{fmtMoney(deposit.depositAmount)}</span>
                   </div>
                   <div>
                     <span className="text-text-muted font-semibold block">Refund Amount</span>
-                    <span className={`font-extrabold text-sm ${deposit.refundAmount ? 'text-emerald-500' : 'text-text-muted'}`}>
-                      {deposit.refundAmount ? fmtMoney(deposit.refundAmount) : 'Pending inspection'}
+                    <span className={`font-extrabold text-sm ${Number(deposit.refundedAmount) > 0 ? 'text-emerald-500' : 'text-text-muted'}`}>
+                      {Number(deposit.refundedAmount) > 0 ? fmtMoney(deposit.refundedAmount) : 'Pending inspection'}
                     </span>
                   </div>
                 </div>

@@ -11,7 +11,10 @@ exports.createCategory = async (vendorId, data) => {
 };
 
 exports.getCategories = async (vendorId) => {
-  return await categoryRepo.findAllByVendor(vendorId);
+  if (vendorId) {
+    return await categoryRepo.findAllByVendor(vendorId);
+  }
+  return await categoryRepo.findAll();
 };
 
 exports.updateCategory = async (vendorId, categoryId, data) => {

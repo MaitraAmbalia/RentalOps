@@ -49,8 +49,18 @@ exports.getOrders = async (vendorId) => {
   return await orderRepo.findAllByVendor(vendorId);
 };
 
+exports.getClientOrders = async (clientId) => {
+  return await orderRepo.findAllByClient(clientId);
+};
+
 exports.getOrderById = async (vendorId, orderId) => {
   const order = await orderRepo.findById(orderId, vendorId);
+  if (!order) throw new ApiError(404, 'Order not found');
+  return order;
+};
+
+exports.getClientOrderById = async (clientId, orderId) => {
+  const order = await orderRepo.findByIdForClient(orderId, clientId);
   if (!order) throw new ApiError(404, 'Order not found');
   return order;
 };
