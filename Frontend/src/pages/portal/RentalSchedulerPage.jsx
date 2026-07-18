@@ -95,6 +95,27 @@ export default function RentalSchedulerPage() {
     return new Date(year, month, 1).getDay();
   };
 
+  const monthsList = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
+  const currentYear = today.getFullYear();
+  const yearsList = [];
+  for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+    yearsList.push(y);
+  }
+
+  const handleMonthSelect = (e) => {
+    const mVal = parseInt(e.target.value);
+    setCurrentDate(prev => new Date(prev.getFullYear(), mVal, 1));
+  };
+
+  const handleYearSelect = (e) => {
+    const yVal = parseInt(e.target.value);
+    setCurrentDate(prev => new Date(yVal, prev.getMonth(), 1));
+  };
+
   const handlePrevMonth = () => {
     setCurrentDate(prev => {
       const year = prev.getFullYear();
@@ -159,10 +180,29 @@ export default function RentalSchedulerPage() {
         {/* Left Side: Monthly Calendar Grid */}
         <div className="lg:col-span-2 bg-bg-card p-6 rounded-2xl border border-border-main space-y-4">
           <div className="flex items-center justify-between border-b border-border-main pb-3">
-            <span className="text-lg font-bold text-text-main flex items-center space-x-2">
-              <CalendarIcon className="h-5 w-5 text-primary" />
-              <span>{monthName} {year}</span>
-            </span>
+            <div className="flex items-center space-x-3">
+              <CalendarIcon className="h-5 w-5 text-primary shrink-0" />
+              <div className="flex items-center space-x-1.5">
+                <select
+                  value={month}
+                  onChange={handleMonthSelect}
+                  className="bg-bg-main border border-border-main text-text-main rounded-lg px-2 py-0.5 text-sm font-bold focus:outline-none focus:border-primary cursor-pointer hover:bg-bg-card transition-colors"
+                >
+                  {monthsList.map((mName, idx) => (
+                    <option key={idx} value={idx}>{mName}</option>
+                  ))}
+                </select>
+                <select
+                  value={year}
+                  onChange={handleYearSelect}
+                  className="bg-bg-main border border-border-main text-text-main rounded-lg px-2 py-0.5 text-sm font-bold focus:outline-none focus:border-primary cursor-pointer hover:bg-bg-card transition-colors"
+                >
+                  {yearsList.map((yNum) => (
+                    <option key={yNum} value={yNum}>{yNum}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="flex items-center space-x-1">
               <button 
                 onClick={handlePrevMonth}
