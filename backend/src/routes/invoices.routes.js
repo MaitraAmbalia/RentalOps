@@ -13,6 +13,7 @@ router.use(authenticate);
 router.post('/', authorize('VENDOR'), validate(invoiceSchema), controller.create);
 router.get('/', authorize('VENDOR'), controller.getAll);
 router.get('/:id', authorize('VENDOR', 'CLIENT'), controller.getById); // Client can view their invoice
+router.get('/:id/pdf', authorize('VENDOR', 'CLIENT'), controller.downloadPDF); // Client/Vendor can view PDF
 router.patch('/:id/post', authorize('VENDOR'), controller.postInvoice);
 
 module.exports = router;

@@ -20,17 +20,30 @@ export default function LoginPage() {
       let data;
       if (role === 'CLIENT') {
         data = await authService.clientLogin(email, password);
+        if (data && data.accessToken) {
+          localStorage.setItem('token', data.accessToken);
+          localStorage.setItem('role', 'CLIENT');
+        }
         navigate('/dashboard');
       } else if (role === 'VENDOR') {
         data = await authService.vendorLogin(email, password);
+        if (data && data.accessToken) {
+          localStorage.setItem('token', data.accessToken);
+          localStorage.setItem('role', 'VENDOR');
+        }
         navigate('/vendor/dashboard');
       } else {
-        data = await authService.deliveryLogin(email, password);
-        navigate('/delivery/dashboard'); // fallback
+        // For courier/delivery login, it expects phone and password
+        data = await authService.partnerLogin(email, password);
+        if (data && data.accessToken) {
+          localStorage.setItem('token', data.accessToken);
+          localStorage.setItem('role', 'DELIVERY');
+        }
+        navigate('/delivery/dashboard');
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Invalid email or password credentials.');
+      setError(err.response?.data?.message || 'Invalid credentials or connection error.');
     } finally {
       setLoading(false);
     }

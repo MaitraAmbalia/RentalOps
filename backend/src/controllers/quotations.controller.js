@@ -35,3 +35,16 @@ exports.updateStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+const pdfGenerator = require('../utils/pdfGenerator');
+
+exports.downloadPDF = async (req, res, next) => {
+  try {
+    const quotation = await service.getQuotationById(req.user.vendorId || req.user.id, req.params.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=quotation-${req.params.id}.pdf`);
+    pdfGenerator.generateQuotationPDF(quotation, res);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,8 +1,18 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import PortalHeader from './PortalHeader';
 import PortalFooter from './PortalFooter';
 
 export default function MainLayout() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <PortalHeader />

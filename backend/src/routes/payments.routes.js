@@ -6,6 +6,7 @@ const authorize = require('../middlewares/authorize');
 const router = Router();
 
 router.post('/:orderId/initiate', authenticate, authorize('VENDOR', 'CLIENT'), paymentsController.initiate);
+router.post('/verify', authenticate, paymentsController.verify);
 
 // Webhook doesn't require JWT authentication, it relies on signature verification
 router.post('/webhook', paymentsController.webhook);

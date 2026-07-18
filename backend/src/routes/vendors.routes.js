@@ -12,5 +12,6 @@ router.use(authenticate, authorize('VENDOR'));
 
 router.get('/me', vendorController.getProfile);
 router.patch('/me', validate(updateVendorSchema), vendorController.updateProfile);
+router.patch('/me/change-password', vendorController.changePassword);
 
 module.exports = router;

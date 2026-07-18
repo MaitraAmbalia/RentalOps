@@ -35,3 +35,16 @@ exports.postInvoice = async (req, res, next) => {
     next(error);
   }
 };
+
+const pdfGenerator = require('../utils/pdfGenerator');
+
+exports.downloadPDF = async (req, res, next) => {
+  try {
+    const invoice = await service.getInvoiceById(req.params.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${req.params.id}.pdf`);
+    pdfGenerator.generateInvoicePDF(invoice, res);
+  } catch (error) {
+    next(error);
+  }
+};

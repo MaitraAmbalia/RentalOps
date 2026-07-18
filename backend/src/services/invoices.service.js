@@ -1,5 +1,6 @@
 const repo = require('../repositories/invoice.repository');
 const ApiError = require('../utils/apiError');
+const { prisma } = require('../config/db');
 
 exports.createInvoice = async (data) => {
   const { lines, ...invoiceData } = data;
@@ -31,6 +32,19 @@ exports.getInvoices = async () => {
 exports.getInvoiceById = async (id) => {
   const invoice = await repo.findById(id);
   if (!invoice) throw new ApiError(404, 'Invoice not found');
+
+  const productIds = invoice.lines.map(line => line.productId).filter(Boolean);
+  if (productIds.length > 0) {
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } }
+    });
+    const productMap = new Map(products.map(p => [p.id, p]));
+    invoice.lines = invoice.lines.map(line => ({
+      ...line,
+      product: productMap.get(line.productId) || null
+    }));
+  }
+
   return invoice;
 };
 

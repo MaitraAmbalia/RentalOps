@@ -19,3 +19,12 @@ exports.webhook = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.verify = async (req, res, next) => {
+  try {
+    const result = await paymentsService.verifyPayment(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

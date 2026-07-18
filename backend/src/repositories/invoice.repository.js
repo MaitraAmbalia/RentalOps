@@ -12,7 +12,7 @@ exports.findMany = (where) => prisma.invoice.findMany({
 
 exports.findById = (id) => prisma.invoice.findUnique({
   where: { id },
-  include: { order: true, lines: { include: { product: true } } }
+  include: { order: true, lines: true }
 });
 
 exports.updateState = (id, state, postedAt = null) => prisma.invoice.update({

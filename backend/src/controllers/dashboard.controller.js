@@ -37,3 +37,12 @@ exports.getRevenueSeries = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getStats = async (req, res, next) => {
+  try {
+    const stats = await dashboardService.getStats(req.user.id);
+    res.status(200).json(stats);
+  } catch (error) {
+    next(error);
+  }
+};

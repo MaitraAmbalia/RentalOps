@@ -27,7 +27,10 @@ axiosInstance.interceptors.response.use(
     // Handle global errors (e.g., redirect to login on 401)
     if (error.response?.status === 401) {
       console.warn("Unauthorized! Redirecting to login...");
-      // In a real app, clear local storage and force redirect
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

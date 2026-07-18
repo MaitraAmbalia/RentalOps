@@ -19,6 +19,11 @@ export default function BackendLayout() {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     fetchProfile();
   }, []);
 

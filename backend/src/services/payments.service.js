@@ -35,3 +35,14 @@ exports.verifyWebhook = async (payload, signature) => {
   await paymentRepo.markAsPaid(payment.id, razorpay_payment_id, signature);
   return { success: true };
 };
+
+exports.verifyPayment = async (data) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
+  
+  const payment = await paymentRepo.findByRazorpayOrderId(razorpay_order_id);
+  if (!payment) throw new ApiError(404, 'Payment not found');
+
+  // Mark local DB as paid
+  await paymentRepo.markAsPaid(payment.id, razorpay_payment_id, razorpay_signature);
+  return { success: true };
+};

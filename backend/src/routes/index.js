@@ -23,6 +23,9 @@ const wishlistRoutes = require("./wishlist.routes");
 const dashboardRoutes = require("./dashboard.routes");
 const workflowRoutes = require("./workflow.routes");
 const queriesRoutes = require("./queries.routes");
+const notificationsRoutes = require("./notifications.routes");
+const schedulerRoutes = require("./scheduler.routes");
+const uploadRoutes = require("./upload.routes");
 
 router.use("/auth", authRoutes);
 router.use("/categories", categoriesRoutes);
@@ -46,5 +49,10 @@ router.use("/wishlist", wishlistRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/workflows", workflowRoutes);
 router.use("/queries", queriesRoutes);
+
+router.use("/notifications", notificationsRoutes);
+router.use("/scheduler", schedulerRoutes);
+router.use("/upload", uploadRoutes);
+
 
 module.exports = router;

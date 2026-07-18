@@ -262,9 +262,76 @@ const getRevenueSeries = async (vendorId, from, to, groupBy = "day") => {
   return series;
 };
 
+const getStats = async (vendorId) => {
+  const now = new Date();
+  const todayStart = new Date(now.setHours(0, 0, 0, 0));
+  const todayEnd = new Date(now.setHours(23, 59, 59, 999));
+
+  const totalOrders = await prisma.order.count({
+    where: { vendorId }
+  });
+
+  const revenueRes = await prisma.order.aggregate({
+    _sum: { totalAmount: true },
+    where: {
+      vendorId,
+      status: { not: "CANCELLED" }
+    }
+  });
+  const totalRevenue = Number(revenueRes._sum.totalAmount || 0);
+
+  const activeRentals = await prisma.order.count({
+    where: {
+      vendorId,
+      status: { in: ["RENTED", "OVERDUE"] }
+    }
+  });
+
+  const lateReturnsCount = await prisma.order.count({
+    where: {
+      vendorId,
+      status: "OVERDUE"
+    }
+  });
+
+  const openDisputesCount = await prisma.supportQuery.count({
+    where: {
+      order: { vendorId },
+      status: "OPEN"
+    }
+  });
+
+  const pickupsTodayCount = await prisma.pickupReturnWorkflow.count({
+    where: {
+      order: { vendorId },
+      workflowType: "PICKUP",
+      scheduledDate: { gte: todayStart, lte: todayEnd }
+    }
+  });
+
+  const returnsTodayCount = await prisma.pickupReturnWorkflow.count({
+    where: {
+      order: { vendorId },
+      workflowType: "RETURN",
+      scheduledDate: { gte: todayStart, lte: todayEnd }
+    }
+  });
+
+  return {
+    totalOrders,
+    totalRevenue,
+    activeRentals,
+    lateReturnsCount,
+    openDisputesCount,
+    pickupsTodayCount,
+    returnsTodayCount
+  };
+};
+
 module.exports = {
   getSummary,
   getActiveRentals,
   getOverdueRentals,
   getRevenueSeries,
+  getStats,
 };

@@ -18,5 +18,6 @@ router.get('/:id', authorize('VENDOR', 'CLIENT'), controller.getById);
 
 // Vendors resolve queries
 router.patch('/:id/status', authorize('VENDOR'), validate(updateQueryStatusSchema), controller.updateStatus);
+router.patch('/:id/resolve', authorize('VENDOR'), validate(updateQueryStatusSchema), controller.updateStatus);
 
 module.exports = router;

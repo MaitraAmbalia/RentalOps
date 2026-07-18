@@ -43,9 +43,33 @@ const updateSettings = async (vendorId, data) => {
   return settingsRepository.upsert(vendorId, data);
 };
 
+const bcrypt = require("bcrypt");
+const { prisma } = require("../config/db");
+
+const changePassword = async (vendorId, { oldPassword, newPassword }) => {
+  const vendor = await vendorRepository.findById(vendorId);
+  if (!vendor) {
+    throw new ApiError(404, "Vendor not found");
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, vendor.passwordHash);
+  if (!isMatch) {
+    throw new ApiError(400, "Incorrect current password");
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await prisma.vendor.update({
+    where: { id: vendorId },
+    data: { passwordHash }
+  });
+
+  return { success: true };
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   getSettings,
   updateSettings,
+  changePassword,
 };

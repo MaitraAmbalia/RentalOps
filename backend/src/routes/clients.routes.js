@@ -36,5 +36,6 @@ router.use(authenticate, authorize('CLIENT'));
 router.get('/me', clientController.getProfile);
 router.patch('/me', validate(updateClientSchema), clientController.updateProfile);
 router.post('/me/avatar', upload.single('avatar'), clientController.uploadAvatar);
+router.patch('/me/change-password', clientController.changePassword);
 
 module.exports = router;
