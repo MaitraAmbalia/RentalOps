@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const authRoutes = require("./auth.routes");
 const categoriesRoutes = require("./categories.routes");
 const attributesRoutes = require("./attributes.routes");
@@ -10,6 +11,10 @@ const vendorsRoutes = require("./vendors.routes");
 const settingsRoutes = require("./settings.routes");
 const clientsRoutes = require("./clients.routes");
 const addressesRoutes = require("./addresses.routes");
+const ordersRoutes = require("./orders.routes");
+const paymentsRoutes = require("./payments.routes");
+const quotationsRoutes = require("./quotations.routes");
+const quotationTemplatesRoutes = require("./quotationTemplates.routes");
 
 router.use("/auth", authRoutes);
 router.use("/categories", categoriesRoutes);
@@ -21,5 +26,9 @@ router.use("/vendors", vendorsRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/clients", clientsRoutes);
 router.use("/addresses", addressesRoutes);
+router.use("/orders", ordersRoutes);
+router.use("/payments", paymentsRoutes);
+router.use("/quotations", quotationsRoutes);
+router.use("/quotation-templates", quotationTemplatesRoutes);
 
 module.exports = router;
