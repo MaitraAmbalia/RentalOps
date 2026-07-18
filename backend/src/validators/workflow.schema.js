@@ -1,10 +1,10 @@
 const { z } = require("zod");
 
 const createWorkflowSchema = z.object({
-  orderId: z.string().uuid("Invalid order ID"),
-  deliveryId: z.string().uuid("Invalid delivery partner ID"),
-  workflowType: z.enum(["PICKUP", "RETURN"]),
-  scheduledDate: z.string().datetime("Invalid scheduled date format"),
+  orderId: z.string().min(1, "Order ID is required"),
+  deliveryId: z.string().optional().nullable().or(z.literal("")),
+  workflowType: z.enum(["PICKUP", "RETURN"]).optional().default("PICKUP"),
+  scheduledDate: z.string().optional(),
 });
 
 const completeWorkflowSchema = z.object({

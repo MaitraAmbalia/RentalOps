@@ -18,7 +18,6 @@ const createPartner = async (vendorId, data) => {
     firstName: data.firstName,
     lastName: data.lastName,
     phone: data.phone,
-    companyName: data.companyName || null,
     passwordHash,
   });
 
