@@ -13,6 +13,7 @@ export default function ClientSignup() {
     confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,11 +25,18 @@ export default function ClientSignup() {
     setLoading(true);
     try {
       const res = await authService.clientSignup(formData);
-      if (res.data && res.data.token) {
-        localStorage.setItem('token', res.data.token);
+      const token = res.accessToken || res.token || res.data?.token || res.data?.accessToken;
+      if (token) {
+        localStorage.setItem('token', token);
       }
       navigate('/dashboard');
     } catch (err) {
+      if (err.response && err.response.data && err.response.data.errors) {
+        const firstErrorKey = Object.keys(err.response.data.errors)[0];
+        setError(err.response.data.errors[firstErrorKey][0]);
+      } else {
+        setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -49,6 +57,11 @@ export default function ClientSignup() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-100">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
           <form className="space-y-5" onSubmit={handleSignup}>
             <div className="grid grid-cols-2 gap-4">
               <div>

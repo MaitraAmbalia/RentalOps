@@ -16,8 +16,9 @@ export default function ClientLogin() {
     setError('');
     try {
       const res = await authService.clientLogin(email, password);
-      if (res.data && res.data.token) {
-        localStorage.setItem('token', res.data.token);
+      const token = res.accessToken || res.token || res.data?.token || res.data?.accessToken;
+      if (token) {
+        localStorage.setItem('token', token);
       }
       navigate('/dashboard');
     } catch (err) {

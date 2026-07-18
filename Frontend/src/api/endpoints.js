@@ -5,14 +5,20 @@ export const ENDPOINTS = {
     CLIENT_LOGIN: '/auth/client/login',
     CLIENT_SIGNUP: '/auth/client/register',
     VENDOR_LOGIN: '/auth/vendor/login',
+    VENDOR_SIGNUP: '/auth/vendor/register',
     PARTNER_LOGIN: '/auth/delivery/login',
+    ME: '/auth/me',
   },
   PRODUCTS: {
     BASE: '/products',
-    GET_ALL: '/products', // Depending on backend setup, this might be a generic public endpoint or vendor-scoped
+    GET_ALL: '/products',
     GET_BY_ID: (id) => `/products/${id}`,
   },
   ORDERS: {
     BASE: '/orders',
+    UPDATE_STATUS: (id) => `/orders/${id}/status`,
+  },
+  CATEGORIES: {
+    BASE: '/categories',
   }
 };

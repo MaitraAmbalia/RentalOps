@@ -32,12 +32,32 @@ export const authService = {
     }
   },
 
+  vendorSignup: async (vendorData) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.AUTH.VENDOR_SIGNUP, vendorData);
+      return response;
+    } catch (error) {
+      console.error("Vendor signup failed:", error);
+      throw error;
+    }
+  },
+
   partnerLogin: async (phone, password) => {
     try {
       const response = await axiosInstance.post(ENDPOINTS.AUTH.PARTNER_LOGIN, { phone, password });
       return response;
     } catch (error) {
       console.error("Delivery partner login failed:", error);
+      throw error;
+    }
+  },
+
+  getCurrentUser: async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.AUTH.ME);
+      return response;
+    } catch (error) {
+      console.error("Failed to get current user:", error);
       throw error;
     }
   }

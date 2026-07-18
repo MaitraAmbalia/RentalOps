@@ -234,12 +234,131 @@ async function main() {
     },
   ];
 
+  const seededProducts = [];
   for (const productInfo of productsToSeed) {
-    await prisma.product.create({
+    const prod = await prisma.product.create({
       data: {
         vendorId: vendor.id,
         ...productInfo,
       },
+    });
+    seededProducts.push(prod);
+  }
+
+  // 8. Seed Mock Orders
+  console.log('Seeding Mock Orders...');
+  
+  const now = new Date();
+  
+  const ordersData = [
+    {
+      orderNumber: 'SO0001',
+      fulfillmentType: 'COLLECT_FROM_STORE',
+      orderSource: 'ONLINE',
+      rentalStartDate: new Date(now.getTime() + 86400000), // tomorrow
+      scheduledReturnDate: new Date(now.getTime() + 86400000 * 8), // tomorrow + 7 days
+      status: 'PROCESSING',
+      productIndex: 0, // Canon EOS R5
+      quantity: 1,
+    },
+    {
+      orderNumber: 'SO0002',
+      fulfillmentType: 'HOME_DELIVERY',
+      orderSource: 'ONLINE',
+      rentalStartDate: new Date(now.getTime() - 86400000 * 2), // 2 days ago
+      scheduledReturnDate: new Date(now.getTime() + 86400000 * 3), // +3 days
+      status: 'PROCESSING',
+      productIndex: 4, // MacBook Pro 16"
+      quantity: 1,
+    },
+    {
+      orderNumber: 'SO0003',
+      fulfillmentType: 'HOME_DELIVERY',
+      orderSource: 'ONLINE',
+      rentalStartDate: new Date(now.getTime() - 86400000 * 5),
+      scheduledReturnDate: new Date(now.getTime() + 86400000 * 2),
+      status: 'RENTED',
+      productIndex: 1, // Sony A7 IV
+      quantity: 1,
+    },
+    {
+      orderNumber: 'SO0004',
+      fulfillmentType: 'COLLECT_FROM_STORE',
+      orderSource: 'OFFLINE',
+      rentalStartDate: new Date(now.getTime() - 86400000 * 10),
+      scheduledReturnDate: new Date(now.getTime() - 86400000 * 2), // overdue by 2 days
+      status: 'OVERDUE',
+      productIndex: 12, // Zoom H6
+      quantity: 2,
+    },
+    {
+      orderNumber: 'SO0005',
+      fulfillmentType: 'COLLECT_FROM_STORE',
+      orderSource: 'ONLINE',
+      rentalStartDate: new Date(now.getTime() - 86400000 * 15),
+      scheduledReturnDate: new Date(now.getTime() - 86400000 * 10),
+      actualReturnDate: new Date(now.getTime() - 86400000 * 10),
+      status: 'RETURNED',
+      productIndex: 9, // Godox FV150
+      quantity: 1,
+    },
+    {
+      orderNumber: 'SO0006',
+      fulfillmentType: 'HOME_DELIVERY',
+      orderSource: 'ONLINE',
+      rentalStartDate: new Date(now.getTime() - 86400000 * 1),
+      scheduledReturnDate: new Date(now.getTime() + 86400000 * 2),
+      status: 'CANCELLED',
+      productIndex: 11, // Sennheiser MKH416
+      quantity: 1,
+    }
+  ];
+
+  for (const o of ordersData) {
+    const product = seededProducts[o.productIndex];
+    const rentalPrice = Number(product.rentalPrice);
+    const quantity = o.quantity;
+    const untaxedAmount = rentalPrice * quantity;
+    const taxPercent = 18.00;
+    const taxAmount = (untaxedAmount * taxPercent) / 100;
+    const totalAmount = untaxedAmount + taxAmount;
+    const securityDepositAmount = untaxedAmount * 0.5; // 50% deposit
+
+    await prisma.order.create({
+      data: {
+        orderNumber: o.orderNumber,
+        clientId: client.id,
+        vendorId: vendor.id,
+        fulfillmentType: o.fulfillmentType,
+        orderSource: o.orderSource,
+        rentalStartDate: o.rentalStartDate,
+        scheduledReturnDate: o.scheduledReturnDate,
+        actualReturnDate: o.actualReturnDate,
+        untaxedAmount,
+        taxPercent,
+        taxAmount,
+        totalAmount,
+        securityDepositAmount,
+        status: o.status,
+        items: {
+          create: [
+            {
+              productId: product.id,
+              quantity,
+              unitPrice: rentalPrice,
+              amount: untaxedAmount,
+              rentalStart: o.rentalStartDate,
+              rentalEnd: o.scheduledReturnDate,
+            }
+          ]
+        },
+        depositInvoice: {
+          create: {
+            depositAmount: securityDepositAmount,
+            depositStatus: o.status === 'RETURNED' ? 'REFUNDED' : 'HELD',
+          }
+        }
+      }
     });
   }
 

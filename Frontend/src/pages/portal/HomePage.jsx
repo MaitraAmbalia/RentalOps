@@ -1,13 +1,30 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FiltersSidebar from '../../components/portal/catalog/FiltersSidebar';
 import ProductGrid from '../../components/portal/catalog/ProductGrid';
 import { productService } from '../../api/productService';
+import { authService } from '../../api/authService';
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ category: 'All', maxPrice: '' });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const res = await authService.getCurrentUser();
+        if (res && res.type === 'VENDOR') {
+          navigate('/vendor/dashboard');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    checkRole();
+  }, [navigate]);
 
   useEffect(() => {
     fetchProducts();
