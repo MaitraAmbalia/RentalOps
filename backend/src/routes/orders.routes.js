@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const ordersController = require('../controllers/orders.controller');
+const lateFeeController = require('../controllers/lateFee.controller');
 const authenticate = require('../middlewares/authenticate');
 const authorize = require('../middlewares/authorize');
 const validate = require('../middlewares/validate');
@@ -13,5 +14,6 @@ router.post('/', authorize('VENDOR', 'CLIENT'), validate(orderSchema), ordersCon
 router.get('/', authorize('VENDOR', 'CLIENT'), ordersController.getAll);
 router.get('/:id', authorize('VENDOR', 'CLIENT'), ordersController.getById);
 router.patch('/:id/status', authorize('VENDOR'), validate(orderStatusUpdateSchema), ordersController.updateStatus);
+router.post('/:id/late-fee/calculate', authorize('VENDOR'), lateFeeController.calculate);
 
 module.exports = router;
