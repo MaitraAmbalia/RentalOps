@@ -4,11 +4,13 @@ const ApiError = require('../utils/apiError');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 
-// 1. Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// 1. Initialize Razorpay safely
+const razorpay = (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET)
+  ? new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+  : null;
 
 exports.initiatePayment = async (vendorId, orderId) => {
   const order = await orderRepo.findById(orderId, vendorId);

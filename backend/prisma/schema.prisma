@@ -159,6 +159,7 @@ model Vendor {
   companyProductCategory String                          // primary line of business, captured at signup
   gstNo                  String
   companyLogo            String?
+  address                String?                         // company address
   role                   String   @default("ADMIN")        // "organization-wide rental management" owner
   isActive               Boolean  @default(true)
   createdAt              DateTime @default(now())
@@ -191,6 +192,8 @@ model VendorSettings {
   defaultDepositValue     Decimal  @db.Decimal(10, 2) @default(100)   // 100% of rental price by default
   defaultTaxPercent       Decimal  @db.Decimal(5, 2) @default(0)      // GST %, since Vendor carries gstNo
   defaultPriceListId      String?                                    // "one default price list applicable to all products"
+  warrantyEnabled         Boolean  @default(false)                   // enable warranty service line on orders
+  policyDraftEnabled      Boolean  @default(false)                   // enable policy draft checkbox on products
   updatedAt               DateTime @updatedAt
 }
 

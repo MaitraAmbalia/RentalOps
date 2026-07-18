@@ -32,6 +32,8 @@ const getSettings = async (vendorId) => {
       defaultDepositCalcType: "PERCENT_OF_RENTAL",
       defaultDepositValue: 100,
       defaultTaxPercent: 0,
+      warrantyEnabled: false,
+      policyDraftEnabled: false,
     });
   }
   return settings;

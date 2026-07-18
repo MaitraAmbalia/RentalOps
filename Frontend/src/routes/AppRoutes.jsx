@@ -34,6 +34,8 @@ import DeliveryPartnersPage from '../pages/backend/DeliveryPartnersPage';
 import WorkflowsPage from '../pages/backend/WorkflowsPage';
 import QueriesPage from '../pages/backend/QueriesPage';
 import ProfilePageBackend from '../pages/backend/ProfilePage';
+import VendorSettingsPage from '../pages/portal/VendorSettingsPage';
+import QuotationTemplatesPage from '../pages/backend/QuotationTemplatesPage';
 
 // Previous Vendor Pages (Preserved for features compatibility)
 import NewOrderPage from '../pages/portal/NewOrderPage';
@@ -83,9 +85,13 @@ export default function AppRoutes() {
         <Route path="/vendor/products/:id" element={<ProductFormPage />} />
         <Route path="/vendor/workflows" element={<WorkflowsPage />} />
         <Route path="/vendor/queries" element={<QueriesPage />} />
-        <Route path="/vendor/settings" element={<ProfilePageBackend />} />
         <Route path="/vendor/partners" element={<DeliveryPartnersPage />} />
-        
+
+        {/* Configuration Section */}
+        <Route path="/vendor/settings" element={<VendorSettingsPage />} />
+        <Route path="/vendor/user" element={<ProfilePageBackend />} />
+        <Route path="/vendor/quotation-templates" element={<QuotationTemplatesPage />} />
+
         {/* Preserved pages */}
         <Route path="/vendor/schedule" element={<RentalSchedulerPage />} />
         <Route path="/vendor/reports" element={<ReportsPage />} />

@@ -1,8 +1,8 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Package, LayoutDashboard, ShoppingBag, Calendar, BarChart2, Settings, 
+  Package, LayoutDashboard, ShoppingBag, Calendar, BarChart2, Settings,
   Search, Bell, LogOut, ChevronDown, User, HelpCircle, MessageSquare, Sun, Moon,
-  ChevronLeft, ChevronRight, Menu
+  ChevronLeft, Menu, FileText, ChevronRight, Sliders, Truck
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { vendorService } from '../../api/vendorService';
@@ -17,6 +17,10 @@ export default function BackendLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [notifications, setNotifications] = useState([]);
+  const [configOpen, setConfigOpen] = useState(() => {
+    const path = window.location.pathname;
+    return path.startsWith('/vendor/settings') || path.startsWith('/vendor/user') || path.startsWith('/vendor/quotation');
+  });
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
@@ -24,7 +28,8 @@ export default function BackendLayout() {
   const [vendorProfile, setVendorProfile] = useState({
     firstName: 'Vendor',
     lastName: 'Admin',
-    companyName: 'Lawn & Equipment'
+    companyName: 'Lawn & Equipment',
+    role: 'ADMIN',
   });
 
   useEffect(() => {
@@ -40,6 +45,17 @@ export default function BackendLayout() {
     fetchProfile();
     fetchNotifications();
   }, []);
+
+  // Auto-expand config section when on a config route
+  useEffect(() => {
+    if (
+      location.pathname.startsWith('/vendor/settings') ||
+      location.pathname.startsWith('/vendor/user') ||
+      location.pathname.startsWith('/vendor/quotation')
+    ) {
+      setConfigOpen(true);
+    }
+  }, [location.pathname]);
 
   const fetchProfile = async () => {
     try {
@@ -72,15 +88,25 @@ export default function BackendLayout() {
     }
   };
 
+  const isAdmin = vendorProfile.role === 'ADMIN';
+
   const menuItems = [
     { name: 'Dashboard Stats', path: '/vendor/dashboard', icon: LayoutDashboard },
     { name: 'Quotations & Orders', path: '/vendor/orders', icon: ShoppingBag },
     { name: 'Schedule (Calendar)', path: '/vendor/schedule', icon: Calendar },
-    { name: 'Fulfillment List', path: '/vendor/workflows', icon: Calendar },
+    { name: 'Fulfillment List', path: '/vendor/workflows', icon: Truck },
     { name: 'Rental Products', path: '/vendor/products', icon: Package },
     { name: 'Resolution Disputes', path: '/vendor/queries', icon: HelpCircle },
-    { name: 'Ledger Reports', path: '/vendor/reports', icon: BarChart2 }
+    { name: 'Ledger Reports', path: '/vendor/reports', icon: BarChart2 },
   ];
+
+  const configItems = [
+    { name: 'Setting', path: '/vendor/settings', icon: Sliders, adminOnly: true },
+    { name: 'User Profile', path: '/vendor/user', icon: User, adminOnly: false },
+    { name: 'Quotation Templates', path: '/vendor/quotation-templates', icon: FileText, adminOnly: true },
+  ].filter(item => !item.adminOnly || isAdmin);
+
+  const isConfigActive = configItems.some(item => location.pathname.startsWith(item.path));
 
   return (
     <div className="min-h-screen flex bg-bg-main text-text-main font-sans transition-colors duration-200">
@@ -91,7 +117,7 @@ export default function BackendLayout() {
           isCollapsed ? 'w-20 p-4' : 'w-64 p-6'
         }`}
       >
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div className={`flex items-center ${isCollapsed ? 'flex-col space-y-4' : 'justify-between'} px-1`}>
             <Link to="/vendor/dashboard" className="flex items-center space-x-2.5">
               <Package className="h-7 w-7 text-primary shrink-0" />
@@ -132,6 +158,60 @@ export default function BackendLayout() {
                 </Link>
               );
             })}
+
+            {/* Configuration Group */}
+            {configItems.length > 0 && (
+              <div>
+                <button
+                  onClick={() => !isCollapsed && setConfigOpen(v => !v)}
+                  title={isCollapsed ? 'Configuration' : undefined}
+                  className={`w-full flex items-center ${
+                    isCollapsed ? 'justify-center' : 'justify-between'
+                  } px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isConfigActive 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-text-muted hover:bg-bg-main hover:text-text-main'
+                  }`}
+                >
+                  <div className={`flex items-center ${isCollapsed ? '' : 'space-x-3'}`}>
+                    <Settings className="h-4.5 w-4.5 shrink-0" />
+                    {!isCollapsed && <span>Configuration</span>}
+                  </div>
+                  {!isCollapsed && (
+                    <ChevronRight
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${configOpen ? 'rotate-90' : ''}`}
+                    />
+                  )}
+                </button>
+
+                {/* Sub-items */}
+                {(configOpen || isCollapsed) && (
+                  <div className={`mt-1 ${isCollapsed ? 'space-y-1' : 'ml-4 space-y-1 border-l border-border-main pl-3'}`}>
+                    {configItems.map((item, idx) => {
+                      const Icon = item.icon;
+                      const isActive = location.pathname.startsWith(item.path);
+                      return (
+                        <Link
+                          key={idx}
+                          to={item.path}
+                          title={isCollapsed ? item.name : undefined}
+                          className={`flex items-center ${
+                            isCollapsed ? 'justify-center' : 'space-x-2.5'
+                          } px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            isActive 
+                              ? 'bg-primary text-white' 
+                              : 'text-text-muted hover:bg-bg-main hover:text-text-main'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {!isCollapsed && <span>{item.name}</span>}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </nav>
         </div>
 
@@ -240,9 +320,13 @@ export default function BackendLayout() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center space-x-2.5 p-1 rounded-xl hover:bg-bg-main transition-colors"
               >
-                <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase">
-                  {vendorProfile.firstName.slice(0, 1)}
-                </div>
+                {vendorProfile.companyLogo ? (
+                  <img src={vendorProfile.companyLogo} alt="logo" className="w-8 h-8 rounded-lg object-cover border border-border-main" />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase">
+                    {(vendorProfile.firstName || 'V').slice(0, 1)}
+                  </div>
+                )}
                 <div className="text-left hidden lg:block text-xs">
                   <span className="font-bold text-text-main block leading-tight">{vendorProfile.firstName} {vendorProfile.lastName}</span>
                   <span className="text-[10px] text-text-muted font-semibold">{vendorProfile.companyName}</span>
@@ -251,11 +335,17 @@ export default function BackendLayout() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-bg-card border border-border-main rounded-xl py-1.5 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 text-xs text-text-muted">
-                  <Link to="/vendor/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2 hover:bg-bg-main hover:text-text-main transition-colors">
+                <div className="absolute right-0 mt-2 w-52 bg-bg-card border border-border-main rounded-xl py-1.5 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 text-xs text-text-muted">
+                  <Link to="/vendor/user" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2 hover:bg-bg-main hover:text-text-main transition-colors">
                     <User className="h-4 w-4 mr-2" />
                     <span>My Profile</span>
                   </Link>
+                  {isAdmin && (
+                    <Link to="/vendor/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2 hover:bg-bg-main hover:text-text-main transition-colors">
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>Settings</span>
+                    </Link>
+                  )}
                   <Link to="/vendor/queries" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2 hover:bg-bg-main hover:text-text-main transition-colors">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     <span>Query Disputes</span>

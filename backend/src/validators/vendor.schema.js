@@ -6,6 +6,9 @@ const updateVendorSchema = z.object({
   companyName: z.string().min(2).optional(),
   companyProductCategory: z.string().min(2).optional(),
   gstNo: z.string().min(4).optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  companyLogo: z.string().url().optional().or(z.literal('').optional()),
 });
 
 const settingsSchema = z.object({
@@ -18,9 +21,12 @@ const settingsSchema = z.object({
   defaultTaxPercent: z.coerce.number().min(0).max(100),
   defaultPriceListId: z.string().uuid().nullable().optional(),
   defaultLateFeeProductId: z.string().uuid().nullable().optional(),
+  warrantyEnabled: z.boolean().optional(),
+  policyDraftEnabled: z.boolean().optional(),
 });
 
 module.exports = {
   updateVendorSchema,
   settingsSchema,
 };
+

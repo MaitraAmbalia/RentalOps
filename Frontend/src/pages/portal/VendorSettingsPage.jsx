@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
-  Settings, Layers, User, Key, Save, Plus, Trash2, CheckCircle, RefreshCw, DollarSign, Calendar, Info, ToggleLeft
+  Settings, Layers, User, Key, Save, Plus, Trash2, CheckCircle, RefreshCw, DollarSign, Calendar, Info, ToggleLeft, ShieldOff, Package
 } from 'lucide-react';
 import { settingsService } from '../../api/settingsService';
 import { productService } from '../../api/productService';
+import { vendorService } from '../../api/vendorService';
 
 // Seed initial pricelists
 const SEED_PRICELISTS = [
@@ -21,14 +22,15 @@ const SEED_PRICELISTS = [
 
 export default function VendorSettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'pricing';
+  const activeTab = searchParams.get('tab') || 'pickup';
 
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [userRole, setUserRole] = useState('ADMIN'); // default assume admin until loaded
 
-  // 1. Tab: Pricing & Policy State
+  // 1. Tab: Pickup & Return (formerly Pricing & Policy)
   const [pricingPolicy, setPricingPolicy] = useState({
     lateFeeEnabled: true,
     defaultLateFeeRatePerHour: '0',
@@ -36,6 +38,12 @@ export default function VendorSettingsPage() {
     defaultDepositCalcType: 'PERCENT_OF_RENTAL',
     defaultDepositValue: '100',
     defaultTaxPercent: '18'
+  });
+
+  // Product Settings tab
+  const [productSettings, setProductSettings] = useState({
+    warrantyEnabled: false,
+    policyDraftEnabled: false,
   });
 
   // 2. Tab: Attributes State
@@ -80,6 +88,13 @@ export default function VendorSettingsPage() {
     isSelectable: true
   });
 
+  // Load role on mount
+  useEffect(() => {
+    vendorService.getProfile().then(p => {
+      if (p?.role) setUserRole(p.role);
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchData();
   }, [activeTab]);
@@ -93,7 +108,7 @@ export default function VendorSettingsPage() {
       const prods = await productService.getProducts().catch(() => []);
       setProducts(Array.isArray(prods) ? prods : []);
 
-      if (activeTab === 'pricing') {
+      if (activeTab === 'pickup') {
         const policy = await settingsService.getSettings();
         if (policy) {
           setPricingPolicy({
@@ -103,6 +118,18 @@ export default function VendorSettingsPage() {
             defaultDepositCalcType: policy.defaultDepositCalcType || 'PERCENT_OF_RENTAL',
             defaultDepositValue: policy.defaultDepositValue?.toString() || '100',
             defaultTaxPercent: policy.defaultTaxPercent?.toString() || '18'
+          });
+          setProductSettings({
+            warrantyEnabled: policy.warrantyEnabled ?? false,
+            policyDraftEnabled: policy.policyDraftEnabled ?? false,
+          });
+        }
+      } else if (activeTab === 'product-settings') {
+        const policy = await settingsService.getSettings();
+        if (policy) {
+          setProductSettings({
+            warrantyEnabled: policy.warrantyEnabled ?? false,
+            policyDraftEnabled: policy.policyDraftEnabled ?? false,
           });
         }
       } else if (activeTab === 'attributes') {
@@ -149,13 +176,41 @@ export default function VendorSettingsPage() {
         lateFeeGracePeriodMinutes: parseInt(pricingPolicy.lateFeeGracePeriodMinutes),
         defaultDepositCalcType: pricingPolicy.defaultDepositCalcType,
         defaultDepositValue: parseFloat(pricingPolicy.defaultDepositValue),
-        defaultTaxPercent: parseFloat(pricingPolicy.defaultTaxPercent)
+        defaultTaxPercent: parseFloat(pricingPolicy.defaultTaxPercent),
+        warrantyEnabled: productSettings.warrantyEnabled,
+        policyDraftEnabled: productSettings.policyDraftEnabled,
       };
       await settingsService.updateSettings(payload);
-      setSuccess('Pricing policies updated successfully!');
+      setSuccess('Settings updated successfully!');
     } catch (err) {
       console.error(err);
-      setError('Failed to save policies settings.');
+      setError('Failed to save settings.');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleSaveProductSettings = async (e) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const policy = await settingsService.getSettings();
+      await settingsService.updateSettings({
+        lateFeeEnabled: policy.lateFeeEnabled ?? true,
+        defaultLateFeeRatePerHour: parseFloat(policy.defaultLateFeeRatePerHour || 0),
+        lateFeeGracePeriodMinutes: parseInt(policy.lateFeeGracePeriodMinutes || 0),
+        defaultDepositCalcType: policy.defaultDepositCalcType || 'PERCENT_OF_RENTAL',
+        defaultDepositValue: parseFloat(policy.defaultDepositValue || 100),
+        defaultTaxPercent: parseFloat(policy.defaultTaxPercent || 0),
+        warrantyEnabled: productSettings.warrantyEnabled,
+        policyDraftEnabled: productSettings.policyDraftEnabled,
+      });
+      setSuccess('Product settings saved!');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to save product settings.');
     } finally {
       setSaveLoading(false);
     }
@@ -357,6 +412,16 @@ export default function VendorSettingsPage() {
     setSearchParams({ tab: tabName });
   };
 
+  if (userRole !== 'ADMIN') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-center">
+        <ShieldOff className="h-14 w-14 text-slate-600" />
+        <h2 className="text-xl font-bold text-white">Access Restricted</h2>
+        <p className="text-sm text-slate-400 max-w-xs">Only Company Admins can access the Configuration settings. Contact your administrator.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div>
@@ -367,13 +432,22 @@ export default function VendorSettingsPage() {
       {/* Tabs list */}
       <div className="flex flex-wrap border-b border-slate-800 bg-slate-950 p-1 rounded-xl self-start gap-1">
         <button
-          onClick={() => handleTabChange('pricing')}
+          onClick={() => handleTabChange('pickup')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'pricing' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'pickup' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Settings className="h-4 w-4" />
-          <span>Pricing & Policy</span>
+          <span>Pickup &amp; Return</span>
+        </button>
+        <button
+          onClick={() => handleTabChange('product-settings')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            activeTab === 'product-settings' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Package className="h-4 w-4" />
+          <span>Product Settings</span>
         </button>
         <button
           onClick={() => handleTabChange('pricelists')}
@@ -433,8 +507,8 @@ export default function VendorSettingsPage() {
       ) : (
         <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800">
           
-          {/* TAB 1: Pricing & Policy */}
-          {activeTab === 'pricing' && (
+          {/* TAB 1: Pickup & Return */}
+          {activeTab === 'pickup' && (
             <form onSubmit={handleSavePricing} className="space-y-6">
               <h2 className="text-lg font-bold text-white mb-4">Rental Fee Policies</h2>
               
@@ -520,6 +594,75 @@ export default function VendorSettingsPage() {
                 >
                   <Save className="h-4 w-4" />
                   <span>Save Pricing Configurations</span>
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* TAB 2: Product Settings */}
+          {activeTab === 'product-settings' && (
+            <form onSubmit={handleSaveProductSettings} className="space-y-6">
+              <h2 className="text-lg font-bold text-white mb-4">Product Catalog Features</h2>
+
+              <div className="space-y-5 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="warrantyEnabled"
+                        checked={productSettings.warrantyEnabled}
+                        onChange={(e) => setProductSettings(prev => ({ ...prev, warrantyEnabled: e.target.checked }))}
+                        className="w-4.5 h-4.5 accent-primary rounded cursor-pointer"
+                      />
+                      <label htmlFor="warrantyEnabled" className="text-sm font-bold text-white cursor-pointer">
+                        Offer Rental Warranty & Protection Plans
+                      </label>
+                    </div>
+                    <p className="text-xs text-slate-400 pl-7">
+                      Enables optional warranty coverage add-ons on products during checkout.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('attributes')}
+                    className="text-xs font-bold text-primary hover:underline flex items-center space-x-1 shrink-0"
+                  >
+                    <span>Configure Attributes &rarr;</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-slate-800 pt-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          id="policyDraftEnabled"
+                          checked={productSettings.policyDraftEnabled}
+                          onChange={(e) => setProductSettings(prev => ({ ...prev, policyDraftEnabled: e.target.checked }))}
+                          className="w-4.5 h-4.5 accent-primary rounded cursor-pointer"
+                        />
+                        <label htmlFor="policyDraftEnabled" className="text-sm font-bold text-white cursor-pointer">
+                          Enforce Custom Policy & Terms Draft Per Product
+                        </label>
+                      </div>
+                      <p className="text-xs text-slate-400 pl-7">
+                        Allow vendor staff to attach custom rental agreement terms directly to individual inventory items.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  disabled={saveLoading}
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm transition-all flex items-center space-x-2 shadow-lg shadow-primary/20"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>{saveLoading ? 'Saving…' : 'Save Product Settings'}</span>
                 </button>
               </div>
             </form>

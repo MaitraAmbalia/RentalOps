@@ -41,5 +41,4 @@ app.use((req, res) => {
 
 // Error handler middleware
 app.use(errorHandler);
-
 module.exports = app;

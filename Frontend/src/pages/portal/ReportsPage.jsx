@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  BarChart2, TrendingUp, Calendar, DollarSign, ShoppingBag, Eye, RefreshCw 
+  BarChart2, TrendingUp, Calendar, DollarSign, ShoppingBag, Eye, RefreshCw, Download, Printer 
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 
@@ -24,6 +24,29 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Order Number', 'Date', 'Status', 'Total Amount ($)'];
+    const rows = orders.map(o => [
+      `"${o.orderNumber || o.id}"`,
+      `"${new Date(o.createdAt || Date.now()).toLocaleDateString()}"`,
+      `"${o.status}"`,
+      o.totalAmount || 0
+    ]);
+    const csvString = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `rental_report_${timespan.toLowerCase()}_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
   };
 
   // Helper: group orders by date and calculate total values
@@ -117,12 +140,31 @@ export default function ReportsPage() {
           <p className="text-sm text-text-muted mt-1">Review ledger statistics and item renting frequencies.</p>
         </div>
 
-        <button
-          onClick={fetchOrdersData}
-          className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
-        >
-          <RefreshCw className="h-4.5 w-4.5" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center space-x-2 px-3.5 py-2 text-xs font-bold text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors shadow-sm"
+            title="Export CSV"
+          >
+            <Download className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+          <button
+            onClick={handlePrintPDF}
+            className="flex items-center space-x-2 px-3.5 py-2 text-xs font-bold text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors shadow-sm"
+            title="Print / PDF"
+          >
+            <Printer className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline">Print Report</span>
+          </button>
+          <button
+            onClick={fetchOrdersData}
+            className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
+            title="Refresh Data"
+          >
+            <RefreshCw className="h-4.5 w-4.5" />
+          </button>
+        </div>
       </div>
 
       {/* Aggregate Cards */}
