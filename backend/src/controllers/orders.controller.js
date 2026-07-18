@@ -2,7 +2,11 @@ const ordersService = require('../services/orders.service');
 
 exports.create = async (req, res, next) => {
   try {
-    const order = await ordersService.createOrder(req.user.vendorId || req.user.id, req.body);
+    const isVendor = req.user.type === 'VENDOR';
+    if (req.user.type === 'CLIENT') {
+      req.body.clientId = req.user.id;
+    }
+    const order = await ordersService.createOrder(isVendor ? req.user.id : null, req.body);
     res.status(201).json({ success: true, order });
   } catch (error) {
     next(error);

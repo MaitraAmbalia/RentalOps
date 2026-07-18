@@ -98,35 +98,87 @@ const removeCartItem = async (itemId, clientId) => {
   return { success: true };
 };
 
-const applyCouponToCart = async (clientId, code) => {
-  const cartData = await getCart(clientId);
-  if (cartData.activeItems.length === 0) {
+const applyCouponToCart = async (clientId, code, frontendCartItems = []) => {
+  let activeItems = [];
+  let subTotal = 0;
+  
+  console.log("applyCouponToCart called with:", { clientId, code, frontendCartItemsLength: frontendCartItems.length });
+  try {
+    const cartData = await getCart(clientId);
+    if (cartData.activeItems && cartData.activeItems.length > 0) {
+      activeItems = cartData.activeItems;
+      subTotal = cartData.subTotal;
+      console.log("Using backend cart items:", activeItems.length);
+    }
+  } catch (error) {
+    console.log("Error getting backend cart:", error);
+  }
+
+  if (activeItems.length === 0 && frontendCartItems.length > 0) {
+    console.log("Mapping frontend cart items...");
+    activeItems = frontendCartItems.map(item => {
+      const days = Math.ceil(Math.abs(new Date(item.scheduledReturnDate) - new Date(item.rentalStartDate)) / (1000 * 60 * 60 * 24)) || 1;
+      const price = item.product.rentalPrice || item.product.dailyCharge || 0;
+      return {
+        product: item.product,
+        qty: item.qty,
+        lineAmount: price * item.qty * days
+      };
+    });
+    subTotal = activeItems.reduce((sum, item) => sum + item.lineAmount, 0);
+  }
+
+  console.log("Active items after fallback:", activeItems.length);
+
+  if (activeItems.length === 0) {
     throw new ApiError(400, "Cart is empty");
   }
 
-  // Use the vendor ID from the first active product in the cart
-  const firstItem = cartData.activeItems[0];
-  const vendorId = firstItem.product.vendorId;
+  const uniqueVendorIds = [...new Set(activeItems.map(item => item.product.vendorId))];
+  console.log("Unique vendor IDs in cart:", uniqueVendorIds);
+  
+  let appliedCoupon = null;
+  let targetVendorId = null;
 
-  // Validate the coupon
-  const coupon = await couponService.validateCoupon(code, vendorId);
-
-  let discount = 0;
-  if (coupon.discountPercent !== null) {
-    discount = cartData.subTotal * (Number(coupon.discountPercent) / 100);
-  } else if (coupon.fixedAmount !== null) {
-    discount = Number(coupon.fixedAmount);
+  for (const vId of uniqueVendorIds) {
+    console.log(`Validating coupon ${code} for vendor ${vId}`);
+    const coupon = await couponService.validateCoupon(code, vId).catch(e => {
+      console.log(`Validation failed for ${vId}:`, e.message);
+      return null;
+    });
+    if (coupon) {
+      appliedCoupon = coupon;
+      targetVendorId = vId;
+      console.log("Coupon applied for vendor:", vId);
+      break;
+    }
   }
 
-  // Cap discount to subTotal
-  discount = Math.min(discount, cartData.subTotal);
-  const total = Math.max(0, cartData.subTotal - discount + cartData.deliveryCharges);
+  if (!appliedCoupon) {
+    throw new ApiError(400, "Invalid coupon code or not applicable to items in your cart");
+  }
+
+  // Calculate the subtotal only for the items that belong to the target vendor
+  const vendorSubTotal = activeItems
+    .filter(item => item.product.vendorId === targetVendorId)
+    .reduce((sum, item) => sum + item.lineAmount, 0);
+
+  let discount = 0;
+  if (appliedCoupon.discountPercent !== null) {
+    discount = vendorSubTotal * (Number(appliedCoupon.discountPercent) / 100);
+  } else if (appliedCoupon.fixedAmount !== null) {
+    discount = Number(appliedCoupon.fixedAmount);
+  }
+
+  // Cap discount to the vendor's subtotal
+  discount = Math.min(discount, vendorSubTotal);
+  const total = Math.max(0, subTotal - discount);
 
   return {
     success: true,
     discount,
     total,
-    couponCode: coupon.code,
+    couponCode: appliedCoupon.code,
   };
 };
 
