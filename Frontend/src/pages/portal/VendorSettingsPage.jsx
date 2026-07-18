@@ -1,11 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
-  Settings, Layers, User, Key, Save, Plus, Trash2, CheckCircle, RefreshCw, DollarSign, Calendar, Info, ToggleLeft, ShieldOff, Package
+  Settings, Layers, User, Key, Save, Plus, Trash2, CheckCircle, RefreshCw, Calendar, Info, ToggleLeft, ShieldOff, Package
 } from 'lucide-react';
 import { settingsService } from '../../api/settingsService';
 import { productService } from '../../api/productService';
 import { vendorService } from '../../api/vendorService';
+
+function RupeeIcon({ className }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <path d="M6 3h12" />
+      <path d="M6 8h12" />
+      <path d="m6 13 8.5 8" />
+      <path d="M6 13h3" />
+      <path d="M9 13c3.667 0 6-1.833 6-5s-2.333-5-6-5" />
+    </svg>
+  );
+}
 
 // Seed initial pricelists
 const SEED_PRICELISTS = [
@@ -415,9 +436,9 @@ export default function VendorSettingsPage() {
   if (userRole !== 'ADMIN') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-center">
-        <ShieldOff className="h-14 w-14 text-slate-600" />
-        <h2 className="text-xl font-bold text-white">Access Restricted</h2>
-        <p className="text-sm text-slate-400 max-w-xs">Only Company Admins can access the Configuration settings. Contact your administrator.</p>
+        <ShieldOff className="h-14 w-14 text-text-muted" />
+        <h2 className="text-xl font-bold text-text-main">Access Restricted</h2>
+        <p className="text-sm text-text-muted max-w-xs">Only Company Admins can access the Configuration settings. Contact your administrator.</p>
       </div>
     );
   }
@@ -425,16 +446,16 @@ export default function VendorSettingsPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">Vendor Configuration Hub</h1>
-        <p className="text-sm text-slate-400 mt-1">Manage core pricing policies, attributes, templates, and profile settings.</p>
+        <h1 className="text-2xl font-extrabold text-text-main">Vendor Configuration Hub</h1>
+        <p className="text-sm text-text-muted mt-1">Manage core pricing policies, attributes, templates, and profile settings.</p>
       </div>
 
       {/* Tabs list */}
-      <div className="flex flex-wrap border-b border-slate-800 bg-slate-950 p-1 rounded-xl self-start gap-1">
+      <div className="flex flex-wrap border-b border-border-main bg-bg-card p-1 rounded-xl self-start gap-1">
         <button
           onClick={() => handleTabChange('pickup')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'pickup' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'pickup' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <Settings className="h-4 w-4" />
@@ -443,7 +464,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('product-settings')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'product-settings' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'product-settings' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <Package className="h-4 w-4" />
@@ -452,16 +473,16 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('pricelists')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'pricelists' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'pricelists' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
-          <DollarSign className="h-4 w-4" />
+          <RupeeIcon className="h-4 w-4" />
           <span>Pricelists</span>
         </button>
         <button
           onClick={() => handleTabChange('attributes')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'attributes' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'attributes' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -470,7 +491,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('profile')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'profile' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'profile' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <User className="h-4 w-4" />
@@ -479,7 +500,7 @@ export default function VendorSettingsPage() {
         <button
           onClick={() => handleTabChange('password')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'password' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'password' ? 'bg-bg-main text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <Key className="h-4 w-4" />
@@ -505,70 +526,70 @@ export default function VendorSettingsPage() {
           <RefreshCw className="h-6 w-6 text-primary animate-spin" />
         </div>
       ) : (
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main shadow-sm">
           
           {/* TAB 1: Pickup & Return */}
           {activeTab === 'pickup' && (
             <form onSubmit={handleSavePricing} className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-4">Rental Fee Policies</h2>
+              <h2 className="text-lg font-bold text-text-main mb-4">Rental Fee Policies</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Enable Late Returns Penalties</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Enable Late Returns Penalties</label>
                   <div className="flex items-center space-x-3">
                     <button
                       type="button"
                       onClick={() => setPricingPolicy(prev => ({ ...prev, lateFeeEnabled: !prev.lateFeeEnabled }))}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${
-                        pricingPolicy.lateFeeEnabled ? 'bg-primary' : 'bg-slate-800'
+                        pricingPolicy.lateFeeEnabled ? 'bg-primary' : 'bg-bg-main border border-border-main'
                       }`}
                     >
                       <div className={`bg-white w-4.5 h-4.5 rounded-full shadow-md transform transition-all ${
                         pricingPolicy.lateFeeEnabled ? 'translate-x-6' : 'translate-x-0'
                       }`} />
                     </button>
-                    <span className="text-sm font-semibold text-slate-300">
+                    <span className="text-sm font-semibold text-text-main">
                       {pricingPolicy.lateFeeEnabled ? 'Penalties Active' : 'No Overdue Penalties'}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Late Fee ($ / Hour)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Late Fee (₹ / Hour)</label>
                   <input
                     type="number"
                     value={pricingPolicy.defaultLateFeeRatePerHour}
                     onChange={(e) => setPricingPolicy(prev => ({ ...prev, defaultLateFeeRatePerHour: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Grace Period (Minutes)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Grace Period (Minutes)</label>
                   <input
                     type="number"
                     value={pricingPolicy.lateFeeGracePeriodMinutes}
                     onChange={(e) => setPricingPolicy(prev => ({ ...prev, lateFeeGracePeriodMinutes: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Tax rate (GST %)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Tax rate (GST %)</label>
                   <input
                     type="number"
                     value={pricingPolicy.defaultTaxPercent}
                     onChange={(e) => setPricingPolicy(prev => ({ ...prev, defaultTaxPercent: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Deposit Calculation</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Deposit Calculation</label>
                   <select
                     value={pricingPolicy.defaultDepositCalcType}
                     onChange={(e) => setPricingPolicy(prev => ({ ...prev, defaultDepositCalcType: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="PERCENT_OF_RENTAL">Percentage of Rent Amount</option>
                     <option value="FIXED">Flat Fixed Amount</option>
@@ -576,12 +597,12 @@ export default function VendorSettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Deposit Value (% or $)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Deposit Value (% or ₹)</label>
                   <input
                     type="number"
                     value={pricingPolicy.defaultDepositValue}
                     onChange={(e) => setPricingPolicy(prev => ({ ...prev, defaultDepositValue: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -590,7 +611,7 @@ export default function VendorSettingsPage() {
                 <button
                   type="submit"
                   disabled={saveLoading}
-                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm transition-all flex items-center space-x-2"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm transition-all flex items-center space-x-2 shadow-sm"
                 >
                   <Save className="h-4 w-4" />
                   <span>Save Pricing Configurations</span>
@@ -602,9 +623,9 @@ export default function VendorSettingsPage() {
           {/* TAB 2: Product Settings */}
           {activeTab === 'product-settings' && (
             <form onSubmit={handleSaveProductSettings} className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-4">Product Catalog Features</h2>
+              <h2 className="text-lg font-bold text-text-main mb-4">Product Catalog Features</h2>
 
-              <div className="space-y-5 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+              <div className="space-y-5 bg-bg-main/60 p-5 rounded-2xl border border-border-main">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center space-x-3">
@@ -615,11 +636,11 @@ export default function VendorSettingsPage() {
                         onChange={(e) => setProductSettings(prev => ({ ...prev, warrantyEnabled: e.target.checked }))}
                         className="w-4.5 h-4.5 accent-primary rounded cursor-pointer"
                       />
-                      <label htmlFor="warrantyEnabled" className="text-sm font-bold text-white cursor-pointer">
+                      <label htmlFor="warrantyEnabled" className="text-sm font-bold text-text-main cursor-pointer">
                         Offer Rental Warranty & Protection Plans
                       </label>
                     </div>
-                    <p className="text-xs text-slate-400 pl-7">
+                    <p className="text-xs text-text-muted pl-7">
                       Enables optional warranty coverage add-ons on products during checkout.
                     </p>
                   </div>
@@ -632,7 +653,7 @@ export default function VendorSettingsPage() {
                   </button>
                 </div>
 
-                <div className="border-t border-slate-800 pt-4">
+                <div className="border-t border-border-main pt-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <div className="flex items-center space-x-3">
@@ -643,11 +664,11 @@ export default function VendorSettingsPage() {
                           onChange={(e) => setProductSettings(prev => ({ ...prev, policyDraftEnabled: e.target.checked }))}
                           className="w-4.5 h-4.5 accent-primary rounded cursor-pointer"
                         />
-                        <label htmlFor="policyDraftEnabled" className="text-sm font-bold text-white cursor-pointer">
+                        <label htmlFor="policyDraftEnabled" className="text-sm font-bold text-text-main cursor-pointer">
                           Enforce Custom Policy & Terms Draft Per Product
                         </label>
                       </div>
-                      <p className="text-xs text-slate-400 pl-7">
+                      <p className="text-xs text-text-muted pl-7">
                         Allow vendor staff to attach custom rental agreement terms directly to individual inventory items.
                       </p>
                     </div>
@@ -670,11 +691,11 @@ export default function VendorSettingsPage() {
 
           {/* TAB 2: Pricelists & Rules */}
           {activeTab === 'pricelists' && (
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 text-sm text-slate-300">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 text-sm text-text-muted">
               
               {/* Pricelists sidebar selection */}
               <div className="xl:col-span-1 space-y-4">
-                <h3 className="text-base font-bold text-white uppercase tracking-wider text-xs text-slate-450 border-b border-slate-900 pb-2">Pricelists</h3>
+                <h3 className="text-base font-bold text-text-main uppercase tracking-wider text-xs border-b border-border-main pb-2">Pricelists</h3>
                 <div className="space-y-1.5">
                   {pricelists.map(pl => (
                     <button
@@ -682,8 +703,8 @@ export default function VendorSettingsPage() {
                       onClick={() => setSelectedPricelistId(pl.id)}
                       className={`w-full text-left px-4 py-2.5 rounded-xl font-semibold transition-all border ${
                         selectedPricelistId === pl.id 
-                          ? 'bg-slate-900 border-primary text-white font-bold' 
-                          : 'bg-transparent border-transparent hover:bg-slate-900/60 text-slate-400 hover:text-slate-200'
+                          ? 'bg-bg-main border-primary text-text-main font-bold' 
+                          : 'bg-transparent border-transparent hover:bg-bg-main/60 text-text-muted hover:text-text-main'
                       }`}
                     >
                       {pl.name}
@@ -691,19 +712,19 @@ export default function VendorSettingsPage() {
                   ))}
                 </div>
 
-                <form onSubmit={handleCreatePricelist} className="pt-4 border-t border-slate-900 space-y-3">
-                  <span className="text-xs text-slate-500 uppercase font-bold">New Pricelist</span>
+                <form onSubmit={handleCreatePricelist} className="pt-4 border-t border-border-main space-y-3">
+                  <span className="text-xs text-text-muted uppercase font-bold">New Pricelist</span>
                   <input
                     type="text"
                     required
                     placeholder="Pricelist Name..."
                     value={newPricelistName}
                     onChange={(e) => setNewPricelistName(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2 text-xs text-text-main focus:outline-none"
                   />
                   <button
                     type="submit"
-                    className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1"
+                    className="w-full py-2 bg-bg-main hover:bg-bg-main/80 text-text-main border border-border-main rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     <span>Create Pricelist</span>
@@ -715,15 +736,15 @@ export default function VendorSettingsPage() {
               <div className="xl:col-span-2 space-y-4">
                 {currentPricelist ? (
                   <>
-                    <div className="border-b border-slate-900 pb-2 flex justify-between items-center">
-                      <h3 className="text-base font-extrabold text-white">{currentPricelist.name} Rules</h3>
-                      <span className="text-xs text-slate-500 font-semibold">Active Rules Count: {currentPricelist.rules?.length || 0}</span>
+                    <div className="border-b border-border-main pb-2 flex justify-between items-center">
+                      <h3 className="text-base font-extrabold text-text-main">{currentPricelist.name} Rules</h3>
+                      <span className="text-xs text-text-muted font-semibold">Active Rules Count: {currentPricelist.rules?.length || 0}</span>
                     </div>
 
-                    <div className="overflow-x-auto bg-slate-900/20 border border-slate-900 rounded-2xl p-4">
+                    <div className="overflow-x-auto bg-bg-main/20 border border-border-main rounded-2xl p-4">
                       <table className="w-full border-collapse text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase pb-2">
+                          <tr className="border-b border-border-main text-text-muted font-bold uppercase pb-2">
                             <th className="pb-2">Apply On</th>
                             <th className="pb-2 text-center">Min. Qty</th>
                             <th className="pb-2">Validity Limit</th>
@@ -732,24 +753,24 @@ export default function VendorSettingsPage() {
                             <th className="pb-2 w-8"></th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-850">
+                        <tbody className="divide-y divide-border-main">
                           {currentPricelist.rules?.map((rule, idx) => (
                             <tr key={idx} className="group">
-                              <td className="py-2.5 font-semibold text-slate-200">{rule.productName || rule.product?.name || 'All Products'}</td>
-                              <td className="py-2.5 text-center text-slate-300">{rule.minQty}</td>
-                              <td className="py-2.5 text-slate-400">
+                              <td className="py-2.5 font-semibold text-text-main">{rule.productName || rule.product?.name || 'All Products'}</td>
+                              <td className="py-2.5 text-center text-text-main">{rule.minQty}</td>
+                              <td className="py-2.5 text-text-muted">
                                 {rule.validFrom && rule.validTo ? `${new Date(rule.validFrom).toLocaleDateString()} to ${new Date(rule.validTo).toLocaleDateString()}` : 'Lifetime'}
                               </td>
                               <td className="py-2.5 text-center">
-                                <span className={`inline-block w-2 h-2 rounded-full ${rule.isSelectable ? 'bg-primary' : 'bg-slate-700'}`} />
+                                <span className={`inline-block w-2 h-2 rounded-full ${rule.isSelectable ? 'bg-primary' : 'bg-text-muted'}`} />
                               </td>
-                              <td className="py-2.5 text-right font-bold text-white">
-                                {rule.priceType === 'DISCOUNT' ? `${rule.discountPercent}% Discount` : `$${Number(rule.fixedPrice || 0).toFixed(2)} Fixed`}
+                              <td className="py-2.5 text-right font-bold text-text-main">
+                                {rule.priceType === 'DISCOUNT' ? `${rule.discountPercent}% Discount` : `₹${Number(rule.fixedPrice || 0).toFixed(2)} Fixed`}
                               </td>
                               <td className="py-2.5 text-center">
                                 <button
                                   onClick={() => handleDeletePriceRule(rule.id)}
-                                  className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-text-muted hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   ✕
                                 </button>
@@ -759,7 +780,7 @@ export default function VendorSettingsPage() {
 
                           {(currentPricelist.rules || []).length === 0 && (
                             <tr>
-                              <td colSpan="6" className="py-6 text-center text-slate-550 font-semibold italic">
+                              <td colSpan="6" className="py-6 text-center text-text-muted font-semibold italic">
                                 No specific rules added yet. Add a rule to this list on the right.
                               </td>
                             </tr>
@@ -769,7 +790,7 @@ export default function VendorSettingsPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="p-8 text-center text-slate-500 font-semibold italic border border-dashed border-slate-800 rounded-2xl">
+                  <div className="p-8 text-center text-text-muted font-semibold italic border border-dashed border-border-main rounded-2xl">
                     Select or create a pricelist first.
                   </div>
                 )}
@@ -777,14 +798,14 @@ export default function VendorSettingsPage() {
 
               {/* Create Pricelist Rules Form */}
               <div className="xl:col-span-1 space-y-4">
-                <h3 className="text-base font-bold text-white uppercase tracking-wider text-xs text-slate-450 border-b border-slate-900 pb-2">Create Rule</h3>
-                <form onSubmit={handleAddPriceRule} className="bg-slate-900/60 p-4 rounded-xl border border-slate-850 space-y-4">
+                <h3 className="text-base font-bold text-text-main uppercase tracking-wider text-xs border-b border-border-main pb-2">Create Rule</h3>
+                <form onSubmit={handleAddPriceRule} className="bg-bg-main/60 p-4 rounded-xl border border-border-main space-y-4">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Products</label>
+                    <label className="block text-[10px] uppercase font-bold text-text-muted mb-1">Products</label>
                     <select
                       value={ruleForm.productId}
                       onChange={(e) => setRuleForm(prev => ({ ...prev, productId: e.target.value }))}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white"
+                      className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-xs text-text-main focus:outline-none"
                     >
                       <option value="">All Products</option>
                       {products.map(p => (
@@ -794,7 +815,7 @@ export default function VendorSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Price Type</label>
+                    <label className="block text-[10px] uppercase font-bold text-text-muted mb-1">Price Type</label>
                     <div className="flex space-x-2">
                       <button
                         type="button"
@@ -802,7 +823,7 @@ export default function VendorSettingsPage() {
                         className={`flex-1 py-1 rounded text-[10px] font-bold border transition-all ${
                           ruleForm.priceType === 'DISCOUNT' 
                             ? 'bg-primary border-primary text-white' 
-                            : 'bg-transparent border-slate-800 text-slate-400 hover:text-slate-200'
+                            : 'bg-transparent border-border-main text-text-muted hover:text-text-main'
                         }`}
                       >
                         Discount %
@@ -813,7 +834,7 @@ export default function VendorSettingsPage() {
                         className={`flex-1 py-1 rounded text-[10px] font-bold border transition-all ${
                           ruleForm.priceType === 'FIXED' 
                             ? 'bg-primary border-primary text-white' 
-                            : 'bg-transparent border-slate-800 text-slate-400 hover:text-slate-200'
+                            : 'bg-transparent border-border-main text-text-muted hover:text-text-main'
                         }`}
                       >
                         Fixed Price
@@ -823,57 +844,57 @@ export default function VendorSettingsPage() {
 
                   {ruleForm.priceType === 'DISCOUNT' ? (
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Discount % on Sales price</label>
+                      <label className="block text-[10px] uppercase font-bold text-text-muted mb-1">Discount % on Sales price</label>
                       <input
                         type="number"
                         min="0"
                         max="100"
                         value={ruleForm.discountPercent}
                         onChange={(e) => setRuleForm(prev => ({ ...prev, discountPercent: e.target.value }))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-xs text-text-main focus:outline-none"
                       />
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Fixed Price ($)</label>
+                      <label className="block text-[10px] uppercase font-bold text-text-muted mb-1">Fixed Price (₹)</label>
                       <input
                         type="number"
                         min="0"
                         value={ruleForm.fixedPrice}
                         onChange={(e) => setRuleForm(prev => ({ ...prev, fixedPrice: e.target.value }))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-xs text-text-main focus:outline-none"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Min Qty</label>
+                    <label className="block text-[10px] uppercase font-bold text-text-muted mb-1">Min Qty</label>
                     <input
                       type="number"
                       min="1"
                       value={ruleForm.minQty}
                       onChange={(e) => setRuleForm(prev => ({ ...prev, minQty: e.target.value }))}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white"
+                      className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-xs text-text-main focus:outline-none"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-[10px]">
                     <div>
-                      <label className="block uppercase font-bold text-slate-400 mb-1">Valid From</label>
+                      <label className="block uppercase font-bold text-text-muted mb-1">Valid From</label>
                       <input
                         type="date"
                         value={ruleForm.validFrom}
                         onChange={(e) => setRuleForm(prev => ({ ...prev, validFrom: e.target.value }))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-text-main focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block uppercase font-bold text-slate-400 mb-1">Valid To</label>
+                      <label className="block uppercase font-bold text-text-muted mb-1">Valid To</label>
                       <input
                         type="date"
                         value={ruleForm.validTo}
                         onChange={(e) => setRuleForm(prev => ({ ...prev, validTo: e.target.value }))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-lg p-2 text-text-main focus:outline-none"
                       />
                     </div>
                   </div>
@@ -883,14 +904,14 @@ export default function VendorSettingsPage() {
                       type="checkbox"
                       checked={ruleForm.isSelectable}
                       onChange={(e) => setRuleForm(prev => ({ ...prev, isSelectable: e.target.checked }))}
-                      className="rounded bg-slate-950 border-slate-850 text-primary w-4.5 h-4.5"
+                      className="rounded bg-bg-card border-border-main text-primary w-4.5 h-4.5"
                     />
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Rule Selectable</label>
+                    <label className="text-[10px] uppercase font-bold text-text-muted">Rule Selectable</label>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition-all"
+                    className="w-full py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                   >
                     Add Pricing Rule
                   </button>
@@ -908,24 +929,24 @@ export default function VendorSettingsPage() {
                 
                 {/* Attributes creator */}
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white">Create Product Attributes</h2>
-                  <form onSubmit={handleCreateAttribute} className="space-y-4 bg-slate-900/60 p-4 rounded-xl border border-slate-850">
+                  <h2 className="text-lg font-bold text-text-main">Create Product Attributes</h2>
+                  <form onSubmit={handleCreateAttribute} className="space-y-4 bg-bg-main/60 p-4 rounded-xl border border-border-main">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Attribute Name (e.g. Brand, Size)</label>
+                      <label className="block text-xs text-text-muted mb-1">Attribute Name (e.g. Brand, Size)</label>
                       <input
                         type="text"
                         value={newAttrName}
                         onChange={(e) => setNewAttrName(e.target.value)}
                         placeholder="Name"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Display Type</label>
+                      <label className="block text-xs text-text-muted mb-1">Display Type</label>
                       <select
                         value={newAttrDisplay}
                         onChange={(e) => setNewAttrDisplay(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                       >
                         <option value="RADIO">Radio Buttons</option>
                         <option value="PILLS">Pills Chip View</option>
@@ -944,14 +965,14 @@ export default function VendorSettingsPage() {
 
                 {/* Attribute values manager */}
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white">Attribute Values</h2>
-                  <form onSubmit={handleAddAttributeValue} className="space-y-4 bg-slate-900/60 p-4 rounded-xl border border-slate-850">
+                  <h2 className="text-lg font-bold text-text-main">Attribute Values</h2>
+                  <form onSubmit={handleAddAttributeValue} className="space-y-4 bg-bg-main/60 p-4 rounded-xl border border-border-main">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Select Attribute</label>
+                      <label className="block text-xs text-text-muted mb-1">Select Attribute</label>
                       <select
                         value={selectedAttrId}
                         onChange={(e) => setSelectedAttrId(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                       >
                         <option value="">Choose attribute...</option>
                         {attributes.map(a => (
@@ -960,18 +981,18 @@ export default function VendorSettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">New Value Option Text (e.g. Red, 15-inch)</label>
+                      <label className="block text-xs text-text-muted mb-1">New Value Option Text (e.g. Red, 15-inch)</label>
                       <input
                         type="text"
                         value={newValueInput}
                         onChange={(e) => setNewValueInput(e.target.value)}
                         placeholder="Value Option"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                        className="w-full bg-bg-card border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="w-full flex items-center justify-center space-x-1 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 rounded-xl text-xs font-bold transition-all"
+                      className="w-full flex items-center justify-center space-x-1 py-2 bg-bg-main hover:bg-bg-main/80 text-text-main rounded-xl text-xs font-bold border border-border-main transition-all"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Add Value Option</span>
@@ -983,22 +1004,22 @@ export default function VendorSettingsPage() {
 
               {/* List of attributes */}
               <div className="space-y-4">
-                <h2 className="text-lg font-bold text-white">Existing System Attributes</h2>
+                <h2 className="text-lg font-bold text-text-main">Existing System Attributes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {attributes.map(attr => (
-                    <div key={attr.id} className="bg-slate-900 p-4 rounded-xl border border-slate-850 flex justify-between items-start">
+                    <div key={attr.id} className="bg-bg-main p-4 rounded-xl border border-border-main flex justify-between items-start">
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <span className="font-bold text-white">{attr.name}</span>
-                          <span className="text-[10px] bg-slate-850 text-slate-400 px-2 py-0.5 rounded font-bold uppercase">{attr.displayType}</span>
+                          <span className="font-bold text-text-main">{attr.name}</span>
+                          <span className="text-[10px] bg-bg-card text-text-muted px-2 py-0.5 rounded font-bold uppercase border border-border-main">{attr.displayType}</span>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {attr.values?.map(val => (
-                            <span key={val.id} className="inline-flex items-center bg-slate-950 text-slate-300 text-xs px-2.5 py-1 rounded-lg border border-slate-800 space-x-1.5">
+                            <span key={val.id} className="inline-flex items-center bg-bg-card text-text-main text-xs px-2.5 py-1 rounded-lg border border-border-main space-x-1.5">
                               <span>{val.value}</span>
                               <button 
                                 onClick={() => handleDeleteAttributeValue(attr.id, val.id)}
-                                className="text-slate-500 hover:text-rose-400 transition-colors text-[10px]"
+                                className="text-text-muted hover:text-rose-500 transition-colors text-[10px]"
                               >
                                 ✕
                               </button>
@@ -1008,7 +1029,7 @@ export default function VendorSettingsPage() {
                       </div>
                       <button 
                         onClick={() => handleDeleteAttribute(attr.id)}
-                        className="text-slate-500 hover:text-rose-400 p-1"
+                        className="text-text-muted hover:text-rose-500 p-1"
                       >
                         <Trash2 className="h-4.5 w-4.5" />
                       </button>
@@ -1023,91 +1044,91 @@ export default function VendorSettingsPage() {
           {/* TAB 4: User Settings Profile */}
           {activeTab === 'profile' && (
             <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-4">Vendor Profile Details</h2>
+              <h2 className="text-lg font-bold text-text-main mb-4">Vendor Profile Details</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">First Name</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">First Name</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.firstName}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Last Name</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Last Name</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.lastName}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Work Email (Read Only)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Work Email (Read Only)</label>
                   <input
                     type="email"
                     disabled
                     value={vendorProfile.email}
-                    className="w-full bg-slate-900/60 border border-slate-850 rounded-xl p-2.5 text-sm text-slate-500 cursor-not-allowed"
+                    className="w-full bg-bg-main/60 border border-border-main rounded-xl p-2.5 text-sm text-text-muted/65 cursor-not-allowed"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Phone</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Phone</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.phone}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Company Name</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Company Name</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.companyName}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, companyName: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Line of Business</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Line of Business</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.companyProductCategory}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, companyProductCategory: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">GST Number</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">GST Number</label>
                   <input
                     type="text"
                     required
                     value={vendorProfile.gstNo}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, gstNo: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Current System Role</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Current System Role</label>
                   <select
                     value={vendorProfile.role}
                     onChange={(e) => setVendorProfile(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   >
                     <option value="ADMIN">Company Owner (Admin)</option>
                     <option value="VENDOR">Standard Vendor Manager</option>
@@ -1131,39 +1152,39 @@ export default function VendorSettingsPage() {
           {/* TAB 5: Change Password */}
           {activeTab === 'password' && (
             <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
-              <h2 className="text-lg font-bold text-white mb-4">Security Settings</h2>
+              <h2 className="text-lg font-bold text-text-main mb-4">Security Settings</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Current Password</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Current Password</label>
                   <input
                     type="password"
                     required
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">New Password</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">New Password</label>
                   <input
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Confirm New Password</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Confirm New Password</label>
                   <input
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none"
                   />
                 </div>
               </div>

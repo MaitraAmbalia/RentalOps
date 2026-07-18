@@ -1,13 +1,182 @@
 import { useState, useEffect } from 'react';
 import { 
-  BarChart2, TrendingUp, Calendar, DollarSign, ShoppingBag, Eye, RefreshCw, Download, Printer 
+  BarChart2, TrendingUp, ShoppingBag, RefreshCw, Download, Printer 
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
+
+function RupeeIcon({ className }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <path d="M6 3h12" />
+      <path d="M6 8h12" />
+      <path d="m6 13 8.5 8" />
+      <path d="M6 13h3" />
+      <path d="M9 13c3.667 0 6-1.833 6-5s-2.333-5-6-5" />
+    </svg>
+  );
+}
+
+function LineChart({ data, title, isCurrency }) {
+  const height = 220;
+  const width = 500;
+  const paddingLeft = 65;
+  const paddingRight = 20;
+  const paddingTop = 20;
+  const paddingBottom = 35;
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const maxVal = Math.max(...data.map(d => d.value), 1);
+  
+  // Ticks for Y axis
+  const ticks = [0, maxVal * 0.25, maxVal * 0.5, maxVal * 0.75, maxVal];
+
+  // Helper to format values
+  const formatYValue = (val) => {
+    if (isCurrency) {
+      return `₹${val.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+    return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  };
+
+  // Generate SVG path coordinates
+  const points = data.map((d, index) => {
+    const x = paddingLeft + (index / (data.length - 1)) * chartWidth;
+    const y = paddingTop + chartHeight - (d.value / maxVal) * chartHeight;
+    return { x, y, value: d.value, label: d.label };
+  });
+
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const areaPath = points.length > 0 
+    ? `${linePath} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`
+    : '';
+
+  // Generate a unique ID for gradients so they don't clash
+  const gradientId = `grad-${title.replace(/\s+/g, '-').toLowerCase()}`;
+
+  return (
+    <div className="bg-bg-card p-5 rounded-2xl border border-border-main flex-1 min-w-[300px] shadow-sm">
+      <h3 className="text-sm font-bold text-text-main mb-4 tracking-tight flex items-center justify-between">
+        <span>{title}</span>
+        <span className="text-[10px] text-text-muted font-bold bg-bg-main px-2 py-0.5 rounded-lg border border-border-main">
+          {isCurrency ? 'INR (₹)' : 'Count'}
+        </span>
+      </h3>
+
+      <div className="relative">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity="0.00" />
+            </linearGradient>
+          </defs>
+
+          {/* Grid lines and Y axis labels */}
+          {ticks.map((tick, i) => {
+            const y = paddingTop + chartHeight - (tick / maxVal) * chartHeight;
+            return (
+              <g key={i}>
+                <line 
+                  x1={paddingLeft} 
+                  y1={y} 
+                  x2={width - paddingRight} 
+                  y2={y} 
+                  className="stroke-border-main/50" 
+                  strokeWidth="1" 
+                  strokeDasharray="4 4"
+                />
+                <text 
+                  x={paddingLeft - 10} 
+                  y={y + 4} 
+                  textAnchor="end" 
+                  className="fill-text-muted text-[10px] font-semibold"
+                >
+                  {formatYValue(tick)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* X axis labels */}
+          {points.map((p, i) => (
+            <text 
+              key={i} 
+              x={p.x} 
+              y={height - 10} 
+              textAnchor="middle" 
+              className="fill-text-muted text-[10px] font-semibold"
+            >
+              {p.label}
+            </text>
+          ))}
+
+          {/* Area under the line */}
+          {points.length > 0 && (
+            <path 
+              d={areaPath} 
+              fill={`url(#${gradientId})`} 
+              className="transition-all duration-500 ease-in-out"
+            />
+          )}
+
+          {/* The line itself */}
+          {points.length > 0 && (
+            <path 
+              d={linePath} 
+              fill="none" 
+              stroke="#2563eb" 
+              strokeWidth="3" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="transition-all duration-500 ease-in-out"
+            />
+          )}
+
+          {/* Data point dots */}
+          {points.map((p, i) => (
+            <g key={i} className="group/dot cursor-pointer">
+              {/* Tooltip trigger area */}
+              <circle 
+                cx={p.x} 
+                cy={p.y} 
+                r="10" 
+                fill="transparent" 
+              />
+              {/* Visible dot */}
+              <circle 
+                cx={p.x} 
+                cy={p.y} 
+                r="4.5" 
+                fill="var(--color-bg-card)" 
+                stroke="#2563eb" 
+                strokeWidth="2.5"
+                className="transition-all duration-200 group-hover/dot:r-6"
+              />
+              {/* Tooltip text */}
+              <title>
+                {p.label}: {isCurrency ? `₹${p.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : `${p.value} Orders`}
+              </title>
+            </g>
+          ))}
+        </svg>
+      </div>
+    </div>
+  );
+}
 
 export default function ReportsPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [metric, setMetric] = useState('REVENUE'); // 'REVENUE', 'RENTAL_COUNT'
   const [timespan, setTimespan] = useState('MONTH'); // 'WEEK', 'MONTH', 'YEAR'
 
   useEffect(() => {
@@ -27,7 +196,7 @@ export default function ReportsPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Order Number', 'Date', 'Status', 'Total Amount ($)'];
+    const headers = ['Order Number', 'Date', 'Status', 'Total Amount (₹)'];
     const rows = orders.map(o => [
       `"${o.orderNumber || o.id}"`,
       `"${new Date(o.createdAt || Date.now()).toLocaleDateString()}"`,
@@ -50,7 +219,7 @@ export default function ReportsPage() {
   };
 
   // Helper: group orders by date and calculate total values
-  const getChartData = () => {
+  const getChartData = (metricType) => {
     const dataPoints = [];
     const now = new Date();
     
@@ -67,7 +236,7 @@ export default function ReportsPage() {
         const revenue = dayOrders.reduce((sum, o) => sum + parseFloat(o.totalAmount || 0), 0);
         const count = dayOrders.length;
         
-        dataPoints.push({ label: dateLabel, value: metric === 'REVENUE' ? revenue : count });
+        dataPoints.push({ label: dateLabel, value: metricType === 'REVENUE' ? revenue : count });
       }
     } else if (timespan === 'MONTH') {
       // Last 4 weeks
@@ -86,7 +255,7 @@ export default function ReportsPage() {
         const revenue = weekOrders.reduce((sum, o) => sum + parseFloat(o.totalAmount || 0), 0);
         const count = weekOrders.length;
         
-        dataPoints.push({ label: weekLabel, value: metric === 'REVENUE' ? revenue : count });
+        dataPoints.push({ label: weekLabel, value: metricType === 'REVENUE' ? revenue : count });
       }
     } else {
       // Last 6 months
@@ -105,15 +274,15 @@ export default function ReportsPage() {
         const revenue = monthOrders.reduce((sum, o) => sum + parseFloat(o.totalAmount || 0), 0);
         const count = monthOrders.length;
         
-        dataPoints.push({ label: monthLabel, value: metric === 'REVENUE' ? revenue : count });
+        dataPoints.push({ label: monthLabel, value: metricType === 'REVENUE' ? revenue : count });
       }
     }
     
     return dataPoints;
   };
 
-  const chartData = getChartData();
-  const maxValue = Math.max(...chartData.map(d => d.value), 1);
+  const revenueData = getChartData('REVENUE');
+  const frequencyData = getChartData('RENTAL_COUNT');
 
   // Stats aggregate
   const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.totalAmount || 0), 0);
@@ -169,17 +338,17 @@ export default function ReportsPage() {
 
       {/* Aggregate Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between shadow-sm">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Total Sales Revenue</span>
-            <span className="text-2xl font-extrabold text-text-main block">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="text-2xl font-extrabold text-text-main block">₹{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-            <DollarSign className="h-6 w-6 text-primary" />
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 animate-pulse">
+            <RupeeIcon className="h-6 w-6 text-primary" />
           </div>
         </div>
 
-        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between shadow-sm">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Active Fleet Rentals</span>
             <span className="text-2xl font-extrabold text-emerald-555 block">{activeRentals}</span>
@@ -189,7 +358,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between shadow-sm">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Orders Processed</span>
             <span className="text-2xl font-extrabold text-cyan-555 block">{totalRentalsCount}</span>
@@ -200,36 +369,27 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Main Chart Card */}
-      <div className="bg-bg-card p-6 rounded-2xl border border-border-main space-y-6">
+      {/* Main Charts Section */}
+      <div className="bg-bg-card p-6 rounded-2xl border border-border-main space-y-6 shadow-sm">
         
         {/* Chart Configuration Selectors */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-4">
-          <div className="flex space-x-2 bg-bg-main p-1 rounded-xl">
-            <button
-              onClick={() => setMetric('REVENUE')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                metric === 'REVENUE' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
-              }`}
-            >
-              Sales Value ($)
-            </button>
-            <button
-              onClick={() => setMetric('RENTAL_COUNT')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                metric === 'RENTAL_COUNT' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
-              }`}
-            >
-              Order Frequencies
-            </button>
+          <div>
+            <h2 className="text-base font-bold text-text-main">Historical Ledger Statistics</h2>
+            <p className="text-xs text-text-muted mt-0.5">Comparing sales revenue and order counts over time.</p>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4.5 w-4.5 text-text-muted" />
+          <div className="flex items-center">
             <select
               value={timespan}
               onChange={(e) => setTimespan(e.target.value)}
-              className="bg-bg-main text-text-main text-xs border border-border-main rounded-xl px-3 py-2 focus:outline-none cursor-pointer"
+              className="bg-bg-main text-text-main text-xs border border-border-main rounded-xl px-4 py-2 font-bold transition-all hover:bg-bg-main/80 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm appearance-none pr-8 relative"
+              style={{
+                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundPosition: 'right 0.65rem center',
+                backgroundSize: '1.1rem',
+                backgroundRepeat: 'no-repeat'
+              }}
             >
               <option value="WEEK">Last 7 Days</option>
               <option value="MONTH">Last 4 Weeks (Monthly)</option>
@@ -238,44 +398,13 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Premium SVG Bar Chart */}
-        <div className="space-y-4">
-          <div className="flex items-end justify-between h-72 pt-4 bg-bg-main/30 rounded-2xl border border-border-main p-6">
-            {chartData.map((data, index) => {
-              const percentage = (data.value / maxValue) * 100;
-              return (
-                <div key={index} className="flex flex-col items-center flex-1 space-y-3 group h-full justify-end">
-                  {/* Tooltip value */}
-                  <div className="opacity-0 group-hover:opacity-100 bg-bg-card text-[10px] text-primary border border-border-main font-bold px-2 py-1 rounded transition-opacity duration-150 shadow-lg pointer-events-none mb-1">
-                    {metric === 'REVENUE' ? `$${data.value.toFixed(2)}` : `${data.value} Orders`}
-                  </div>
-                  
-                  {/* Bar */}
-                  <div 
-                    style={{ height: `${percentage}%` }}
-                    className="w-12 bg-gradient-to-t from-primary/40 to-primary border-t border-x border-primary/80 rounded-t-lg transition-all duration-500 hover:brightness-110 shadow-lg shadow-primary/10 relative"
-                  >
-                    {/* Inner highlight */}
-                    <div className="absolute inset-x-0 top-0 h-1 bg-white/20 rounded-t-lg" />
-                  </div>
-                  
-                  {/* Label */}
-                  <span className="text-xs text-text-muted font-semibold truncate max-w-[80px]">
-                    {data.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex justify-between items-center text-[10px] text-text-muted font-semibold px-2 uppercase tracking-wider">
-            <span>Chart Metric: {metric === 'REVENUE' ? 'Gross Revenue Earnings (USD)' : 'Total Rent Invoices Created'}</span>
-            <span>Scale Max: {metric === 'REVENUE' ? `$${maxValue.toFixed(0)}` : `${maxValue} Counts`}</span>
-          </div>
+        {/* Both charts side-by-side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LineChart data={revenueData} title="Sales Value" isCurrency={true} />
+          <LineChart data={frequencyData} title="Order Frequencies" isCurrency={false} />
         </div>
 
       </div>
-
     </div>
   );
 }
