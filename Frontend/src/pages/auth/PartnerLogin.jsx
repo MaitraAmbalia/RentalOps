@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Phone, Lock, ArrowRight } from 'lucide-react';
-import { api } from '../../services/api';
+import { authService } from '../../api/authService';
 
 export default function PartnerLogin() {
   const [phone, setPhone] = useState('');
@@ -13,7 +13,10 @@ export default function PartnerLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.loginDeliveryPartner(phone, password);
+      const res = await authService.partnerLogin(phone, password);
+      if (res.data && res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       navigate('/dashboard'); 
     } catch (err) {
       console.error(err);

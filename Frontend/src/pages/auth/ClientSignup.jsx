@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, User, Mail, Phone, MapPin, Lock, ArrowRight } from 'lucide-react';
-import { api } from '../../services/api';
+import { authService } from '../../api/authService';
 
 export default function ClientSignup() {
   const [formData, setFormData] = useState({
@@ -9,8 +9,8 @@ export default function ClientSignup() {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +23,10 @@ export default function ClientSignup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.signupClient(formData);
+      const res = await authService.clientSignup(formData);
+      if (res.data && res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
@@ -113,22 +116,6 @@ export default function ClientSignup() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Shipping Address</label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-slate-400" />
-                </div>
-                <input
-                  type="text"
-                  name="address"
-                  required
-                  onChange={handleChange}
-                  className="appearance-none block w-full pl-10 px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
               <label className="block text-sm font-medium text-slate-700">Password</label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -137,6 +124,22 @@ export default function ClientSignup() {
                 <input
                   type="password"
                   name="password"
+                  required
+                  onChange={handleChange}
+                  className="appearance-none block w-full pl-10 px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Confirm Password</label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type="password"
+                  name="confirmPassword"
                   required
                   onChange={handleChange}
                   className="appearance-none block w-full pl-10 px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary sm:text-sm"

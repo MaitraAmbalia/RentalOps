@@ -7,7 +7,7 @@ import ClientLogin from './pages/auth/ClientLogin';
 import ClientSignup from './pages/auth/ClientSignup';
 import VendorLogin from './pages/auth/VendorLogin';
 import PartnerLogin from './pages/auth/PartnerLogin';
-import Dashboard from './pages/Dashboard';
+import HomePage from './pages/portal/HomePage';
 import ProductDetails from './pages/ProductDetails';
 import Checkout from './pages/Checkout';
 import OrderHistory from './pages/OrderHistory';
@@ -26,7 +26,7 @@ function App() {
 
         {/* Protected Routes (wrapped in MainLayout) */}
         <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<OrderHistory />} />
