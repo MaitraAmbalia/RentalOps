@@ -22,6 +22,7 @@ const cartRoutes = require("./cart.routes");
 const wishlistRoutes = require("./wishlist.routes");
 const dashboardRoutes = require("./dashboard.routes");
 const workflowRoutes = require("./workflow.routes");
+const queriesRoutes = require("./queries.routes");
 
 router.use("/auth", authRoutes);
 router.use("/categories", categoriesRoutes);
@@ -44,5 +45,6 @@ router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/workflows", workflowRoutes);
+router.use("/queries", queriesRoutes);
 
 module.exports = router;
