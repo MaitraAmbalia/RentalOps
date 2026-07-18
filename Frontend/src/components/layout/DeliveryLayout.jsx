@@ -9,7 +9,8 @@ export default function DeliveryLayout() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    const role = localStorage.getItem('role');
+    if (!token || (role && role !== 'DELIVERY')) {
       navigate('/delivery/login');
     }
   }, [navigate]);

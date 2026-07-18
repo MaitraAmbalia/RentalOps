@@ -37,8 +37,9 @@ export default function BackendLayout() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
+    const role = localStorage.getItem('role');
+    if (!token || (role && role !== 'VENDOR')) {
+      navigate('/login?role=vendor');
       return;
     }
     fetchProfile();
@@ -62,6 +63,11 @@ export default function BackendLayout() {
       if (data) setVendorProfile(data);
     } catch (err) {
       console.error("Layout failed to load vendor info:", err);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        navigate('/login?role=vendor');
+      }
     }
   };
 
