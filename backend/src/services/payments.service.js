@@ -6,8 +6,8 @@ const Razorpay = require('razorpay');
 
 // 1. Initialize Razorpay
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 exports.initiatePayment = async (vendorId, orderId) => {
@@ -16,30 +16,53 @@ exports.initiatePayment = async (vendorId, orderId) => {
 
   const totalPayable = parseFloat(order.totalAmount) + parseFloat(order.securityDepositAmount);
 
-  // MOCK: Generate a fake Razorpay Order ID for testing purposes
-  const razorpayOrderId = `order_${crypto.randomBytes(6).toString('hex')}`;
+  // 2. Create the Real Razorpay Order
+  const options = {
+    amount: Math.round(totalPayable * 100), // Razorpay expects amount in paise (smallest currency unit)
+    currency: "INR",
+    receipt: `receipt_order_${order.id.substring(0, 8)}`,
+  };
 
+  const razorpayOrder = await razorpay.orders.create(options);
+
+  // 3. Save the real razorpayOrderId to our database
   const payment = await paymentRepo.create({
     orderId: order.id,
     clientId: order.clientId,
     amount: totalPayable,
-    razorpayOrderId: razorpayOrderId,
+    razorpayOrderId: razorpayOrder.id,
     status: 'CREATED'
   });
 
-  return { payment, razorpayOrderId, amount: totalPayable };
+  return { 
+    payment, 
+    razorpayOrderId: razorpayOrder.id, 
+    amount: totalPayable,
+    keyId: process.env.RAZORPAY_KEY_ID // Send the Key ID to the frontend to initialize the checkout modal
+  };
 };
 
-exports.verifyWebhook = async (payload, signature) => {
-  // MOCK: In a real integration, we'd verify the signature using crypto and RAZORPAY_WEBHOOK_SECRET
-  // Assuming the payload contains the razorpay_order_id and payment details
-  const { razorpay_order_id, razorpay_payment_id } = payload;
+exports.verifyWebhook = async (payload) => {
+  // 4. Extract standard Razorpay signature parameters
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
+  
+  // 5. Compute our own signature using our Secret Key
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(body.toString())
+    .digest("hex");
+
+  // 6. Verify they match
+  if (expectedSignature !== razorpay_signature) {
+    throw new ApiError(400, 'Invalid payment signature');
+  }
   
   const payment = await paymentRepo.findByRazorpayOrderId(razorpay_order_id);
   if (!payment) throw new ApiError(404, 'Payment not found');
 
   // Mark local DB as paid
-  await paymentRepo.markAsPaid(payment.id, razorpay_payment_id, signature);
+  await paymentRepo.markAsPaid(payment.id, razorpay_payment_id, razorpay_signature);
   return { success: true };
 };
 
