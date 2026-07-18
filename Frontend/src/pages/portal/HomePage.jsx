@@ -54,7 +54,7 @@ export default function HomePage() {
       <FiltersSidebar filters={filters} onFilterChange={handleFilterChange} />
       
       <div className="flex-1">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">Available Rentals</h1>
+        <h1 className="text-2xl font-bold text-text-main mb-6">Available Rentals</h1>
         {error ? (
           <div className="bg-red-50 text-red-700 p-4 rounded-xl mb-6">
             {error}

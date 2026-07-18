@@ -254,6 +254,43 @@ const completeWorkflow = async (id, data, user) => {
   });
 };
 
+const updateWorkflow = async (id, data) => {
+  const updateData = {};
+  if (data.deliveryId !== undefined) updateData.deliveryId = data.deliveryId;
+  if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);
+  if (data.status !== undefined) updateData.workflowStatus = data.status;
+  if (data.workflowStatus !== undefined) updateData.workflowStatus = data.workflowStatus;
+  if (data.routeSequence !== undefined) updateData.routeSequence = Number(data.routeSequence);
+
+  return await prisma.$transaction(async (tx) => {
+    const workflow = await tx.pickupReturnWorkflow.update({
+      where: { id },
+      data: updateData,
+      include: {
+        order: {
+          include: {
+            client: true,
+            items: { include: { product: true } },
+          },
+        },
+        deliveryPartner: true,
+      }
+    });
+
+    if (data.deliveryId) {
+      await tx.deliveryPartner.update({
+        where: { id: data.deliveryId },
+        data: {
+          currentStatus: "OUT_ON_DELIVERY",
+          currentOrderId: workflow.orderId,
+        },
+      });
+    }
+
+    return workflow;
+  });
+};
+
 module.exports = {
   createWorkflow,
   getWorkflows,
@@ -262,4 +299,5 @@ module.exports = {
   notifyCustomer,
   scanQrCode,
   completeWorkflow,
+  updateWorkflow,
 };

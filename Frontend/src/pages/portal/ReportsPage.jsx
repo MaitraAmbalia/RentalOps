@@ -108,18 +108,18 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center space-x-2">
+          <h1 className="text-2xl font-extrabold text-text-main flex items-center space-x-2">
             <BarChart2 className="h-6 w-6 text-primary" />
             <span>Fulfillment Performance Reports</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Review ledger statistics and item renting frequencies.</p>
+          <p className="text-sm text-text-muted mt-1">Review ledger statistics and item renting frequencies.</p>
         </div>
 
         <button
           onClick={fetchOrdersData}
-          className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 rounded-xl hover:bg-slate-900 transition-colors"
+          className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
         >
           <RefreshCw className="h-4.5 w-4.5" />
         </button>
@@ -127,47 +127,47 @@ export default function ReportsPage() {
 
       {/* Aggregate Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Sales Revenue</span>
-            <span className="text-2xl font-extrabold text-white block">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Total Sales Revenue</span>
+            <span className="text-2xl font-extrabold text-text-main block">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
             <DollarSign className="h-6 w-6 text-primary" />
           </div>
         </div>
 
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Active Fleet Rentals</span>
-            <span className="text-2xl font-extrabold text-emerald-400 block">{activeRentals}</span>
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Active Fleet Rentals</span>
+            <span className="text-2xl font-extrabold text-emerald-555 block">{activeRentals}</span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-            <TrendingUp className="h-6 w-6 text-emerald-400" />
+          <div className="w-12 h-12 rounded-xl bg-emerald-555/10 flex items-center justify-center border border-emerald-555/20">
+            <TrendingUp className="h-6 w-6 text-emerald-555" />
           </div>
         </div>
 
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Orders Processed</span>
-            <span className="text-2xl font-extrabold text-cyan-400 block">{totalRentalsCount}</span>
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block">Orders Processed</span>
+            <span className="text-2xl font-extrabold text-cyan-555 block">{totalRentalsCount}</span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-            <ShoppingBag className="h-6 w-6 text-cyan-400" />
+          <div className="w-12 h-12 rounded-xl bg-cyan-555/10 flex items-center justify-center border border-cyan-555/20">
+            <ShoppingBag className="h-6 w-6 text-cyan-555" />
           </div>
         </div>
       </div>
 
       {/* Main Chart Card */}
-      <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-6">
+      <div className="bg-bg-card p-6 rounded-2xl border border-border-main space-y-6">
         
         {/* Chart Configuration Selectors */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-4">
-          <div className="flex space-x-2 bg-slate-900 p-1 rounded-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-4">
+          <div className="flex space-x-2 bg-bg-main p-1 rounded-xl">
             <button
               onClick={() => setMetric('REVENUE')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                metric === 'REVENUE' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+                metric === 'REVENUE' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
               }`}
             >
               Sales Value ($)
@@ -175,7 +175,7 @@ export default function ReportsPage() {
             <button
               onClick={() => setMetric('RENTAL_COUNT')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                metric === 'RENTAL_COUNT' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+                metric === 'RENTAL_COUNT' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
               }`}
             >
               Order Frequencies
@@ -183,11 +183,11 @@ export default function ReportsPage() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Calendar className="h-4.5 w-4.5 text-slate-500" />
+            <Calendar className="h-4.5 w-4.5 text-text-muted" />
             <select
               value={timespan}
               onChange={(e) => setTimespan(e.target.value)}
-              className="bg-slate-900 text-slate-200 text-xs border border-slate-800 rounded-xl px-3 py-2 focus:outline-none cursor-pointer"
+              className="bg-bg-main text-text-main text-xs border border-border-main rounded-xl px-3 py-2 focus:outline-none cursor-pointer"
             >
               <option value="WEEK">Last 7 Days</option>
               <option value="MONTH">Last 4 Weeks (Monthly)</option>
@@ -198,13 +198,13 @@ export default function ReportsPage() {
 
         {/* Premium SVG Bar Chart */}
         <div className="space-y-4">
-          <div className="flex items-end justify-between h-72 pt-4 bg-slate-900/30 rounded-2xl border border-slate-900 p-6">
+          <div className="flex items-end justify-between h-72 pt-4 bg-bg-main/30 rounded-2xl border border-border-main p-6">
             {chartData.map((data, index) => {
               const percentage = (data.value / maxValue) * 100;
               return (
                 <div key={index} className="flex flex-col items-center flex-1 space-y-3 group h-full justify-end">
                   {/* Tooltip value */}
-                  <div className="opacity-0 group-hover:opacity-100 bg-slate-950 text-[10px] text-primary border border-slate-800 font-bold px-2 py-1 rounded transition-opacity duration-150 shadow-lg pointer-events-none mb-1">
+                  <div className="opacity-0 group-hover:opacity-100 bg-bg-card text-[10px] text-primary border border-border-main font-bold px-2 py-1 rounded transition-opacity duration-150 shadow-lg pointer-events-none mb-1">
                     {metric === 'REVENUE' ? `$${data.value.toFixed(2)}` : `${data.value} Orders`}
                   </div>
                   
@@ -218,7 +218,7 @@ export default function ReportsPage() {
                   </div>
                   
                   {/* Label */}
-                  <span className="text-xs text-slate-400 font-semibold truncate max-w-[80px]">
+                  <span className="text-xs text-text-muted font-semibold truncate max-w-[80px]">
                     {data.label}
                   </span>
                 </div>
@@ -226,7 +226,7 @@ export default function ReportsPage() {
             })}
           </div>
 
-          <div className="flex justify-between items-center text-[10px] text-slate-500 font-semibold px-2 uppercase tracking-wider">
+          <div className="flex justify-between items-center text-[10px] text-text-muted font-semibold px-2 uppercase tracking-wider">
             <span>Chart Metric: {metric === 'REVENUE' ? 'Gross Revenue Earnings (USD)' : 'Total Rent Invoices Created'}</span>
             <span>Scale Max: {metric === 'REVENUE' ? `$${maxValue.toFixed(0)}` : `${maxValue} Counts`}</span>
           </div>

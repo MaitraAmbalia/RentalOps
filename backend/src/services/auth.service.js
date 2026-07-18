@@ -301,6 +301,17 @@ const getCurrentUser = async (id, type) => {
   };
 };
 
+/**
+ * Verify if email exists
+ */
+const verifyEmailExists = async (email) => {
+  const client = await clientRepository.findByEmail(email);
+  if (client) return true;
+  const vendor = await vendorRepository.findByEmail(email);
+  if (vendor) return true;
+  return false;
+};
+
 module.exports = {
   registerVendor,
   loginVendor,
@@ -310,4 +321,5 @@ module.exports = {
   refreshTokens,
   logout,
   getCurrentUser,
+  verifyEmailExists,
 };

@@ -75,3 +75,13 @@ exports.complete = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateStatus = async (req, res, next) => {
+  try {
+    const workflow = await workflowService.updateWorkflow(req.params.id, req.body);
+    res.status(200).json({ success: true, workflow });
+  } catch (error) {
+    next(error);
+  }
+};
+

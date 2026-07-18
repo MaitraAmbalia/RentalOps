@@ -7,9 +7,10 @@ const { createDeliveryPartnerSchema } = require("../validators/deliveryPartner.s
 
 const router = Router();
 
-router.use(authenticate, authorize("VENDOR"));
+router.use(authenticate);
 
-router.post("/", validate(createDeliveryPartnerSchema), controller.create);
-router.get("/", controller.list);
+router.post("/", authorize("VENDOR"), validate(createDeliveryPartnerSchema), controller.create);
+router.get("/", authorize("VENDOR"), controller.list);
+router.patch("/:id/status", authorize("VENDOR", "DELIVERY"), controller.updateStatus);
 
 module.exports = router;

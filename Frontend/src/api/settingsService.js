@@ -110,5 +110,45 @@ export const settingsService = {
       console.error("Failed to update vendor profile:", error);
       throw error;
     }
+  },
+
+  getPricelists: async () => {
+    try {
+      const response = await axiosInstance.get('/pricelists');
+      return response.priceLists || response;
+    } catch (error) {
+      console.error("Failed to fetch pricelists:", error);
+      throw error;
+    }
+  },
+
+  createPricelist: async (name) => {
+    try {
+      const response = await axiosInstance.post('/pricelists', { name });
+      return response.priceList || response;
+    } catch (error) {
+      console.error("Failed to create pricelist:", error);
+      throw error;
+    }
+  },
+
+  createPriceRule: async (priceListId, ruleData) => {
+    try {
+      const response = await axiosInstance.post(`/pricelists/${priceListId}/rules`, ruleData);
+      return response.rule || response;
+    } catch (error) {
+      console.error("Failed to create price rule:", error);
+      throw error;
+    }
+  },
+
+  deletePriceRule: async (priceListId, ruleId) => {
+    try {
+      const response = await axiosInstance.delete(`/pricelists/${priceListId}/rules/${ruleId}`);
+      return response;
+    } catch (error) {
+      console.error("Failed to delete price rule:", error);
+      throw error;
+    }
   }
 };

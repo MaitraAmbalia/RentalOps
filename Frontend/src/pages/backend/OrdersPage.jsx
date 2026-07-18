@@ -87,12 +87,12 @@ export default function OrdersPage() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PROCESSING': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
-      case 'RENTED': return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-      case 'OVERDUE': return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
-      case 'RETURNED': return 'bg-slate-800 text-slate-400 border border-slate-700';
-      case 'CANCELLED': return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
-      default: return 'bg-slate-900 text-slate-500 border border-slate-800';
+      case 'PROCESSING': return 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+      case 'RENTED': return 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+      case 'OVERDUE': return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+      case 'RETURNED': return 'bg-bg-main text-text-muted border border-border-main';
+      case 'CANCELLED': return 'bg-rose-500/10 text-rose-500 border border-rose-500/20';
+      default: return 'bg-bg-main text-text-muted border border-border-main';
     }
   };
 
@@ -103,27 +103,27 @@ export default function OrdersPage() {
   ];
 
   return (
-    <div className="space-y-6 font-sans text-slate-100">
+    <div className="space-y-6 font-sans text-text-main max-w-6xl mx-auto">
       
       {/* Top action header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Quotation & Sale Orders</h1>
-          <p className="text-sm text-slate-400 mt-1">Settle rental periods, dispatch couriers, and track return dates.</p>
+          <h1 className="text-2xl font-extrabold text-text-main">Quotation & Sale Orders</h1>
+          <p className="text-sm text-text-muted mt-1">Settle rental periods, dispatch couriers, and track return dates.</p>
         </div>
 
         <div className="flex items-center space-x-2 self-start sm:self-auto">
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-850">
+          <div className="flex bg-bg-card p-1 rounded-xl border border-border-main">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-bg-main text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               title="Table view list"
             >
               <List className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('kanban')}
-              className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-bg-main text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               title="Kanban Board view"
             >
               <Kanban className="h-4 w-4" />
@@ -132,7 +132,7 @@ export default function OrdersPage() {
 
           <button
             onClick={fetchOrders}
-            className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 rounded-xl hover:bg-slate-900 transition-colors"
+            className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -140,18 +140,18 @@ export default function OrdersPage() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-500 rounded-xl text-sm font-semibold">
           {error}
         </div>
       )}
 
       {/* Primary Filtering section */}
-      <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
-        <div className="flex space-x-2 bg-slate-900 p-1 rounded-xl">
+      <div className="bg-bg-card p-5 rounded-2xl border border-border-main flex flex-wrap items-center justify-between gap-4 text-xs">
+        <div className="flex space-x-2 bg-bg-main p-1 rounded-xl">
           <button
             onClick={() => setActiveTab('ongoing')}
             className={`px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
-              activeTab === 'ongoing' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'ongoing' ? 'bg-bg-card text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
             }`}
           >
             Ongoing Hire
@@ -159,7 +159,7 @@ export default function OrdersPage() {
           <button
             onClick={() => setActiveTab('past')}
             className={`px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
-              activeTab === 'past' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'past' ? 'bg-bg-card text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
             }`}
           >
             Archived Logs
@@ -173,15 +173,15 @@ export default function OrdersPage() {
               placeholder="Search ID, Client..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-4 py-2 focus:outline-none"
+              className="w-full bg-bg-main border border-border-main text-text-main placeholder-text-muted/40 text-xs rounded-xl pl-8 pr-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
-            <Search className="h-3.5 w-3.5 text-slate-550 absolute left-3 top-2.5" />
+            <Search className="h-3.5 w-3.5 text-text-muted absolute left-3 top-2.5" />
           </div>
 
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="bg-slate-900 text-slate-200 text-xs border border-slate-800 rounded-xl px-3 py-2 cursor-pointer focus:outline-none"
+            className="bg-bg-main text-text-main text-xs border border-border-main rounded-xl px-3 py-2 cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           >
             <option value="all">All Dates</option>
             <option value="today">Today</option>
@@ -192,21 +192,21 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
+        <div className="py-20 text-center text-text-muted">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <span>Syncing orders ledger...</span>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="bg-slate-950 p-16 rounded-2xl border border-slate-800 text-center text-slate-500">
+        <div className="bg-bg-card p-16 rounded-2xl border border-border-main text-center text-text-muted">
           No matching rental order logs found.
         </div>
       ) : viewMode === 'list' ? (
         /* Table View */
-        <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden text-sm">
+        <div className="bg-bg-card rounded-2xl border border-border-main overflow-hidden text-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-900 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                <tr className="bg-bg-main border-b border-border-main text-text-muted text-xs font-bold uppercase tracking-wider">
                   <th className="p-4">Order Ref</th>
                   <th className="p-4">Client</th>
                   <th className="p-4">Rental Duration</th>
@@ -216,17 +216,17 @@ export default function OrdersPage() {
                   <th className="p-4 text-center">Operations</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-900 text-xs">
+              <tbody className="divide-y divide-border-main text-xs">
                 {filteredOrders.map(o => {
                   const clientName = o.client ? `${o.client.firstName} ${o.client.lastName}` : 'Walk-in customer';
                   return (
-                    <tr key={o.id} className="hover:bg-slate-900/40 transition-colors">
-                      <td className="p-4 font-mono font-bold text-slate-300">#{o.orderNumber || o.id.slice(0, 8)}</td>
-                      <td className="p-4 font-semibold text-slate-200">{clientName}</td>
-                      <td className="p-4 text-slate-400">
+                    <tr key={o.id} className="hover:bg-bg-main/40 transition-colors">
+                      <td className="p-4 font-mono font-bold text-text-main">#{o.orderNumber || o.id.slice(0, 8)}</td>
+                      <td className="p-4 font-semibold text-text-main">{clientName}</td>
+                      <td className="p-4 text-text-muted">
                         {new Date(o.rentalStartDate).toLocaleDateString()} - {new Date(o.scheduledReturnDate).toLocaleDateString()}
                       </td>
-                      <td className="p-4 text-center text-slate-300 capitalize">
+                      <td className="p-4 text-center text-text-muted capitalize">
                         {o.fulfillmentType?.replace('_', ' ').toLowerCase() || 'Courier'}
                       </td>
                       <td className="p-4">
@@ -234,7 +234,7 @@ export default function OrdersPage() {
                           {o.status}
                         </span>
                       </td>
-                      <td className="p-4 text-right font-bold text-slate-200">${Number(o.totalAmount || o.estimatedRentalPrice).toFixed(2)}</td>
+                      <td className="p-4 text-right font-bold text-text-main">₹{Number(o.totalAmount || o.estimatedRentalPrice).toFixed(2)}</td>
                       <td className="p-4 text-center">
                         <Link
                           to={`/vendor/orders/${o.id}`}
@@ -257,10 +257,10 @@ export default function OrdersPage() {
           {columns.map(col => {
             const colOrders = filteredOrders.filter(o => o.status === col.status);
             return (
-              <div key={col.status} className="bg-slate-950 rounded-2xl border border-slate-800 p-4 space-y-4">
-                <div className="flex justify-between items-center border-b border-slate-900 pb-2">
-                  <h3 className="font-extrabold text-white text-xs uppercase tracking-wider">{col.title}</h3>
-                  <span className="bg-slate-900 border border-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded-full font-bold">
+              <div key={col.status} className="bg-bg-card rounded-2xl border border-border-main p-4 space-y-4">
+                <div className="flex justify-between items-center border-b border-border-main pb-2">
+                  <h3 className="font-extrabold text-text-main text-xs uppercase tracking-wider">{col.title}</h3>
+                  <span className="bg-bg-main border border-border-main text-text-muted text-xs px-2 py-0.5 rounded-full font-bold">
                     {colOrders.length}
                   </span>
                 </div>
@@ -269,26 +269,26 @@ export default function OrdersPage() {
                   {colOrders.map(o => {
                     const clientName = o.client ? `${o.client.firstName} ${o.client.lastName}` : 'Walk-in';
                     return (
-                      <div key={o.id} className="bg-slate-900/60 p-4 rounded-xl border border-slate-850 hover:border-slate-750 transition-all text-xs space-y-3">
+                      <div key={o.id} className="bg-bg-main/60 p-4 rounded-xl border border-border-main/80 hover:border-text-muted/30 transition-all text-xs space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="font-mono font-bold text-slate-300">#{o.orderNumber || o.id.slice(0, 8)}</span>
-                          <span className="text-[10px] text-slate-500 font-semibold">
+                          <span className="font-mono font-bold text-text-main">#{o.orderNumber || o.id.slice(0, 8)}</span>
+                          <span className="text-[10px] text-text-muted font-semibold">
                             {new Date(o.rentalStartDate).toLocaleDateString()}
                           </span>
                         </div>
 
                         <div>
-                          <p className="font-bold text-slate-200 text-sm">{clientName}</p>
-                          <p className="text-slate-400 mt-1">Item: {o.product?.name || 'Rentable gear'}</p>
-                          <p className="text-[10px] text-slate-500 capitalize">{o.fulfillmentType?.replace('_', ' ').toLowerCase()}</p>
+                          <p className="font-bold text-text-main text-sm">{clientName}</p>
+                          <p className="text-text-muted mt-1">Item: {o.product?.name || 'Rentable gear'}</p>
+                          <p className="text-[10px] text-text-muted capitalize">{o.fulfillmentType?.replace('_', ' ').toLowerCase()}</p>
                         </div>
 
-                        <div className="border-t border-slate-850 pt-3 flex justify-between items-center">
-                          <span className="font-bold text-slate-200">${Number(o.totalAmount || o.estimatedRentalPrice).toFixed(2)}</span>
+                        <div className="border-t border-border-main pt-3 flex justify-between items-center">
+                          <span className="font-bold text-text-main">₹{Number(o.totalAmount || o.estimatedRentalPrice).toFixed(2)}</span>
                           
                           <Link
                             to={`/vendor/orders/${o.id}`}
-                            className="px-2.5 py-1 bg-slate-950 hover:bg-slate-900 text-white rounded-lg border border-slate-800 text-[10px] font-bold"
+                            className="px-2.5 py-1 bg-bg-card hover:bg-bg-main text-text-main rounded-lg border border-border-main text-[10px] font-bold transition-colors"
                           >
                             Details &rarr;
                           </Link>

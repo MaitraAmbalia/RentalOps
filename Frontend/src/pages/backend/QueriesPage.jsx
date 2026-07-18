@@ -54,10 +54,10 @@ export default function QueriesPage() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'OPEN': return 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
-      case 'IN_PROGRESS': return 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
-      case 'RESOLVED': return 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-      default: return 'bg-slate-800 text-slate-400 border border-slate-700';
+      case 'OPEN': return 'bg-rose-500/20 text-rose-500 border border-rose-500/30';
+      case 'IN_PROGRESS': return 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30';
+      case 'RESOLVED': return 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30';
+      default: return 'bg-bg-main text-text-muted border border-border-main';
     }
   };
 
@@ -82,38 +82,38 @@ export default function QueriesPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-sans text-slate-100">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <div className="space-y-6 max-w-5xl mx-auto font-sans text-text-main">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center space-x-2">
+          <h1 className="text-2xl font-extrabold text-text-main flex items-center space-x-2">
             <HelpCircle className="h-6 w-6 text-primary" />
             <span>Support Tickets & Dispute Resolution</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Review disputes regarding missing parts or damaged goods.</p>
+          <p className="text-sm text-text-muted mt-1">Review disputes regarding missing parts or damaged goods.</p>
         </div>
 
         <button
           onClick={fetchQueries}
-          className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 rounded-xl hover:bg-slate-900 transition-colors self-start sm:self-auto"
+          className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors self-start sm:self-auto"
         >
           <RefreshCw className="h-4.5 w-4.5" />
         </button>
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-450 rounded-xl text-sm font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-500 rounded-xl text-sm font-semibold">
           {error}
         </div>
       )}
 
-      <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
-        <div className="flex space-x-2 bg-slate-900 p-1 rounded-xl">
+      <div className="bg-bg-card p-5 rounded-2xl border border-border-main flex flex-wrap items-center justify-between gap-4 text-xs">
+        <div className="flex space-x-2 bg-bg-main p-1 rounded-xl">
           {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED'].map(st => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
               className={`px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
-                statusFilter === st ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+                statusFilter === st ? 'bg-bg-card text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
               }`}
             >
               {st === 'ALL' ? 'All Tickets' : st}
@@ -126,23 +126,23 @@ export default function QueriesPage() {
           placeholder="Search tickets..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-4 py-2 focus:outline-none"
+          className="bg-bg-main border border-border-main text-text-main text-xs rounded-xl px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
         />
       </div>
 
       <div className="space-y-4">
         {filteredQueries.map(q => (
-          <div key={q.id} className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div key={q.id} className="bg-bg-card p-6 rounded-2xl border border-border-main space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div className="flex items-center space-x-3">
                 <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs font-bold ${
-                  q.queryType === 'DAMAGED_GOOD' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  q.queryType === 'DAMAGED_GOOD' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                 }`}>
                   <AlertTriangle className="h-3.5 w-3.5" />
                   <span>{getQueryTypeLabel(q.queryType)}</span>
                 </span>
                 
-                <span className="text-slate-500 text-xs font-mono">
+                <span className="text-text-muted text-xs font-mono">
                   Ticket: #{q.id.slice(0, 8).toUpperCase()}
                 </span>
               </div>
@@ -151,7 +151,7 @@ export default function QueriesPage() {
                 <span className={`px-2 py-0.5 rounded-lg text-xs font-bold ${getStatusBadge(q.status)}`}>
                   {q.status}
                 </span>
-                <span className="text-[10px] text-slate-500">
+                <span className="text-[10px] text-text-muted">
                   {new Date(q.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -159,26 +159,26 @@ export default function QueriesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm py-2">
               <div className="md:col-span-2 space-y-2">
-                <span className="text-xs text-slate-500 uppercase font-bold block">Incident Report Description</span>
-                <p className="text-slate-200 bg-slate-900/60 p-4 rounded-xl border border-slate-850 text-sm leading-relaxed">
+                <span className="text-xs text-text-muted uppercase font-bold block">Incident Report Description</span>
+                <p className="text-text-main bg-bg-main/60 p-4 rounded-xl border border-border-main text-sm leading-relaxed">
                   "{q.description}"
                 </p>
               </div>
 
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850 space-y-2.5 text-xs text-slate-400 self-stretch md:self-auto">
-                <span className="text-xs text-slate-500 uppercase font-bold block mb-1">Customer / Order Reference</span>
-                <p><span className="font-semibold text-slate-300">Customer Name:</span> {q.clientName}</p>
-                <p><span className="font-semibold text-slate-300">Contact Email:</span> {q.clientEmail}</p>
-                <p><span className="font-semibold text-slate-300">Order Reference:</span> #{q.orderNumber || q.orderId.slice(0, 8)}</p>
+              <div className="bg-bg-main/30 p-4 rounded-xl border border-border-main/50 space-y-2.5 text-xs text-text-muted self-stretch md:self-auto">
+                <span className="text-xs text-text-muted uppercase font-bold block mb-1">Customer / Order Reference</span>
+                <p><span className="font-semibold text-text-muted">Customer Name:</span> <span className="text-text-main">{q.clientName}</span></p>
+                <p><span className="font-semibold text-text-muted">Contact Email:</span> <span className="text-text-main">{q.clientEmail}</span></p>
+                <p><span className="font-semibold text-text-muted">Order Reference:</span> <span className="text-text-main">#{q.orderNumber || q.orderId.slice(0, 8)}</span></p>
               </div>
             </div>
 
             {q.status !== 'RESOLVED' && (
-              <div className="border-t border-slate-900 pt-4 flex flex-wrap items-center justify-end gap-2 text-xs">
+              <div className="border-t border-border-main pt-4 flex flex-wrap items-center justify-end gap-2 text-xs">
                 {q.status === 'OPEN' && (
                   <button
                     onClick={() => handleStatusChange(q.id, 'IN_PROGRESS')}
-                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-855 text-slate-300 border border-slate-800 rounded-lg transition-colors"
+                    className="px-3 py-1.5 bg-bg-main hover:bg-bg-card text-text-main border border-border-main rounded-lg transition-colors"
                   >
                     Mark In Progress
                   </button>
@@ -186,7 +186,7 @@ export default function QueriesPage() {
 
                 <button
                   onClick={() => handleResolve(q.id)}
-                  className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition-colors flex items-center space-x-1.5"
+                  className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition-colors flex items-center space-x-1.5 shadow"
                 >
                   <ClipboardCheck className="h-3.5 w-3.5" />
                   <span>Mark Resolved & Close Ticket</span>

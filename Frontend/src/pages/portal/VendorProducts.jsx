@@ -33,7 +33,7 @@ export default function VendorProducts() {
   const handleDeleteProduct = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
     try {
-      await productService.createProduct({ id, isDeleted: true }); // Backend mock/trigger delete
+      await productService.deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
       alert('Product deleted successfully.');
     } catch (err) {

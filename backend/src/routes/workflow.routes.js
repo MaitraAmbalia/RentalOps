@@ -84,4 +84,11 @@ router.patch(
   controller.complete
 );
 
+// 8. Update Workflow status/assignment (VENDOR / DELIVERY)
+router.patch(
+  "/:id/status",
+  authorize("VENDOR", "DELIVERY"),
+  controller.updateStatus
+);
+
 module.exports = router;

@@ -32,7 +32,7 @@ export default function ProductsPage() {
   const handleDeleteProduct = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
     try {
-      await productService.createProduct({ id, isDeleted: true });
+      await productService.deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
       alert('Product deleted successfully.');
     } catch (err) {
@@ -55,11 +55,11 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="space-y-8 font-sans text-slate-100">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <div className="space-y-8 font-sans text-text-main">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Rental Catalog & Inventory</h1>
-          <p className="text-sm text-slate-400 mt-1">Manage your rental inventory, pricing plans, and metadata.</p>
+          <h1 className="text-2xl font-extrabold text-text-main tracking-tight">Rental Catalog & Inventory</h1>
+          <p className="text-sm text-text-muted mt-1">Manage your rental inventory, pricing plans, and metadata.</p>
         </div>
         <button
           onClick={() => navigate('/vendor/products/new')}
@@ -71,7 +71,7 @@ export default function ProductsPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
+        <div className="py-20 text-center text-text-muted">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <span>Loading products and categories...</span>
         </div>
@@ -80,10 +80,10 @@ export default function ProductsPage() {
           {error}
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-slate-950 p-16 rounded-2xl border border-slate-800 text-center space-y-4">
-          <Package className="h-16 w-16 mx-auto text-slate-700" />
-          <h2 className="text-xl font-bold text-white">No Products in Catalog</h2>
-          <p className="text-slate-500 max-w-sm mx-auto">Get started by creating your first rental item with its specific rental pricing and late fee caps.</p>
+        <div className="bg-bg-card p-16 rounded-2xl border border-border-main text-center space-y-4">
+          <Package className="h-16 w-16 mx-auto text-text-muted" />
+          <h2 className="text-xl font-bold text-text-main">No Products in Catalog</h2>
+          <p className="text-text-muted max-w-sm mx-auto">Get started by creating your first rental item with its specific rental pricing and late fee caps.</p>
           <button
             onClick={() => navigate('/vendor/products/new')}
             className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover transition-all font-bold text-sm"
@@ -94,14 +94,14 @@ export default function ProductsPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {products.map((p) => (
-            <div key={p.id} className="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-6 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div key={p.id} className="bg-bg-card rounded-2xl border border-border-main p-6 space-y-6 hover:border-text-muted transition-all flex flex-col justify-between">
               
               <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl bg-slate-900 border border-slate-850 shrink-0 overflow-hidden flex items-center justify-center">
+                <div className="w-20 h-20 rounded-xl bg-bg-main border border-border-main shrink-0 overflow-hidden flex items-center justify-center">
                   {p.images && p.images.length > 0 ? (
                     <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
-                    <Package className="h-8 w-8 text-slate-700" />
+                    <Package className="h-8 w-8 text-text-muted" />
                   )}
                 </div>
                 <div className="space-y-1 min-w-0 flex-1">
@@ -111,21 +111,21 @@ export default function ProductsPage() {
                       {p.isPublished ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 border border-primary/20 text-primary">Published</span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-850 border border-slate-800 text-slate-500">Draft</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-bg-main border border-border-main text-text-muted">Draft</span>
                       )}
                     </div>
 
                     <div className="flex items-center space-x-1">
                       <button
                         onClick={() => navigate(`/vendor/products/${p.id}`)}
-                        className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-855 border border-slate-855 rounded-lg transition-colors"
+                        className="p-1.5 text-text-muted hover:text-text-main bg-bg-main hover:bg-bg-card border border-border-main rounded-lg transition-colors"
                         title="Edit product info"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(p.id)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 bg-slate-900 hover:bg-rose-500/10 border border-slate-855 rounded-lg transition-colors"
+                        className="p-1.5 text-text-muted hover:text-rose-400 bg-bg-main hover:bg-rose-500/10 border border-border-main rounded-lg transition-colors"
                         title="Delete product"
                       >
                         <Trash className="h-3.5 w-3.5" />
@@ -133,41 +133,41 @@ export default function ProductsPage() {
                     </div>
                   </div>
                   
-                  <h3 className="font-extrabold text-white text-base truncate" title={p.name}>{p.name}</h3>
-                  <p className="text-xs text-slate-400 line-clamp-2">{p.productDefinition || 'No description provided.'}</p>
+                  <h3 className="font-extrabold text-text-main text-base truncate" title={p.name}>{p.name}</h3>
+                  <p className="text-xs text-text-muted line-clamp-2">{p.productDefinition || 'No description provided.'}</p>
                 </div>
               </div>
 
-              <div className="bg-slate-900/40 rounded-xl border border-slate-855 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-400">
+              <div className="bg-bg-main/40 rounded-xl border border-border-main p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-text-muted">
                 <div className="space-y-1">
-                  <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Base Rental</span>
-                  <span className="font-bold text-slate-200 block">${Number(p.rentalPrice).toLocaleString()} / {p.periodicity}</span>
+                  <span className="text-text-muted font-semibold block uppercase tracking-wider text-[10px]">Base Rental</span>
+                  <span className="font-bold text-text-main block">₹{Number(p.rentalPrice).toLocaleString()} / {p.periodicity}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Cost Price</span>
-                  <span className="font-bold text-slate-200 block">${Number(p.costPrice).toLocaleString()}</span>
+                  <span className="text-text-muted font-semibold block uppercase tracking-wider text-[10px]">Cost Price</span>
+                  <span className="font-bold text-text-main block">₹{Number(p.costPrice).toLocaleString()}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Late Fee</span>
-                  <span className="font-bold text-slate-200 block">
-                    {p.lateFeeRatePerHour ? `$${p.lateFeeRatePerHour}/Hr` : 'Default Policy'}
+                  <span className="text-text-muted font-semibold block uppercase tracking-wider text-[10px]">Late Fee</span>
+                  <span className="font-bold text-text-main block">
+                    {p.lateFeeRatePerHour ? `₹${p.lateFeeRatePerHour}/Hr` : 'Default Policy'}
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Deposit Escrow</span>
-                  <span className="font-bold text-slate-200 block">
+                  <span className="text-text-muted font-semibold block uppercase tracking-wider text-[10px]">Deposit Escrow</span>
+                  <span className="font-bold text-text-main block">
                     {p.securityDepositValue 
                       ? p.securityDepositCalcType === 'PERCENT_OF_RENTAL'
-                        ? `${p.securityDepositValue}% of Rental`
-                        : `$${p.securityDepositValue}`
-                      : 'Default Policy'}
+                        ? `${p.securityDepositValue}%`
+                        : `₹${p.securityDepositValue}`
+                      : 'No Deposit'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-900 pt-4">
-                <span>Quantity On Hand: <strong className="text-slate-300 font-bold">{p.quantityOnHand} units</strong></span>
-                <span>Category Type: <strong className="text-slate-300 font-bold uppercase">{p.type}</strong></span>
+              <div className="flex items-center justify-between text-xs text-text-muted border-t border-border-main pt-4">
+                <span>Quantity On Hand: <strong className="text-text-main font-bold">{p.quantityOnHand} units</strong></span>
+                <span>Category Type: <strong className="text-text-main font-bold uppercase">{p.type}</strong></span>
               </div>
 
             </div>

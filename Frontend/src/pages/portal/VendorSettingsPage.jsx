@@ -64,7 +64,7 @@ export default function VendorSettingsPage() {
 
   // 5. Tab: Pricelist State
   const [pricelists, setPricelists] = useState([]);
-  const [selectedPricelistId, setSelectedPricelistId] = useState('pl_1');
+  const [selectedPricelistId, setSelectedPricelistId] = useState('');
   const [newPricelistName, setNewPricelistName] = useState('');
   const [products, setProducts] = useState([]);
   
@@ -123,13 +123,10 @@ export default function VendorSettingsPage() {
           });
         }
       } else if (activeTab === 'pricelists') {
-        // Mock load pricelists
-        const stored = localStorage.getItem('vendor_pricelists');
-        if (stored) {
-          setPricelists(JSON.parse(stored));
-        } else {
-          setPricelists(SEED_PRICELISTS);
-          localStorage.setItem('vendor_pricelists', JSON.stringify(SEED_PRICELISTS));
+        const list = await settingsService.getPricelists();
+        setPricelists(list);
+        if (list.length > 0 && !selectedPricelistId) {
+          setSelectedPricelistId(list[0].id);
         }
       }
     } catch (err) {
@@ -270,27 +267,24 @@ export default function VendorSettingsPage() {
   };
 
   // Pricelist Handlers
-  const handleCreatePricelist = (e) => {
+  const handleCreatePricelist = async (e) => {
     e.preventDefault();
     if (!newPricelistName.trim()) return;
-    const newPl = {
-      id: `pl_${Date.now()}`,
-      name: newPricelistName.trim(),
-      isSelectable: true,
-      rules: []
-    };
-    const updated = [...pricelists, newPl];
-    setPricelists(updated);
-    localStorage.setItem('vendor_pricelists', JSON.stringify(updated));
-    setSelectedPricelistId(newPl.id);
-    setNewPricelistName('');
-    setSuccess('Pricelist created successfully!');
+    try {
+      const newPl = await settingsService.createPricelist(newPricelistName.trim());
+      setPricelists(prev => [...prev, newPl]);
+      setSelectedPricelistId(newPl.id);
+      setNewPricelistName('');
+      setSuccess('Pricelist created successfully!');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to create pricelist.');
+    }
   };
 
-  const handleAddPriceRule = (e) => {
+  const handleAddPriceRule = async (e) => {
     e.preventDefault();
-    const activePl = pricelists.find(pl => pl.id === selectedPricelistId);
-    if (!activePl) return;
+    if (!selectedPricelistId) return;
 
     let targetProductName = 'All Products';
     if (ruleForm.productId) {
@@ -298,53 +292,63 @@ export default function VendorSettingsPage() {
       if (prod) targetProductName = prod.name;
     }
 
-    const newRuleObj = {
-      id: `pr_${Date.now()}`,
-      productId: ruleForm.productId,
-      productName: targetProductName,
+    const ruleData = {
+      productId: ruleForm.productId || null,
       priceType: ruleForm.priceType,
       discountPercent: parseFloat(ruleForm.discountPercent || 0),
       fixedPrice: parseFloat(ruleForm.fixedPrice || 0),
       minQty: parseFloat(ruleForm.minQty || 1),
-      validFrom: ruleForm.validFrom,
-      validTo: ruleForm.validTo,
+      validFrom: ruleForm.validFrom || null,
+      validTo: ruleForm.validTo || null,
       isSelectable: ruleForm.isSelectable
     };
 
-    const updatedPls = pricelists.map(pl => {
-      if (pl.id === selectedPricelistId) {
-        return { ...pl, rules: [...(pl.rules || []), newRuleObj] };
-      }
-      return pl;
-    });
+    try {
+      const newRuleObj = await settingsService.createPriceRule(selectedPricelistId, ruleData);
+      const ruleWithProductName = {
+        ...newRuleObj,
+        productName: targetProductName
+      };
 
-    setPricelists(updatedPls);
-    localStorage.setItem('vendor_pricelists', JSON.stringify(updatedPls));
-    
-    // Reset Form
-    setRuleForm({
-      productId: '',
-      priceType: 'DISCOUNT',
-      fixedPrice: '0',
-      discountPercent: '0',
-      minQty: '1',
-      validFrom: '',
-      validTo: '',
-      isSelectable: true
-    });
-    setSuccess('Pricing Rule added to list!');
+      setPricelists(prev => prev.map(pl => {
+        if (pl.id === selectedPricelistId) {
+          return { ...pl, rules: [...(pl.rules || []), ruleWithProductName] };
+        }
+        return pl;
+      }));
+
+      // Reset Form
+      setRuleForm({
+        productId: '',
+        priceType: 'DISCOUNT',
+        fixedPrice: '0',
+        discountPercent: '0',
+        minQty: '1',
+        validFrom: '',
+        validTo: '',
+        isSelectable: true
+      });
+      setSuccess('Pricing Rule added to list!');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to add pricing rule.');
+    }
   };
 
-  const handleDeletePriceRule = (ruleId) => {
-    const updatedPls = pricelists.map(pl => {
-      if (pl.id === selectedPricelistId) {
-        return { ...pl, rules: (pl.rules || []).filter(r => r.id !== ruleId) };
-      }
-      return pl;
-    });
-    setPricelists(updatedPls);
-    localStorage.setItem('vendor_pricelists', JSON.stringify(updatedPls));
-    setSuccess('Pricing rule deleted.');
+  const handleDeletePriceRule = async (ruleId) => {
+    try {
+      await settingsService.deletePriceRule(selectedPricelistId, ruleId);
+      setPricelists(prev => prev.map(pl => {
+        if (pl.id === selectedPricelistId) {
+          return { ...pl, rules: (pl.rules || []).filter(r => r.id !== ruleId) };
+        }
+        return pl;
+      }));
+      setSuccess('Pricing rule deleted.');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to delete pricing rule.');
+    }
   };
 
   const currentPricelist = pricelists.find(pl => pl.id === selectedPricelistId) || pricelists[0];

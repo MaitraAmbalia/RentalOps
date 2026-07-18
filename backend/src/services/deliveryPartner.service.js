@@ -29,7 +29,18 @@ const listPartners = async (vendorId) => {
   return { deliveryPartners: partners, total: partners.length };
 };
 
+const updatePartnerStatus = async (id, status) => {
+  const partner = await deliveryPartnerRepository.findById(id);
+  if (!partner) {
+    throw new ApiError(404, "Delivery partner not found");
+  }
+  const updated = await deliveryPartnerRepository.update(id, { currentStatus: status });
+  const { passwordHash: _, ...safePartner } = updated;
+  return safePartner;
+};
+
 module.exports = {
   createPartner,
   listPartners,
+  updatePartnerStatus,
 };

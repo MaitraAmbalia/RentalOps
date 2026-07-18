@@ -2,48 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Edit2, Info, ListFilter } from 'lucide-react';
 import { orderService } from '../../api/orderService';
-
-// Seed schedule events for the calendar (defaulting to January 2026 for demonstration matching the design, but dynamic)
-const SEED_EVENTS = {
-  // Key format: YYYY-MM-DD
-  '2026-01-04': [
-    { id: 'wf_1', orderNumber: 'SO0001', product: 'Projector', customer: 'Smith Black', qty: 1, type: 'PICKUP', status: 'Available' },
-    { id: 'wf_2', orderNumber: 'SO0005', product: 'Printer', customer: 'John Doe', qty: 1, type: 'BOOKED', status: 'Available' }
-  ],
-  '2026-01-05': [
-    { id: 'wf_3', orderNumber: 'SO0002', product: 'Car', customer: 'Sam', qty: 1, type: 'LATE_PICKUP', status: 'Reserved' },
-    { id: 'wf_4', orderNumber: 'SO0003', product: 'Printer', customer: 'John Dow', qty: 1, type: 'PICKUP', status: 'Available' }
-  ],
-  '2026-01-06': [
-    { id: 'wf_5', orderNumber: 'SO0001', product: 'Projector', customer: 'Smith Black', qty: 1, type: 'PICKUP', status: 'Available' },
-    { id: 'wf_6', orderNumber: 'SO0008', product: 'Printer', customer: 'John Dow', qty: 1, type: 'PICKUP', status: 'Available' },
-    { id: 'wf_7', orderNumber: 'SO0013', product: 'Laptop', customer: 'Mack', qty: 2, type: 'BOOKED', status: 'Booked' },
-    { id: 'wf_8', orderNumber: 'SO0014', product: 'Monitor', customer: 'Sam', qty: 1, type: 'PICKUP', status: 'Available' }
-  ],
-  '2026-01-08': [
-    { id: 'wf_9', orderNumber: 'SO0001', product: 'Projector', customer: 'Smith Black', qty: 1, type: 'PICKUP', status: 'Available' },
-    { id: 'wf_10', orderNumber: 'SO0013', product: 'Laptop', customer: 'Mack', qty: 2, type: 'BOOKED', status: 'Booked' },
-    { id: 'wf_11', orderNumber: 'SO0014', product: 'Monitor', customer: 'Sam', qty: 1, type: 'PICKUP', status: 'Available' }
-  ],
-  '2026-01-14': [
-    { id: 'wf_12', orderNumber: 'SO0012', product: 'Projector', customer: 'Tom', qty: 1, type: 'LATE_DELIVERY', status: 'Reserved' },
-    { id: 'wf_13', orderNumber: 'SO0015', product: 'Car', customer: 'Sam', qty: 1, type: 'BOOKED', status: 'Reserved' }
-  ],
-  '2026-01-21': [
-    { id: 'wf_14', orderNumber: 'SO0009', product: 'Printer', customer: 'Mark Wood', qty: 1, type: 'BOOKED', status: 'Reserved' },
-    { id: 'wf_15', orderNumber: 'SO0015', product: 'Car', customer: 'Sam', qty: 1, type: 'LATE_DELIVERY', status: 'Reserved' },
-    { id: 'wf_16', orderNumber: 'SO0020', product: 'Projector', customer: 'Sam', qty: 1, type: 'PICKUP', status: 'Available' }
-  ],
-  '2026-01-28': [
-    { id: 'wf_17', orderNumber: 'SO0016', product: 'Generator', customer: 'Bruce Wayne', qty: 1, type: 'LATE_PICKUP', status: 'Reserved' }
-  ]
-};
+import { workflowService } from '../../api/workflowService';
 
 export default function RentalSchedulerPage() {
   const navigate = useNavigate();
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)); // Default Jan 2026
-  const [selectedDateStr, setSelectedDateStr] = useState('2026-01-08');
-  const [schedulerEvents, setSchedulerEvents] = useState(SEED_EVENTS);
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedDateStr, setSelectedDateStr] = useState(today.toISOString().split('T')[0]);
+  const [schedulerEvents, setSchedulerEvents] = useState({});
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
@@ -52,12 +18,15 @@ export default function RentalSchedulerPage() {
 
   const fetchOrdersData = async () => {
     try {
-      const list = await orderService.getOrders();
+      const [list, wfs] = await Promise.all([
+        orderService.getOrders().catch(() => []),
+        workflowService.getWorkflows().catch(() => [])
+      ]);
+      
+      const updatedEvents = {};
+
       if (Array.isArray(list)) {
         setOrders(list);
-        
-        // Merge real order schedules into calendar events
-        const updatedEvents = { ...SEED_EVENTS };
         list.forEach(order => {
           if (order.rentalStartDate) {
             const startKey = new Date(order.rentalStartDate).toISOString().split('T')[0];
@@ -67,7 +36,7 @@ export default function RentalSchedulerPage() {
             const eventObj = {
               id: order.id,
               orderNumber: order.orderNumber || 'SO0000',
-              product: order.product?.name || 'Equipment',
+              product: order.items?.[0]?.product?.name || 'Equipment',
               customer: order.client ? `${order.client.firstName} ${order.client.lastName}` : 'Customer',
               qty: order.quantity || 1,
               type: eventType,
@@ -78,14 +47,41 @@ export default function RentalSchedulerPage() {
             if (!updatedEvents[startKey]) {
               updatedEvents[startKey] = [];
             }
-            // Avoid duplicate additions
             if (!updatedEvents[startKey].some(e => e.id === order.id)) {
               updatedEvents[startKey].push(eventObj);
             }
           }
         });
-        setSchedulerEvents(updatedEvents);
       }
+
+      if (Array.isArray(wfs)) {
+        wfs.forEach(wf => {
+          if (wf.scheduledDate) {
+            const key = new Date(wf.scheduledDate).toISOString().split('T')[0];
+            const eventType = wf.workflowType === 'PICKUP' ? 'PICKUP' : 'LATE_PICKUP';
+            const eventObj = {
+              id: wf.id,
+              orderNumber: wf.orderNumber || wf.order?.orderNumber || 'SO0000',
+              product: wf.order?.items?.[0]?.product?.name || 'Equipment',
+              customer: wf.order?.client ? `${wf.order.client.firstName} ${wf.order.client.lastName}` : 'Customer',
+              qty: 1,
+              type: eventType,
+              status: wf.workflowStatus,
+              isRealOrder: false,
+              workflowId: wf.id
+            };
+
+            if (!updatedEvents[key]) {
+              updatedEvents[key] = [];
+            }
+            if (!updatedEvents[key].some(e => e.id === wf.id)) {
+              updatedEvents[key].push(eventObj);
+            }
+          }
+        });
+      }
+
+      setSchedulerEvents(updatedEvents);
     } catch (err) {
       console.error("Error loading order logs for calendar:", err);
     }
@@ -152,31 +148,31 @@ export default function RentalSchedulerPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto font-sans">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">Rental Scheduler Calendar</h1>
-        <p className="text-sm text-slate-400 mt-1">Visually inspect rental schedules, bookings, and late returns.</p>
+        <h1 className="text-2xl font-extrabold text-text-main">Rental Scheduler Calendar</h1>
+        <p className="text-sm text-text-muted mt-1">Visually inspect rental schedules, bookings, and late returns.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Side: Monthly Calendar Grid */}
-        <div className="lg:col-span-2 bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-900 pb-3">
-            <span className="text-lg font-bold text-white flex items-center space-x-2">
+        <div className="lg:col-span-2 bg-bg-card p-6 rounded-2xl border border-border-main space-y-4">
+          <div className="flex items-center justify-between border-b border-border-main pb-3">
+            <span className="text-lg font-bold text-text-main flex items-center space-x-2">
               <CalendarIcon className="h-5 w-5 text-primary" />
               <span>{monthName} {year}</span>
             </span>
             <div className="flex items-center space-x-1">
               <button 
                 onClick={handlePrevMonth}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800 rounded-lg transition-all"
+                className="p-1.5 text-text-muted hover:text-text-main hover:bg-bg-main border border-border-main rounded-lg transition-all"
               >
                 <ChevronLeft className="h-4.5 w-4.5" />
               </button>
               <button 
                 onClick={handleNextMonth}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800 rounded-lg transition-all"
+                className="p-1.5 text-text-muted hover:text-text-main hover:bg-bg-main border border-border-main rounded-lg transition-all"
               >
                 <ChevronRight className="h-4.5 w-4.5" />
               </button>
@@ -187,7 +183,7 @@ export default function RentalSchedulerPage() {
           <div className="grid grid-cols-7 gap-1 text-center font-semibold text-xs">
             {/* Weekdays */}
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-              <span key={idx} className="text-slate-500 py-2 uppercase tracking-widest">{day}</span>
+              <span key={idx} className="text-text-muted py-2 uppercase tracking-widest">{day}</span>
             ))}
 
             {/* Days Cells */}
@@ -207,11 +203,11 @@ export default function RentalSchedulerPage() {
                   onClick={() => handleDateClick(day)}
                   className={`h-16 flex flex-col justify-between items-center p-1.5 rounded-xl border transition-all ${
                     isSelected
-                      ? 'bg-primary/20 border-primary text-white font-extrabold shadow-md'
-                      : 'bg-slate-900/60 border-slate-850 hover:bg-slate-800/80 hover:border-slate-700 text-slate-300'
+                      ? 'bg-primary/20 border-primary text-text-main font-extrabold shadow-md'
+                      : 'bg-bg-main border-border-main hover:bg-bg-card hover:border-text-muted text-text-main'
                   }`}
                 >
-                  <span className="self-start text-[11px]">{day}</span>
+                  <span className="self-start text-[11px] text-text-muted">{day}</span>
                   
                   {/* Event indicators dots */}
                   <div className="flex flex-wrap gap-1 justify-center max-w-full">
@@ -229,8 +225,8 @@ export default function RentalSchedulerPage() {
           </div>
 
           {/* Color Legend indicators */}
-          <div className="flex flex-wrap items-center gap-4 border-t border-slate-900 pt-4 text-xs font-semibold text-slate-400">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider mr-2">Legend:</span>
+          <div className="flex flex-wrap items-center gap-4 border-t border-border-main pt-4 text-xs font-semibold text-text-muted">
+            <span className="text-[10px] text-text-muted uppercase tracking-wider mr-2">Legend:</span>
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               <span>Booked</span>
@@ -251,33 +247,33 @@ export default function RentalSchedulerPage() {
         </div>
 
         {/* Right Side: Details Side Panel */}
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between self-stretch">
+        <div className="bg-bg-card p-6 rounded-2xl border border-border-main flex flex-col justify-between self-stretch">
           <div className="space-y-4">
-            <div className="border-b border-slate-900 pb-3">
-              <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Scheduled Orders</span>
-              <span className="text-lg font-black text-white">{new Date(selectedDateStr).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+            <div className="border-b border-border-main pb-3">
+              <span className="text-xs text-text-muted font-bold block uppercase tracking-wider">Scheduled Orders</span>
+              <span className="text-lg font-black text-text-main">{new Date(selectedDateStr).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
             </div>
 
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
               {selectedDayEvents.map(evt => (
                 <div 
                   key={evt.id} 
-                  className="bg-slate-900 p-4 rounded-xl border border-slate-850 flex justify-between items-center transition-all hover:border-slate-700"
+                  className="bg-bg-main p-4 rounded-xl border border-border-main flex justify-between items-center transition-all hover:border-text-muted"
                 >
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-white text-sm">#{evt.orderNumber}</span>
+                      <span className="font-bold text-text-main text-sm">#{evt.orderNumber}</span>
                       <span className={`inline-flex px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold ${
-                        evt.type === 'BOOKED' ? 'bg-emerald-500/10 text-emerald-400' :
+                        evt.type === 'BOOKED' ? 'bg-emerald-500/10 text-emerald-455' :
                         evt.type === 'PICKUP' ? 'bg-red-500/10 text-red-400' :
-                        evt.type === 'LATE_PICKUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+                        evt.type === 'LATE_PICKUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-455'
                       }`}>
                         {evt.type.replace('_', ' ')}
                       </span>
                     </div>
-                    <p className="text-slate-300 font-semibold">{evt.product} ({evt.qty} Unit)</p>
-                    <p className="text-slate-500">Cust: {evt.customer}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold">Availability: <span className="text-primary">{evt.status}</span></p>
+                    <p className="text-text-main font-semibold">{evt.product} ({evt.qty} Unit)</p>
+                    <p className="text-text-muted font-medium">Cust: {evt.customer}</p>
+                    <p className="text-[10px] text-text-muted font-semibold">Status: <span className="text-primary">{evt.status}</span></p>
                   </div>
 
                   <button 
@@ -285,10 +281,10 @@ export default function RentalSchedulerPage() {
                       if (evt.isRealOrder) {
                         navigate(`/vendor/orders/${evt.id}`);
                       } else {
-                        alert(`Mock event ID: ${evt.id}. Complete order details in Orders tab.`);
+                        navigate(`/vendor/workflows`);
                       }
                     }}
-                    className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors"
+                    className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main hover:border-text-muted rounded-lg transition-colors"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
@@ -296,20 +292,20 @@ export default function RentalSchedulerPage() {
               ))}
 
               {selectedDayEvents.length === 0 && (
-                <div className="text-center p-8 bg-slate-900/40 border border-slate-900 text-slate-500 text-xs font-semibold rounded-xl space-y-2">
-                  <Info className="h-6 w-6 text-slate-600 mx-auto" />
+                <div className="text-center p-8 bg-bg-main/40 border border-border-main text-text-muted text-xs font-semibold rounded-xl space-y-2">
+                  <Info className="h-6 w-6 text-text-muted mx-auto" />
                   <p>No rentals or logistics schedules registered for this date.</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="border-t border-slate-900 pt-4 mt-4">
+          <div className="border-t border-border-main pt-4 mt-4">
             <button
               onClick={() => navigate('/vendor/workflows')}
-              className="w-full py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5"
+              className="w-full py-2 bg-bg-main hover:bg-bg-card border border-border-main text-text-main rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5"
             >
-              <ListFilter className="h-4 w-4 text-slate-400" />
+              <ListFilter className="h-4 w-4 text-text-muted" />
               <span>Switch to List-based Workflow Tasks</span>
             </button>
           </div>

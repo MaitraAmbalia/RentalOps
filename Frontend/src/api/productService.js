@@ -32,6 +32,26 @@ export const productService = {
     }
   },
 
+  updateProduct: async (id, productData) => {
+    try {
+      const response = await axiosInstance.patch(ENDPOINTS.PRODUCTS.GET_BY_ID(id), productData);
+      return response.product || response;
+    } catch (error) {
+      console.error(`Failed to update product ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const response = await axiosInstance.delete(ENDPOINTS.PRODUCTS.GET_BY_ID(id));
+      return response;
+    } catch (error) {
+      console.error(`Failed to delete product ${id}:`, error);
+      throw error;
+    }
+  },
+
   getCategories: async () => {
     try {
       const response = await axiosInstance.get(ENDPOINTS.CATEGORIES.BASE);

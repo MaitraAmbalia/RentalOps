@@ -10,5 +10,7 @@ const router = Router();
 router.get("/", controller.getAll);                                               // Public
 router.post("/", authenticate, authorize("VENDOR"), validate(priceListSchema), controller.create);
 router.patch("/:id", authenticate, authorize("VENDOR"), validate(priceListSchema.partial()), controller.update);
+router.post("/:priceListId/rules", authenticate, authorize("VENDOR"), controller.addRule);
+router.delete("/:priceListId/rules/:ruleId", authenticate, authorize("VENDOR"), controller.deleteRule);
 
 module.exports = router;

@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Package, User, Shield, Truck, RefreshCw } from 'lucide-react';
 import { authService } from '../../api/authService';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [role, setRole] = useState('CLIENT'); // 'CLIENT', 'VENDOR', 'DELIVERY'
+  const [searchParams] = useSearchParams();
+  const initialRole = searchParams.get('role')?.toUpperCase() || 'CLIENT';
+  const [role, setRole] = useState(
+    ['CLIENT', 'VENDOR', 'DELIVERY'].includes(initialRole) ? initialRole : 'CLIENT'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

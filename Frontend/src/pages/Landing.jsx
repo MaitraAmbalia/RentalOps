@@ -12,8 +12,8 @@ export default function Landing() {
             <span className="font-extrabold text-2xl tracking-tight text-slate-900">RentHub</span>
           </div>
           <div className="flex items-center space-x-6">
-            <Link to="/vendor-login" className="text-sm font-medium text-slate-600 hover:text-slate-900">For Vendors</Link>
-            <Link to="/partner-login" className="text-sm font-medium text-slate-600 hover:text-slate-900">For Drivers</Link>
+            <Link to="/login?role=VENDOR" className="text-sm font-medium text-slate-600 hover:text-slate-900">For Vendors</Link>
+            <Link to="/login?role=DELIVERY" className="text-sm font-medium text-slate-600 hover:text-slate-900">For Drivers</Link>
             <div className="h-6 w-px bg-slate-200"></div>
             <Link to="/login" className="text-sm font-semibold text-slate-900">Login</Link>
             <Link to="/signup" className="text-sm font-semibold bg-slate-900 text-white px-5 py-2.5 rounded-full hover:bg-slate-800 transition-colors">Sign Up</Link>

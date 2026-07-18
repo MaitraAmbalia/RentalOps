@@ -20,8 +20,32 @@ const updatePriceList = async (id, vendorId, data) => {
   return priceListRepository.update(id, data);
 };
 
+const addRule = async (priceListId, vendorId, ruleData) => {
+  const priceList = await priceListRepository.findById(priceListId);
+  if (!priceList) {
+    throw new ApiError(404, "Price list not found");
+  }
+  if (priceList.vendorId !== vendorId) {
+    throw new ApiError(403, "Forbidden");
+  }
+  return priceListRepository.createRule(priceListId, ruleData);
+};
+
+const removeRule = async (priceListId, ruleId, vendorId) => {
+  const priceList = await priceListRepository.findById(priceListId);
+  if (!priceList) {
+    throw new ApiError(404, "Price list not found");
+  }
+  if (priceList.vendorId !== vendorId) {
+    throw new ApiError(403, "Forbidden");
+  }
+  return priceListRepository.deleteRule(ruleId);
+};
+
 module.exports = {
   createPriceList,
   getPriceLists,
   updatePriceList,
+  addRule,
+  removeRule,
 };

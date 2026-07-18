@@ -166,7 +166,7 @@ export default function ProductFormPage() {
       };
 
       if (isEditMode) {
-        await productService.createProduct({ id, ...payload });
+        await productService.updateProduct(id, payload);
         setSuccess('Product configurations updated successfully!');
       } else {
         await productService.createProduct(payload);
@@ -191,20 +191,20 @@ export default function ProductFormPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-sans text-slate-100">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <div className="space-y-6 max-w-5xl mx-auto font-sans text-text-main">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/vendor/products')}
-            className="p-2 text-slate-400 hover:text-white bg-slate-950 border border-slate-800 rounded-xl hover:bg-slate-900 transition-colors"
+            className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-extrabold text-white">
+            <h1 className="text-2xl font-extrabold text-text-main">
               {isEditMode ? `Edit Product: ${formData.name}` : 'Register New Product'}
             </h1>
-            <p className="text-sm text-slate-400 mt-1">Configure pricing scales, attribute scopes, and deposits.</p>
+            <p className="text-sm text-text-muted mt-1">Configure pricing scales, attribute scopes, and deposits.</p>
           </div>
         </div>
 
@@ -219,23 +219,23 @@ export default function ProductFormPage() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-500 rounded-xl text-sm font-semibold">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl text-sm font-semibold flex items-center space-x-2">
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-xl text-sm font-semibold flex items-center space-x-2">
           <CheckCircle className="h-4 w-4" />
           <span>{success}</span>
         </div>
       )}
 
-      <div className="flex border-b border-slate-800 bg-slate-950 p-1 rounded-xl self-start">
+      <div className="flex border border-border-main bg-bg-card p-1 rounded-xl self-start">
         <button
           onClick={() => setActiveTab('general')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'general' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'general' ? 'bg-bg-main text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <FileText className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function ProductFormPage() {
         <button
           onClick={() => setActiveTab('attributes')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'attributes' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'attributes' ? 'bg-bg-main text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -254,7 +254,7 @@ export default function ProductFormPage() {
           <button
             onClick={() => setActiveTab('sales')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-              activeTab === 'sales' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'sales' ? 'bg-bg-main text-text-main border border-border-main shadow-sm' : 'text-text-muted hover:text-text-main'
             }`}
           >
             <DollarSign className="h-4 w-4" />
@@ -263,13 +263,13 @@ export default function ProductFormPage() {
         )}
       </div>
 
-      <div className="bg-slate-955 p-6 rounded-2xl border border-slate-800">
+      <div className="bg-bg-card p-6 rounded-2xl border border-border-main">
         {activeTab === 'general' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Product Name</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Product Name</label>
                   <input
                     type="text"
                     name="name"
@@ -277,17 +277,17 @@ export default function ProductFormPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Computers, Camera Kits..."
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Category</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Category</label>
                   <select
                     name="categoryId"
                     value={formData.categoryId}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   >
                     <option value="">Select Category...</option>
                     {categories.map(cat => (
@@ -297,13 +297,13 @@ export default function ProductFormPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Product Type</label>
-                  <div className="flex space-x-4 bg-slate-900 p-1.5 rounded-xl border border-slate-850">
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Product Type</label>
+                  <div className="flex space-x-4 bg-bg-main p-1.5 rounded-xl border border-border-main">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, type: 'GOODS' }))}
                       className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        formData.type === 'GOODS' ? 'bg-slate-850 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                        formData.type === 'GOODS' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
                       }`}
                     >
                       Goods (Rentable Item)
@@ -312,7 +312,7 @@ export default function ProductFormPage() {
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, type: 'SERVICE' }))}
                       className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        formData.type === 'SERVICE' ? 'bg-slate-855 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                        formData.type === 'SERVICE' ? 'bg-bg-card text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
                       }`}
                     >
                       Service (Warranty, Deposit, Downpayment)
@@ -322,55 +322,55 @@ export default function ProductFormPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Quantity on Hand</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Quantity on Hand</label>
                     <input
                       type="number"
                       name="quantityOnHand"
                       value={formData.quantityOnHand}
                       onChange={handleInputChange}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                      className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Cost Price ($)</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Cost Price (₹)</label>
                     <input
                       type="number"
                       name="costPrice"
                       value={formData.costPrice}
                       onChange={handleInputChange}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                      className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Base Sales Price ($)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Base Sales Price (₹)</label>
                   <input
                     type="number"
                     name="rentalPrice"
                     required
                     value={formData.rentalPrice}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Publish Status</label>
-                  <div className="flex items-center space-x-3 bg-slate-900 p-3 rounded-xl border border-slate-850">
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Publish Status</label>
+                  <div className="flex items-center space-x-3 bg-bg-main p-3 rounded-xl border border-border-main">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, isPublished: !prev.isPublished }))}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${
-                        formData.isPublished ? 'bg-primary' : 'bg-slate-800'
+                        formData.isPublished ? 'bg-primary' : 'bg-border-main'
                       }`}
                     >
                       <div className={`bg-white w-4.5 h-4.5 rounded-full shadow transform transition-all ${
                         formData.isPublished ? 'translate-x-6' : 'translate-x-0'
                       }`} />
                     </button>
-                    <div className="text-xs text-slate-400">
-                      <span className="font-semibold text-slate-300 block">
+                    <div className="text-xs text-text-muted">
+                      <span className="font-semibold text-text-main block">
                         {formData.isPublished ? 'Visible to Customers' : 'Draft / Private'}
                       </span>
                       <span>Only Admin holds access permissions to update publication.</span>
@@ -381,31 +381,31 @@ export default function ProductFormPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Description / Definition</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Description / Definition</label>
                   <textarea
                     name="productDefinition"
                     rows="4"
                     value={formData.productDefinition}
                     onChange={handleInputChange}
                     placeholder="Describe specific properties of the rentable item..."
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Product Images</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Product Images</label>
                   <div className="flex space-x-2">
                     <input
                       type="text"
                       placeholder="Image URL..."
                       value={imageUrlInput}
                       onChange={(e) => setImageUrlInput(e.target.value)}
-                      className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-2 text-sm text-white"
+                      className="flex-1 bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                     <button
                       type="button"
                       onClick={handleAddImage}
-                      className="px-3 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all"
+                      className="px-3 bg-bg-card hover:bg-bg-main text-text-main border border-border-main rounded-xl text-xs font-bold transition-all"
                     >
                       Add URL
                     </button>
@@ -413,7 +413,7 @@ export default function ProductFormPage() {
 
                   <div className="grid grid-cols-3 gap-2 mt-3">
                     {formData.images.map((img, idx) => (
-                      <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-800 h-20">
+                      <div key={idx} className="relative group rounded-lg overflow-hidden border border-border-main h-20">
                         <img src={img} alt="Product preview" className="w-full h-full object-cover" />
                         <button
                           type="button"
@@ -433,35 +433,35 @@ export default function ProductFormPage() {
 
         {activeTab === 'attributes' && (
           <div className="space-y-6">
-            <div className="border-b border-slate-900 pb-3">
-              <h2 className="text-lg font-bold text-white">Configurable Attributes & Variants</h2>
-              <p className="text-xs text-slate-400 mt-1">Check attributes allowed on this product and map potential variant values.</p>
+            <div className="border-b border-border-main pb-3">
+              <h2 className="text-lg font-bold text-text-main">Configurable Attributes & Variants</h2>
+              <p className="text-xs text-text-muted mt-1">Check attributes allowed on this product and map potential variant values.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {attributes.map(attr => {
                 const isChecked = !!selectedAttrValues[attr.id];
                 return (
-                  <div key={attr.id} className="bg-slate-900 p-4 rounded-xl border border-slate-850 space-y-3">
+                  <div key={attr.id} className="bg-bg-main/30 p-4 rounded-xl border border-border-main/70 space-y-3">
                     <div className="flex items-center space-x-3">
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={(e) => handleAttributeCheck(attr.id, e.target.checked)}
-                        className="rounded bg-slate-955 border-slate-800 text-primary focus:ring-primary w-4.5 h-4.5"
+                        className="rounded bg-bg-card border-border-main text-primary focus:ring-primary w-4.5 h-4.5"
                       />
                       <div>
-                        <span className="font-bold text-white text-sm">{attr.name}</span>
-                        <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-950 border border-slate-850 px-2 py-0.5 rounded ml-2">
+                        <span className="font-bold text-text-main text-sm">{attr.name}</span>
+                        <span className="text-[10px] uppercase font-bold text-text-muted bg-bg-card border border-border-main px-2 py-0.5 rounded ml-2">
                           {attr.displayType}
                         </span>
                       </div>
                     </div>
 
                     {isChecked && (
-                      <div className="flex flex-wrap gap-1.5 pt-2 pl-7 border-l border-slate-800">
+                      <div className="flex flex-wrap gap-1.5 pt-2 pl-7 border-l border-border-main">
                         {attr.values?.map(val => (
-                          <span key={val.id} className="bg-slate-950 text-slate-350 text-xs px-2.5 py-1 rounded-lg border border-slate-800">
+                          <span key={val.id} className="bg-bg-card text-text-muted text-xs px-2.5 py-1 rounded-lg border border-border-main">
                             {val.value}
                           </span>
                         ))}
@@ -475,18 +475,18 @@ export default function ProductFormPage() {
         )}
 
         {activeTab === 'sales' && formData.type === 'GOODS' && (
-          <div className="space-y-6 text-slate-400">
-            <h2 className="text-lg font-bold text-white mb-4">Rental Scheduling & Deposit Policy</h2>
+          <div className="space-y-6 text-text-muted">
+            <h2 className="text-lg font-bold text-text-main mb-4">Rental Scheduling & Deposit Policy</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Periodicity</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Periodicity</label>
                   <select
                     name="periodicity"
                     value={formData.periodicity}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   >
                     <option value="HOUR">Hours (Daytime Rental)</option>
                     <option value="DAY">Daily rate per 24 hours</option>
@@ -497,83 +497,83 @@ export default function ProductFormPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Pickup Time</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Pickup Time</label>
                     <input
                       type="text"
                       name="pickupTime"
                       value={formData.pickupTime}
                       onChange={handleInputChange}
                       placeholder="10:00 AM"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                      className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Default Return Time</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Default Return Time</label>
                     <input
                       type="text"
                       name="returnTime"
                       value={formData.returnTime}
                       onChange={handleInputChange}
                       placeholder="19:00 PM"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                      className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Padding Buffer time (Minutes)</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Padding Buffer time (Minutes)</label>
                   <input
                     type="number"
                     name="paddingTimeMinutes"
                     value={formData.paddingTimeMinutes}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
                 </div>
               </div>
 
-              <div className="space-y-4 bg-slate-900/40 p-5 rounded-xl border border-slate-850">
-                <span className="text-xs text-slate-500 uppercase font-bold block mb-2 font-sans">Deposit & Penalty Escrow</span>
+              <div className="space-y-4 bg-bg-main/30 p-5 rounded-xl border border-border-main/70">
+                <span className="text-xs text-text-muted uppercase font-bold block mb-2 font-sans">Deposit & Penalty Escrow</span>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Security Deposit Calculation</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Security Deposit Calculation</label>
                   <select
                     name="securityDepositCalcType"
                     value={formData.securityDepositCalcType}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   >
                     <option value="PERCENT_OF_RENTAL">Percentage of Rent Amount</option>
-                    <option value="FIXED">Flat Fixed Amount ($)</option>
+                    <option value="FIXED">Flat Fixed Amount (₹)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Security Deposit Value</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Security Deposit Value</label>
                   <input
                     type="number"
                     name="securityDepositValue"
                     value={formData.securityDepositValue}
                     onChange={handleInputChange}
                     placeholder="200 for 200% / Flat price"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                    className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   />
                 </div>
 
                 {globalLateFeeEnabled ? (
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Overdue Penalty rate ($ / Hour)</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase mb-2">Overdue Penalty rate (₹ / Hour)</label>
                     <input
                       type="number"
                       name="lateFeeRatePerHour"
                       value={formData.lateFeeRatePerHour}
                       onChange={handleInputChange}
                       placeholder="Leave blank to use global default"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-sm text-white"
+                      className="w-full bg-bg-main border border-border-main rounded-xl p-2.5 text-sm text-text-main placeholder-text-muted/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                 ) : (
-                  <div className="p-3 bg-slate-900 rounded-lg text-slate-500 text-xs border border-slate-850 font-semibold leading-relaxed">
+                  <div className="p-3 bg-bg-card rounded-lg text-text-muted text-xs border border-border-main font-semibold leading-relaxed">
                     Late return fees are currently deactivated in global configurations.
                   </div>
                 )}

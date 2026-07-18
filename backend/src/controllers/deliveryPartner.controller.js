@@ -17,3 +17,12 @@ exports.list = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateStatus = async (req, res, next) => {
+  try {
+    const deliveryPartner = await deliveryPartnerService.updatePartnerStatus(req.params.id, req.body.status);
+    res.status(200).json({ success: true, deliveryPartner });
+  } catch (error) {
+    next(error);
+  }
+};
