@@ -10,13 +10,15 @@ const createPartner = async (vendorId, data) => {
     throw new ApiError(409, "A delivery partner with this phone already exists");
   }
 
-  const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
+  const plainPassword = data.password || "password123";
+  const passwordHash = await bcrypt.hash(plainPassword, SALT_ROUNDS);
 
   const partner = await deliveryPartnerRepository.create({
     vendorId,
     firstName: data.firstName,
     lastName: data.lastName,
     phone: data.phone,
+    companyName: data.companyName || null,
     passwordHash,
   });
 

@@ -5,8 +5,8 @@ const createPriceList = async (vendorId, data) => {
   return priceListRepository.create(vendorId, data);
 };
 
-const getPriceLists = async () => {
-  return priceListRepository.findAll();
+const getPriceLists = async (vendorId) => {
+  return priceListRepository.findAll(vendorId);
 };
 
 const updatePriceList = async (id, vendorId, data) => {

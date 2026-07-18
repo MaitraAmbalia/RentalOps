@@ -735,16 +735,16 @@ export default function VendorSettingsPage() {
                         <tbody className="divide-y divide-slate-850">
                           {currentPricelist.rules?.map((rule, idx) => (
                             <tr key={idx} className="group">
-                              <td className="py-2.5 font-semibold text-slate-200">{rule.productName}</td>
+                              <td className="py-2.5 font-semibold text-slate-200">{rule.productName || rule.product?.name || 'All Products'}</td>
                               <td className="py-2.5 text-center text-slate-300">{rule.minQty}</td>
                               <td className="py-2.5 text-slate-400">
-                                {rule.validFrom && rule.validTo ? `${rule.validFrom} to ${rule.validTo}` : 'Lifetime'}
+                                {rule.validFrom && rule.validTo ? `${new Date(rule.validFrom).toLocaleDateString()} to ${new Date(rule.validTo).toLocaleDateString()}` : 'Lifetime'}
                               </td>
                               <td className="py-2.5 text-center">
                                 <span className={`inline-block w-2 h-2 rounded-full ${rule.isSelectable ? 'bg-primary' : 'bg-slate-700'}`} />
                               </td>
                               <td className="py-2.5 text-right font-bold text-white">
-                                {rule.priceType === 'DISCOUNT' ? `${rule.discountPercent}% Discount` : `$${rule.fixedPrice?.toFixed(2)} Fixed`}
+                                {rule.priceType === 'DISCOUNT' ? `${rule.discountPercent}% Discount` : `$${Number(rule.fixedPrice || 0).toFixed(2)} Fixed`}
                               </td>
                               <td className="py-2.5 text-center">
                                 <button

@@ -2,7 +2,7 @@ const priceListService = require("../services/priceList.service");
 
 exports.getAll = async (req, res, next) => {
   try {
-    const priceLists = await priceListService.getPriceLists();
+    const priceLists = await priceListService.getPriceLists(req.user.id);
     res.status(200).json({ success: true, priceLists });
   } catch (error) {
     next(error);

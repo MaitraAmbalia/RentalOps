@@ -11,40 +11,53 @@ const createWorkflow = async (data) => {
       throw new ApiError(404, "Order not found");
     }
 
-    // 2. Verify delivery partner exists
-    const partner = await tx.deliveryPartner.findUnique({
-      where: { id: data.deliveryId },
-    });
-    if (!partner) {
-      throw new ApiError(404, "Delivery partner not found");
+    // 2. Verify delivery partner if provided
+    if (data.deliveryId) {
+      const partner = await tx.deliveryPartner.findUnique({
+        where: { id: data.deliveryId },
+      });
+      if (!partner) {
+        throw new ApiError(404, "Delivery partner not found");
+      }
     }
 
     // 3. Create workflow
     const workflow = await tx.pickupReturnWorkflow.create({
       data: {
         orderId: data.orderId,
-        deliveryId: data.deliveryId,
-        workflowType: data.workflowType,
-        scheduledDate: new Date(data.scheduledDate),
+        deliveryId: data.deliveryId || null,
+        workflowType: data.workflowType || "PICKUP",
+        scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : new Date(),
         workflowStatus: "SCHEDULED",
       },
+      include: {
+        order: {
+          include: {
+            client: true,
+            items: { include: { product: true } },
+          },
+        },
+        deliveryPartner: true,
+      }
     });
 
-    // 4. Update delivery partner status
-    await tx.deliveryPartner.update({
-      where: { id: data.deliveryId },
-      data: {
-        currentStatus: "OUT_ON_DELIVERY",
-        currentOrderId: data.orderId,
-      },
-    });
+    // 4. Update delivery partner status if assigned
+    if (data.deliveryId) {
+      await tx.deliveryPartner.update({
+        where: { id: data.deliveryId },
+        data: {
+          currentStatus: "OUT_ON_DELIVERY",
+          currentOrderId: data.orderId,
+        },
+      });
+    }
 
     return workflow;
   });
 };
 
 const getWorkflows = async (user, filters = {}) => {
-  const { type, status, deliveryId, date, page = 1, limit = 10 } = filters;
+  const { type, status, deliveryId, date, page = 1, limit = 100 } = filters;
   const skip = (Number(page) - 1) * Number(limit);
 
   const where = {};
@@ -254,7 +267,12 @@ const completeWorkflow = async (id, data, user) => {
   });
 };
 
-const updateWorkflow = async (id, data) => {
+const updateWorkflow = async (id, data, user = { type: 'VENDOR' }) => {
+  if (data.status === 'COMPLETED' || data.workflowStatus === 'COMPLETED') {
+    const res = await completeWorkflow(id, data, user);
+    return res.workflow || res;
+  }
+
   const updateData = {};
   if (data.deliveryId !== undefined) updateData.deliveryId = data.deliveryId;
   if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);

@@ -115,10 +115,18 @@ async function resolveLinePrice({
 }
 
 async function getDefaultPriceListId(vendorId) {
+  if (!vendorId) return null;
   const settings = await prisma.vendorSettings.findUnique({
     where: { vendorId },
   });
-  return settings?.defaultPriceListId || null;
+  if (settings?.defaultPriceListId) return settings.defaultPriceListId;
+
+  // Fallback: Pick the first price list created by this vendor if not explicitly designated
+  const firstList = await prisma.priceList.findFirst({
+    where: { vendorId },
+    orderBy: { createdAt: "asc" }
+  });
+  return firstList?.id || null;
 }
 
 module.exports = {

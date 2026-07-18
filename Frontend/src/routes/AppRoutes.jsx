@@ -44,6 +44,7 @@ import ReportsPage from '../pages/portal/ReportsPage';
 import RentalSchedulerPage from '../pages/portal/RentalSchedulerPage';
 
 // Delivery Pages
+import DeliveryLoginPage from '../pages/delivery/DeliveryLoginPage';
 import DeliveryDashboardPage from '../pages/delivery/DeliveryDashboardPage';
 import TaskDetailPage from '../pages/delivery/TaskDetailPage';
 
@@ -98,6 +99,7 @@ export default function AppRoutes() {
       </Route>
 
       {/* Courier/Delivery App */}
+      <Route path="/delivery/login" element={<DeliveryLoginPage />} />
       <Route element={<DeliveryLayout />}>
         <Route path="/delivery/dashboard" element={<DeliveryDashboardPage />} />
         <Route path="/delivery/tasks/:id" element={<TaskDetailPage />} />

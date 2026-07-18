@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Plus, User, Search, RefreshCw, X, Shield, Phone
+  Plus, User, Search, RefreshCw, X, Shield, Phone, Key, Truck
 } from 'lucide-react';
 import { deliveryPartnerService } from '../../api/deliveryPartnerService';
 
@@ -15,7 +15,8 @@ export default function DeliveryPartnersPage() {
     firstName: '',
     lastName: '',
     phone: '',
-    companyName: ''
+    companyName: '',
+    password: 'password123'
   });
   const [onboardLoading, setOnboardLoading] = useState(false);
 
@@ -45,17 +46,14 @@ export default function DeliveryPartnersPage() {
     }
     setOnboardLoading(true);
     try {
-      const newDp = await deliveryPartnerService.createDeliveryPartner({
-        ...partnerForm,
-        passwordHash: 'seeded'
-      });
+      const newDp = await deliveryPartnerService.createDeliveryPartner(partnerForm);
       setPartners(prev => [...prev, newDp]);
-      setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '' });
+      setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '', password: 'password123' });
       setOnboardOpen(false);
-      alert('Delivery partner onboarded successfully!');
+      alert('Delivery courier partner onboarded successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to onboard courier.');
+      alert(err.response?.data?.message || 'Failed to onboard courier.');
     } finally {
       setOnboardLoading(false);
     }
@@ -66,7 +64,8 @@ export default function DeliveryPartnersPage() {
       const q = searchQuery.toLowerCase();
       const nameMatch = `${p.firstName} ${p.lastName}`.toLowerCase().includes(q);
       const companyMatch = p.companyName?.toLowerCase().includes(q);
-      if (!nameMatch && !companyMatch) return false;
+      const phoneMatch = p.phone?.includes(q);
+      if (!nameMatch && !companyMatch && !phoneMatch) return false;
     }
     return true;
   });
@@ -105,7 +104,7 @@ export default function DeliveryPartnersPage() {
 
       {onboardOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-bg-card border border-border-main rounded-2xl p-6 w-full max-w-md space-y-4">
+          <div className="bg-bg-card border border-border-main rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
             <div className="flex justify-between items-center border-b border-border-main pb-3 text-sm">
               <span className="text-lg font-bold text-text-main">Onboard Delivery Courier</span>
               <button onClick={() => setOnboardOpen(false)} className="text-text-muted hover:text-text-main"><X className="h-5 w-5" /></button>
@@ -120,7 +119,7 @@ export default function DeliveryPartnersPage() {
                     required
                     value={partnerForm.firstName}
                     onChange={(e) => setPartnerForm(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                   />
                 </div>
                 <div>
@@ -130,31 +129,42 @@ export default function DeliveryPartnersPage() {
                     required
                     value={partnerForm.lastName}
                     onChange={(e) => setPartnerForm(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Phone Number</label>
+                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Phone Number (Login ID)</label>
                 <input
                   type="text"
                   required
                   placeholder="9876543210"
                   value={partnerForm.phone}
                   onChange={(e) => setPartnerForm(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Courier Agency</label>
+                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Courier Agency / Company</label>
                 <input
                   type="text"
                   placeholder="DHL, FedEx, Self-Employed"
                   value={partnerForm.companyName}
                   onChange={(e) => setPartnerForm(prev => ({ ...prev, companyName: e.target.value }))}
-                  className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-text-muted mb-1.5 uppercase font-bold text-[10px]">Initial Password</label>
+                <input
+                  type="password"
+                  required
+                  value={partnerForm.password}
+                  onChange={(e) => setPartnerForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full bg-bg-main border border-border-main rounded-lg p-2 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs font-mono"
                 />
               </div>
 
@@ -163,7 +173,7 @@ export default function DeliveryPartnersPage() {
                 disabled={onboardLoading}
                 className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-xs transition-all shadow"
               >
-                Onboard Fleet Partner
+                {onboardLoading ? 'Onboarding...' : 'Onboard Fleet Partner'}
               </button>
             </form>
           </div>
@@ -186,16 +196,24 @@ export default function DeliveryPartnersPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPartners.map(p => (
           <div key={p.id} className="bg-bg-card p-5 rounded-2xl border border-border-main flex items-start gap-4 shadow-sm hover:border-text-muted/30 transition-all">
-            <div className="p-3 bg-bg-main border border-border-main rounded-xl text-text-muted">
-              <User className="h-6 w-6" />
+            <div className="p-3 bg-bg-main border border-border-main rounded-xl text-primary shrink-0">
+              <Truck className="h-6 w-6" />
             </div>
             
             <div className="space-y-1.5 min-w-0 flex-1">
-              <span className="font-extrabold text-text-main text-sm block leading-tight">{p.firstName} {p.lastName}</span>
-              <p className="text-text-muted font-bold uppercase text-[9px] tracking-wider">{p.companyName || 'Freelance Agent'}</p>
+              <div className="flex justify-between items-start gap-1">
+                <span className="font-extrabold text-text-main text-sm block leading-tight truncate">{p.firstName} {p.lastName}</span>
+                <span className={`px-2 py-0.5 rounded text-[9px] font-bold shrink-0 ${
+                  p.currentStatus === 'OUT_ON_DELIVERY' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                }`}>
+                  {p.currentStatus || 'AVAILABLE'}
+                </span>
+              </div>
               
-              <div className="flex items-center space-x-1.5 text-text-muted pt-1">
-                <Phone className="h-3.5 w-3.5" />
+              <p className="text-text-muted font-bold uppercase text-[9px] tracking-wider">{p.companyName || 'Independent Fleet'}</p>
+              
+              <div className="flex items-center space-x-1.5 text-text-muted pt-1 text-[11px]">
+                <Phone className="h-3.5 w-3.5 text-text-muted shrink-0" />
                 <span>{p.phone}</span>
               </div>
             </div>

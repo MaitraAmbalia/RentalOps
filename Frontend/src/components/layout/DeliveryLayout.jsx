@@ -10,14 +10,14 @@ export default function DeliveryLayout() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/login');
+      navigate('/delivery/login');
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/delivery/login');
   };
 
   return (
