@@ -1,36 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, User, MapPin, Key, CheckCircle, RefreshCw } from 'lucide-react';
+import { Save, User, MapPin, Key, CheckCircle, RefreshCw, Shield, Mail, Phone } from 'lucide-react';
 import { clientService } from '../../api/clientService';
+
+const inputCls = "w-full bg-bg-main border border-border-main text-text-main rounded-xl p-2.5 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all placeholder-text-muted";
+const labelCls = "block font-bold text-text-muted text-[10px] uppercase tracking-wider mb-1.5";
+const disabledInputCls = "w-full bg-bg-main border border-border-main text-text-muted rounded-xl p-2.5 text-xs outline-none cursor-not-allowed opacity-70";
+
+const TABS = [
+  { id: 'profile',  label: 'Profile Info',      Icon: User },
+  { id: 'address',  label: 'Shipping Address',   Icon: MapPin },
+  { id: 'password', label: 'Security',           Icon: Shield },
+];
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'address', 'password'
-  
+  const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Profile fields
   const [profileForm, setProfileForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    shippingAddress: ''
+    firstName: '', lastName: '', email: '', phone: '', shippingAddress: ''
   });
 
-  // Password fields
   const [passwordForm, setPasswordForm] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    oldPassword: '', newPassword: '', confirmPassword: ''
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -48,23 +47,28 @@ export default function ProfilePage() {
       }
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch client profile details.');
+      setError('Failed to fetch your profile details.');
     } finally {
       setLoading(false);
     }
   };
 
+  const flash = (type, msg) => {
+    if (type === 'success') setSuccess(msg);
+    else setError(msg);
+    setTimeout(() => { setSuccess(''); setError(''); }, 4000);
+  };
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setSaveLoading(true);
-    setError('');
-    setSuccess('');
+    setError(''); setSuccess('');
     try {
       await clientService.updateProfile(profileForm);
-      setSuccess('Profile configurations saved successfully!');
+      flash('success', 'Profile saved successfully!');
     } catch (err) {
       console.error(err);
-      setError('Failed to save profile changes.');
+      flash('error', 'Failed to save profile changes.');
     } finally {
       setSaveLoading(false);
     }
@@ -73,22 +77,20 @@ export default function ProfilePage() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
+      return flash('error', 'New passwords do not match.');
     }
     setSaveLoading(true);
-    setError('');
-    setSuccess('');
+    setError(''); setSuccess('');
     try {
       await clientService.changePassword({
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });
-      setSuccess('Security credentials updated!');
+      flash('success', 'Password changed successfully!');
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
       console.error(err);
-      setError('Failed to change security credentials.');
+      flash('error', 'Failed to update password. Check your current password.');
     } finally {
       setSaveLoading(false);
     }
@@ -96,124 +98,119 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <RefreshCw className="h-6 w-6 text-blue-600 animate-spin" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3">
+          <RefreshCw className="h-8 w-8 text-primary animate-spin mx-auto" />
+          <p className="text-xs text-text-muted font-semibold">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
+  const initials = `${profileForm.firstName?.[0] || ''}${profileForm.lastName?.[0] || ''}`.toUpperCase() || 'C';
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 text-slate-705 font-sans text-xs">
-      
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Account Settings</h1>
-        <p className="text-sm text-slate-500 mt-1">Configure profile preferences, shipping addresses, and security passwords.</p>
+    <div className="max-w-4xl mx-auto space-y-6">
+
+      {/* Page Header */}
+      <div className="flex items-center space-x-5 border-b border-border-main pb-6">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-extrabold text-2xl shrink-0">
+          {initials}
+        </div>
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-main">
+            {profileForm.firstName ? `${profileForm.firstName} ${profileForm.lastName}` : 'Account Settings'}
+          </h1>
+          <p className="text-xs text-text-muted mt-0.5 font-medium">Manage your profile, shipping address, and security settings.</p>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 bg-white p-1 rounded-xl self-start gap-1 max-w-md shadow-sm border">
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'profile' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-750'
-          }`}
-        >
-          <User className="h-4 w-4" />
-          <span>Profile Info</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('address')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'address' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-750'
-          }`}
-        >
-          <MapPin className="h-4 w-4" />
-          <span>Shipping Location</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('password')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'password' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-750'
-          }`}
-        >
-          <Key className="h-4 w-4" />
-          <span>Security</span>
-        </button>
+      {/* Tab Bar */}
+      <div className="flex gap-1 bg-bg-card border border-border-main p-1 rounded-xl self-start max-w-md">
+        {TABS.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => { setActiveTab(id); setError(''); setSuccess(''); }}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              activeTab === id
+                ? 'bg-primary text-white shadow-sm shadow-primary/20'
+                : 'text-text-muted hover:text-text-main'
+            }`}
+          >
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span>{label}</span>
+          </button>
+        ))}
       </div>
 
+      {/* Alerts */}
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-455 rounded-xl font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-xs font-semibold">
           {error}
         </div>
       )}
-
       {success && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-455 rounded-xl font-semibold flex items-center space-x-2 animate-in fade-in">
-          <CheckCircle className="h-4.5 w-4.5" />
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl text-xs font-semibold flex items-center space-x-2">
+          <CheckCircle className="h-4 w-4 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        
+      {/* Form Card */}
+      <div className="bg-bg-card border border-border-main rounded-2xl p-6">
+
         {/* Tab 1: Profile Info */}
         {activeTab === 'profile' && (
-          <form onSubmit={handleProfileSubmit} className="space-y-4">
-            <h2 className="text-base font-extrabold text-slate-900 mb-4">Profile Information</h2>
-            
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={handleProfileSubmit} className="space-y-5">
+            <h2 className="text-sm font-extrabold text-text-main border-b border-border-main pb-3">
+              Personal Information
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">First Name</label>
+                <label className={labelCls}>First Name</label>
                 <input
-                  type="text"
-                  required
-                  value={profileForm.firstName}
-                  onChange={(e) => setProfileForm(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500"
+                  type="text" required value={profileForm.firstName}
+                  onChange={e => setProfileForm(p => ({ ...p, firstName: e.target.value }))}
+                  className={inputCls} placeholder="John"
                 />
               </div>
               <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Last Name</label>
+                <label className={labelCls}>Last Name</label>
                 <input
-                  type="text"
-                  required
-                  value={profileForm.lastName}
-                  onChange={(e) => setProfileForm(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500"
+                  type="text" required value={profileForm.lastName}
+                  onChange={e => setProfileForm(p => ({ ...p, lastName: e.target.value }))}
+                  className={inputCls} placeholder="Doe"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Contact phone</label>
+                <label className={labelCls}>
+                  <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> Phone</span>
+                </label>
                 <input
-                  type="text"
-                  required
-                  value={profileForm.phone}
-                  onChange={(e) => setProfileForm(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none"
+                  type="text" value={profileForm.phone}
+                  onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value }))}
+                  className={inputCls} placeholder="+91 XXXXX XXXXX"
                 />
               </div>
               <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email (Read Only)</label>
-                <input
-                  type="email"
-                  disabled
-                  value={profileForm.email}
-                  className="w-full bg-slate-100 text-slate-400 border border-slate-200 rounded-xl p-2.5 text-sm outline-none cursor-not-allowed"
-                />
+                <label className={labelCls}>
+                  <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> Email (Read‑only)</span>
+                </label>
+                <input type="email" disabled value={profileForm.email} className={disabledInputCls} />
               </div>
             </div>
 
             <div className="flex justify-end pt-2">
               <button
-                type="submit"
-                disabled={saveLoading}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center space-x-1.5 shadow"
+                type="submit" disabled={saveLoading}
+                className="flex items-center space-x-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-xs shadow-sm shadow-primary/20 transition-colors disabled:opacity-70"
               >
                 <Save className="h-4 w-4" />
-                <span>Save Profile details</span>
+                <span>{saveLoading ? 'Saving...' : 'Save Profile'}</span>
               </button>
             </div>
           </form>
@@ -221,80 +218,64 @@ export default function ProfilePage() {
 
         {/* Tab 2: Shipping Address */}
         {activeTab === 'address' && (
-          <form onSubmit={handleProfileSubmit} className="space-y-4">
-            <h2 className="text-base font-extrabold text-slate-900 mb-4">Shipping Destination</h2>
-            
+          <form onSubmit={handleProfileSubmit} className="space-y-5">
+            <h2 className="text-sm font-extrabold text-text-main border-b border-border-main pb-3">
+              Default Shipping Address
+            </h2>
             <div>
-              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Default Delivery Street Address</label>
+              <label className={labelCls}>
+                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Delivery Address</span>
+              </label>
               <textarea
-                rows="3"
-                required
-                value={profileForm.shippingAddress}
-                onChange={(e) => setProfileForm(prev => ({ ...prev, shippingAddress: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500"
-                placeholder="Building, street, zip, city..."
+                rows="4" required value={profileForm.shippingAddress}
+                onChange={e => setProfileForm(p => ({ ...p, shippingAddress: e.target.value }))}
+                className={inputCls} placeholder="Building, street, landmark, city, pin code..."
               />
             </div>
-
+            <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl text-xs text-text-muted font-medium flex items-start space-x-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <span>This address is used as the default delivery destination when you checkout. You can override it per order during checkout.</span>
+            </div>
             <div className="flex justify-end pt-2">
               <button
-                type="submit"
-                disabled={saveLoading}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center space-x-1.5 shadow"
+                type="submit" disabled={saveLoading}
+                className="flex items-center space-x-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-xs shadow-sm shadow-primary/20 transition-colors disabled:opacity-70"
               >
                 <Save className="h-4 w-4" />
-                <span>Save Address details</span>
+                <span>{saveLoading ? 'Saving...' : 'Save Address'}</span>
               </button>
             </div>
           </form>
         )}
 
-        {/* Tab 3: Security Credentials */}
+        {/* Tab 3: Security */}
         {activeTab === 'password' && (
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
-            <h2 className="text-base font-extrabold text-slate-900 mb-4">Change Security Password</h2>
-            
-            <div>
-              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Old Password</label>
-              <input
-                type="password"
-                required
-                value={passwordForm.oldPassword}
-                onChange={(e) => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">New Password</label>
-              <input
-                type="password"
-                required
-                placeholder="Min 6 characters"
-                value={passwordForm.newPassword}
-                onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Confirm New Password</label>
-              <input
-                type="password"
-                required
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none"
-              />
-            </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-5 max-w-md">
+            <h2 className="text-sm font-extrabold text-text-main border-b border-border-main pb-3">
+              Change Password
+            </h2>
+            {['oldPassword', 'newPassword', 'confirmPassword'].map((field, i) => (
+              <div key={field}>
+                <label className={labelCls}>
+                  {['Current Password', 'New Password', 'Confirm New Password'][i]}
+                </label>
+                <input
+                  type="password" required
+                  value={passwordForm[field]}
+                  placeholder={i === 1 ? 'Minimum 6 characters' : ''}
+                  onChange={e => setPasswordForm(p => ({ ...p, [field]: e.target.value }))}
+                  className={inputCls}
+                />
+              </div>
+            ))}
 
             <div className="flex justify-end pt-2">
               <button
-                type="submit"
-                disabled={saveLoading}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all shadow"
+                type="submit" disabled={saveLoading}
+                className="flex items-center space-x-2 w-full justify-center py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-xs shadow-sm shadow-primary/20 transition-colors disabled:opacity-70"
               >
-                Change Password Key
+                <Key className="h-4 w-4" />
+                <span>{saveLoading ? 'Updating...' : 'Change Password'}</span>
               </button>
             </div>
           </form>
