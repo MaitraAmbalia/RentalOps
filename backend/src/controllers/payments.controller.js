@@ -11,10 +11,9 @@ exports.initiate = async (req, res, next) => {
 
 exports.webhook = async (req, res, next) => {
   try {
-    // Expected to receive payload & signature from Razorpay in real scenario
-    const signature = req.headers['x-razorpay-signature'] || 'mock-signature';
-    await paymentsService.verifyWebhook(req.body, signature);
-    res.status(200).json({ success: true });
+    // Pass the entire body; the service will extract the signature
+    await paymentsService.verifyWebhook(req.body);
+    res.status(200).json({ success: true, message: "Payment verified successfully" });
   } catch (error) {
     next(error);
   }
