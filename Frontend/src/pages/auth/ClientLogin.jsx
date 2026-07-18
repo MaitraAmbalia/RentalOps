@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, Lock, Mail, ArrowRight } from 'lucide-react';
-import { api } from '../../services/api';
+import { authService } from '../../api/authService';
 
 export default function ClientLogin() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,10 @@ export default function ClientLogin() {
     setLoading(true);
     setError('');
     try {
-      await api.loginClient(email, password);
+      const res = await authService.clientLogin(email, password);
+      if (res.data && res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Login failed. Try test@example.com / password');

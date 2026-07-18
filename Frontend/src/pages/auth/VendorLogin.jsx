@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store, Mail, Lock, ArrowRight } from 'lucide-react';
-import { api } from '../../services/api';
+import { authService } from '../../api/authService';
 
 export default function VendorLogin() {
   const [email, setEmail] = useState('');
@@ -13,8 +13,10 @@ export default function VendorLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.loginVendor(email, password);
-      // Vendor dashboard is outside the scope, navigate to root for now
+      const res = await authService.vendorLogin(email, password);
+      if (res.data && res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       navigate('/dashboard'); 
     } catch (err) {
       console.error(err);
