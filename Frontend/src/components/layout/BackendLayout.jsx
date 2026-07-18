@@ -15,7 +15,6 @@ export default function BackendLayout() {
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [searchVal, setSearchVal] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
@@ -63,13 +62,6 @@ export default function BackendLayout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/');
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchVal.trim()) {
-      navigate(`/vendor/orders?search=${encodeURIComponent(searchVal.trim())}`);
-    }
   };
 
   const menuItems = [
@@ -151,19 +143,7 @@ export default function BackendLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Navigation bar */}
-        <header className="h-16 bg-header-bg border-b border-border-main backdrop-blur-md sticky top-0 z-45 px-6 flex justify-between items-center gap-4 transition-colors">
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md relative hidden sm:block">
-            <input
-              type="text"
-              placeholder="Search in workspace..."
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              className="w-full bg-bg-main border border-border-main text-text-main placeholder-slate-500 text-xs rounded-xl pl-4 pr-10 py-2 focus:border-primary focus:outline-none transition-colors"
-            />
-            <button type="submit" className="absolute right-3 top-2.5 text-text-muted hover:text-text-main">
-              <Search className="h-4 w-4" />
-            </button>
-          </form>
+        <header className="h-16 bg-header-bg border-b border-border-main backdrop-blur-md sticky top-0 z-45 px-6 flex justify-end items-center gap-4 transition-colors">
 
           {/* User profile dropdown & notifications */}
           <div className="flex items-center space-x-4 ml-auto">

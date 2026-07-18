@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Truck, Store, ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function CheckoutAddressPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cart } = useCart();
+
+  const { couponCode, discountAmount = 0 } = location.state || {};
 
   const [deliveryMethod, setDeliveryMethod] = useState('HOME_DELIVERY');
   const [shippingForm, setShippingForm] = useState({
@@ -51,7 +54,7 @@ export default function CheckoutAddressPage() {
   }, 0);
 
   const deliveryFee = 0;
-  const total = subtotal + securityDeposit + deliveryFee;
+  const total = subtotal - discountAmount + securityDeposit + deliveryFee;
 
   const handleContinue = (e) => {
     e.preventDefault();
@@ -65,6 +68,8 @@ export default function CheckoutAddressPage() {
         shippingForm,
         billingSame,
         subtotal,
+        discountAmount,
+        couponCode,
         securityDeposit,
         total
       }
@@ -266,6 +271,12 @@ export default function CheckoutAddressPage() {
               <span>Rental Charges:</span>
               <span className="font-semibold text-slate-800">${subtotal.toFixed(2)}</span>
             </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Coupon discount:</span>
+                <span>-${discountAmount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-start">
               <div>
                 <span className="flex items-center text-slate-500">

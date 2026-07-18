@@ -13,8 +13,9 @@ export default function CartPage() {
 
   // Coupon / Discount State
   const [couponCode, setCouponCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(0); // in percentage
+  const [appliedDiscount, setAppliedDiscount] = useState(0); // absolute amount now
   const [couponMsg, setCouponMsg] = useState('');
+  const [isValidCoupon, setIsValidCoupon] = useState(false);
 
   // Express Checkout Modal State
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
@@ -55,18 +56,26 @@ export default function CartPage() {
   };
 
   const subtotal = getSubtotal();
-  const discountAmount = (subtotal * appliedDiscount) / 100;
+  const discountAmount = appliedDiscount;
   const securityDeposit = getDeposit();
   const deliveryFee = 0; // Free Standard Delivery
   const total = subtotal - discountAmount + securityDeposit + deliveryFee;
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = async (e) => {
     e.preventDefault();
-    if (couponCode.toUpperCase() === 'RENT10') {
-      setAppliedDiscount(10);
-      setCouponMsg('10% discount applied successfully!');
-    } else {
-      setCouponMsg('Invalid coupon code.');
+    try {
+      setCouponMsg('');
+      const { cartService } = await import('../../api/cartService');
+      const res = await cartService.applyCoupon(couponCode, cart);
+      if (res.success) {
+        setAppliedDiscount(res.discount);
+        setIsValidCoupon(true);
+        setCouponMsg(`Discount applied!`);
+      }
+    } catch (error) {
+      setAppliedDiscount(0);
+      setIsValidCoupon(false);
+      setCouponMsg(error.response?.data?.message || 'Invalid coupon code.');
     }
   };
 
@@ -83,14 +92,22 @@ export default function CartPage() {
     try {
       for (const item of cart) {
         // 1. Create storefront Order
-        const orderRes = await orderService.createOrder({
+        const orderPayload = {
           productId: item.product.id,
           quantity: item.qty,
           fulfillmentType: 'HOME_DELIVERY',
           orderSource: 'ONLINE',
           rentalStartDate: new Date(item.rentalStartDate),
-          scheduledReturnDate: new Date(item.scheduledReturnDate)
-        });
+          scheduledReturnDate: new Date(item.scheduledReturnDate),
+          untaxedAmount: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
+          totalAmount: ((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)) + (item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2)),
+          securityDepositAmount: item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2),
+        };
+        if (isValidCoupon && couponCode) {
+          orderPayload.couponCode = couponCode;
+        }
+
+        const orderRes = await orderService.createOrder(orderPayload);
 
         const orderId = orderRes.id;
 
@@ -260,8 +277,8 @@ export default function CartPage() {
             
             {appliedDiscount > 0 && (
               <div className="flex justify-between text-emerald-600">
-                <span>Coupon discount ({appliedDiscount}%):</span>
-                <span>-${discountAmount.toFixed(2)}</span>
+                <span>Coupon discount:</span>
+                <span>-${appliedDiscount.toFixed(2)}</span>
               </div>
             )}
 
@@ -321,7 +338,7 @@ export default function CartPage() {
             </button>
             
             <button
-              onClick={() => navigate('/checkout/address')}
+              onClick={() => navigate('/checkout/address', { state: { couponCode: isValidCoupon ? couponCode : null, discountAmount: appliedDiscount } })}
               className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5"
             >
               <span>Standard Checkout</span>

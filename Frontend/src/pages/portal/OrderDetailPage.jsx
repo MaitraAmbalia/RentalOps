@@ -220,12 +220,20 @@ export default function OrderDetailPage() {
           <div className="space-y-3">
             <div className="flex justify-between text-xs">
               <span className="text-text-muted font-semibold">Rental Fee</span>
-              <span className="font-bold text-text-main">{fmtMoney(rental)}</span>
+              <span className="font-bold text-text-main">
+                {order.coupon ? fmtMoney(order.untaxedAmount + (order.taxAmount || 0)) : fmtMoney(rental)}
+              </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-text-muted font-semibold">Security Deposit</span>
               <span className="font-bold text-text-main">{fmtMoney(depositAmt)}</span>
             </div>
+            {order.coupon && (
+              <div className="flex justify-between text-xs text-emerald-600">
+                <span className="font-semibold">Discount ({order.coupon.code})</span>
+                <span className="font-bold">-{fmtMoney((order.untaxedAmount + (order.taxAmount || 0)) - order.totalAmount)}</span>
+              </div>
+            )}
             <div className="h-px bg-border-main" />
             <div className="flex justify-between">
               <span className="font-extrabold text-text-main text-xs">Total Paid</span>
