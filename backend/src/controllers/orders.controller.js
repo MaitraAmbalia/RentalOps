@@ -11,7 +11,10 @@ exports.create = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
-    const orders = await ordersService.getOrders(req.user.vendorId || req.user.id);
+    const isVendor = req.user.type === 'VENDOR';
+    const orders = isVendor
+      ? await ordersService.getOrders(req.user.id)
+      : await ordersService.getClientOrders(req.user.id);
     res.status(200).json({ success: true, orders });
   } catch (error) {
     next(error);
@@ -20,7 +23,10 @@ exports.getAll = async (req, res, next) => {
 
 exports.getById = async (req, res, next) => {
   try {
-    const order = await ordersService.getOrderById(req.user.vendorId || req.user.id, req.params.id);
+    const isVendor = req.user.type === 'VENDOR';
+    const order = isVendor
+      ? await ordersService.getOrderById(req.user.id, req.params.id)
+      : await ordersService.getClientOrderById(req.user.id, req.params.id);
     res.status(200).json({ success: true, order });
   } catch (error) {
     next(error);

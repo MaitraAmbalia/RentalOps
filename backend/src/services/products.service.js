@@ -36,12 +36,20 @@ exports.createProduct = async (vendorId, data) => {
   });
 };
 
-exports.getProducts = async (vendorId) => {
-  return await productRepo.findAllByVendor(vendorId);
+exports.getProducts = async (vendorId, filters = {}) => {
+  if (vendorId) {
+    return await productRepo.findAllByVendor(vendorId);
+  }
+  return await productRepo.findAllPublished(filters);
 };
 
 exports.getProductById = async (vendorId, productId) => {
-  const product = await productRepo.findById(productId, vendorId);
+  let product;
+  if (vendorId) {
+    product = await productRepo.findById(productId, vendorId);
+  } else {
+    product = await productRepo.findPublishedById(productId);
+  }
   if (!product) throw new ApiError(404, 'Product not found');
   return product;
 };
