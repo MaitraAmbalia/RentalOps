@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, Shield, Clock, Info, CheckCircle2, Heart, ShoppingCart, X, FileText } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { productService } from '../../api/productService';
+import { useToast } from '../../context/ToastContext';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, addToWishlist, removeFromWishlist, isWishlisted } = useCart();
+  const { success } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ export default function ProductDetailPage() {
   const finalizeAddToCart = () => {
     addToCart(product, quantity, selectedVariants, startDate, endDate);
     setVariantModalOpen(false);
-    alert('Product added to shopping cart!');
+    success('Product added to shopping cart!');
     navigate('/cart');
   };
 

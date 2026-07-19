@@ -4,10 +4,12 @@ import {
   ArrowLeft, CheckCircle, Camera, Edit3, ClipboardCheck, AlertTriangle
 } from 'lucide-react';
 import { workflowService } from '../../api/workflowService';
+import { useToast } from '../../context/ToastContext';
 
 export default function TaskDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { success, error: toastError, warning } = useToast();
 
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +61,7 @@ export default function TaskDetailPage() {
 
   const handleCompleteTask = async () => {
     if (!goodsChecked || !accessoriesVerified || !signatureDone) {
-      alert('Please complete all safety verification checkboxes first.');
+      warning('Please complete all safety verification checkboxes first.');
       return;
     }
     try {
@@ -74,11 +76,11 @@ export default function TaskDetailPage() {
         damageReported: isDamaged,
         damageDescription: isDamaged ? damageNotes : undefined
       });
-      alert('Dispatch checklist verified and task marked Completed!');
+      success('Dispatch checklist verified and task marked Completed!');
       navigate('/delivery/dashboard');
     } catch (err) {
       console.error(err);
-      alert('Failed to update task.');
+      toastError('Failed to update task.');
     }
   };
 

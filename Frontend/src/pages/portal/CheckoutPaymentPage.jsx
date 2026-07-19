@@ -6,11 +6,13 @@ import { orderService } from '../../api/orderService';
 import { paymentService } from '../../api/paymentService';
 import { agreementService } from '../../api/agreementService';
 import SignaturePadModal from '../../components/common/SignaturePadModal';
+import { useToast } from '../../context/ToastContext';
 
 export default function CheckoutPaymentPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { cart, clearCart } = useCart();
+  const { warning } = useToast();
 
   const {
     deliveryMethod,
@@ -72,7 +74,7 @@ export default function CheckoutPaymentPage() {
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     if (!signatureData) {
-      alert('Please review and digitally sign the Rental Agreement before placing order.');
+      warning('Please review and digitally sign the Rental Agreement before placing order.');
       setAgreementModalOpen(true);
       return;
     }

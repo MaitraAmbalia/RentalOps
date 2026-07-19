@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { paymentService } from '../../api/paymentService';
+import { useToast } from '../../context/ToastContext';
 
 export default function CartPage() {
+  const { success, error: toastError } = useToast();
   const navigate = useNavigate();
   const { cart, removeFromCart, updateCartItemQty, updateCartItemDates, clearCart } = useCart();
 
@@ -124,11 +126,13 @@ export default function CartPage() {
 
       clearCart();
       setCheckoutModalOpen(false);
-      alert('Payment processed successfully!');
+      success('Payment processed successfully!');
+      clearCart();
+      navigate('/checkout/confirmation');
       navigate('/orders');
     } catch (err) {
       console.error(err);
-      alert('Express checkout payment failed. Please check inputs.');
+      toastError('Express checkout payment failed. Please check inputs.');
     } finally {
       setPaymentLoading(false);
     }

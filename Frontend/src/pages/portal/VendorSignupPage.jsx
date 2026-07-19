@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Package, RefreshCw } from 'lucide-react';
 import { authService } from '../../api/authService';
+import { useToast } from '../../context/ToastContext';
 
 export default function VendorSignupPage() {
   const navigate = useNavigate();
+  const { success } = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,7 +32,7 @@ export default function VendorSignupPage() {
 
     try {
       await authService.vendorSignup(formData);
-      alert('Vendor registration successful! Please log in.');
+      success('Vendor registration successful! Please log in.');
       navigate('/login');
     } catch (err) {
       console.error(err);
