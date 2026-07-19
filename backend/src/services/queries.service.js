@@ -1,15 +1,27 @@
 const repo = require('../repositories/query.repository');
 const ApiError = require('../utils/apiError');
 
+const mapQuery = (q) => {
+  if (!q) return q;
+  return {
+    ...q,
+    clientName: q.client ? `${q.client.firstName} ${q.client.lastName}`.trim() : 'Unknown Client',
+    clientEmail: q.client ? q.client.email : '',
+    orderNumber: q.order ? q.order.orderNumber : ''
+  };
+};
+
 exports.openQuery = async (clientId, data) => {
-  return await repo.create({
+  const query = await repo.create({
     ...data,
     clientId
   });
+  return mapQuery(query);
 };
 
 exports.getQueries = async (filters = {}) => {
-  return await repo.findMany(filters);
+  const queries = await repo.findMany(filters);
+  return queries.map(mapQuery);
 };
 
 exports.getQueryById = async (id, clientId = null) => {
@@ -21,12 +33,13 @@ exports.getQueryById = async (id, clientId = null) => {
     throw new ApiError(403, 'You do not have permission to view this query');
   }
 
-  return query;
+  return mapQuery(query);
 };
 
 exports.resolveQuery = async (id, status) => {
   const query = await repo.findById(id);
   if (!query) throw new ApiError(404, 'Support Query not found');
   
-  return await repo.updateStatus(id, status);
+  const updated = await repo.updateStatus(id, status);
+  return mapQuery(updated);
 };

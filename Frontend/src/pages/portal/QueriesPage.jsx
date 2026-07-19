@@ -32,14 +32,12 @@ export default function QueriesPage() {
   };
 
   const handleResolve = async (id) => {
-    if (!confirm('Are you sure you want to mark this support ticket as resolved?')) return;
     try {
       await queryService.resolveQuery(id, 'RESOLVED');
       setQueries(prev => prev.map(q => q.id === id ? { ...q, status: 'RESOLVED' } : q));
-      alert('Support query resolved successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to resolve support ticket.');
+      setError('Failed to resolve support ticket.');
     }
   };
 
@@ -49,7 +47,7 @@ export default function QueriesPage() {
       setQueries(prev => prev.map(q => q.id === id ? { ...q, status: nextStatus } : q));
     } catch (err) {
       console.error(err);
-      alert('Failed to update ticket status.');
+      setError('Failed to update ticket status.');
     }
   };
 

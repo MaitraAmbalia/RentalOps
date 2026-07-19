@@ -2,7 +2,7 @@ const { prisma } = require('../config/db');
 
 exports.create = (data) => prisma.supportQuery.create({
   data,
-  include: { order: true }
+  include: { order: true, client: true }
 });
 
 exports.findMany = (where) => prisma.supportQuery.findMany({
@@ -17,5 +17,6 @@ exports.findById = (id) => prisma.supportQuery.findUnique({
 
 exports.updateStatus = (id, status) => prisma.supportQuery.update({
   where: { id },
-  data: { status }
+  data: { status },
+  include: { order: true, client: true }
 });
