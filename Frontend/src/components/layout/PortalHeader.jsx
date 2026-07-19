@@ -51,8 +51,8 @@ export default function PortalHeader({ clientProfile }) {
 
   return (
     <header className="bg-header-bg border-b border-border-main sticky top-0 z-50 shadow-sm backdrop-blur-md transition-colors duration-200 print:hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 gap-4 font-sans">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 gap-4 font-sans relative">
           
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center space-x-2.5 shrink-0">
@@ -63,10 +63,10 @@ export default function PortalHeader({ clientProfile }) {
           </Link>
 
           {/* Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-6 text-xs font-bold text-text-muted">
-            <Link to="/dashboard" className="hover:text-primary transition-colors">Products</Link>
-            <span className="hover:text-primary transition-colors cursor-pointer">About Us</span>
-            <span className="hover:text-primary transition-colors cursor-pointer">Contact</span>
+          <nav className="hidden lg:flex items-center space-x-1 text-xs font-bold text-text-muted bg-bg-main border border-border-main rounded-full px-1.5 py-1.5 shadow-sm absolute left-1/2 -translate-x-1/2">
+            <Link to="/dashboard" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">Products</Link>
+            <Link to="/" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">About Us</Link>
+            <Link to="/account/support" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">Contact</Link>
           </nav>
 
 
