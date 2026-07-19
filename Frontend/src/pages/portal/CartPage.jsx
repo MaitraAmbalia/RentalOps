@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { paymentService } from '../../api/paymentService';
+import { getImageUrl } from '../../api/endpoints';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -174,7 +175,7 @@ export default function CartPage() {
               >
                 <div className="w-20 h-20 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 flex items-center justify-center shrink-0">
                   {item.product.images?.length > 0 ? (
-                    <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(item.product.images[0])} alt={item.product.name} className="w-full h-full object-cover" />
                   ) : (
                     <ShoppingBag className="h-8 w-8 text-slate-300" />
                   )}

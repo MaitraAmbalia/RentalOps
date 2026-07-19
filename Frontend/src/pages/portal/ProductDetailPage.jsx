@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, Shield, Clock, Info, CheckCircle2, Heart, ShoppingCart, X, FileText } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { productService } from '../../api/productService';
+import { getImageUrl } from '../../api/endpoints';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -133,7 +134,7 @@ export default function ProductDetailPage() {
         <div className="bg-slate-50 p-6 flex flex-col justify-center items-center border-r border-slate-100 relative">
           {product.images?.length > 0 ? (
             <img 
-              src={product.images[0]} 
+              src={getImageUrl(product.images[0])} 
               alt={product.name} 
               className="w-full h-auto max-h-[450px] object-cover rounded-2xl shadow-xl border border-slate-200/50" 
             />
