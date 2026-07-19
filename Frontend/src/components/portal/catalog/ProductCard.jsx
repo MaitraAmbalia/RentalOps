@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Star, Clock } from 'lucide-react';
+import { getImageUrl } from '../../../api/endpoints';
 
 export default function ProductCard({ product }) {
   const images = product.images || [];
@@ -26,7 +27,7 @@ export default function ProductCard({ product }) {
       <div className="aspect-[4/3] bg-bg-main overflow-hidden relative shrink-0">
         {images.length > 0 ? (
           <img 
-            src={images[0]} 
+            src={getImageUrl(images[0])} 
             alt={product.name} 
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" 
           />

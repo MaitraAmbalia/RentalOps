@@ -105,7 +105,7 @@ export default function VendorProducts() {
               <div className="flex gap-4">
                 <div className="w-20 h-20 rounded-xl bg-slate-900 border border-slate-850 shrink-0 overflow-hidden flex items-center justify-center">
                   {p.images && p.images.length > 0 ? (
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(p.images[0])} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
                     <Package className="h-8 w-8 text-slate-700" />
                   )}

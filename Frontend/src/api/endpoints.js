@@ -1,4 +1,15 @@
-export const API_BASE_URL = 'http://localhost:5000/api'; // Backend runs on port 5000
+export const API_BASE_URL = 'http://localhost:5001/api'; // Backend runs on port 5001
+export const STATIC_BASE_URL = 'http://localhost:5001'; // Base URL for static files (uploads)
+
+/**
+ * Converts a stored image path (e.g. "uploads/foo.png") to a full URL.
+ * If the path is already a full URL, it is returned as-is.
+ */
+export const getImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${STATIC_BASE_URL}/${path}`;
+};
 
 export const ENDPOINTS = {
   AUTH: {

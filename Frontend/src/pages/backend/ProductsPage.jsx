@@ -4,6 +4,7 @@ import {
   Package, Plus, Trash, RefreshCw, Edit2 
 } from 'lucide-react';
 import { productService } from '../../api/productService';
+import { getImageUrl } from '../../api/endpoints';
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ export default function ProductsPage() {
               <div className="flex gap-4">
                 <div className="w-20 h-20 rounded-xl bg-bg-main border border-border-main shrink-0 overflow-hidden flex items-center justify-center">
                   {p.images && p.images.length > 0 ? (
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(p.images[0])} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
                     <Package className="h-8 w-8 text-text-muted" />
                   )}

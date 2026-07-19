@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
         <div className="bg-slate-50 p-6 flex flex-col justify-center items-center border-r border-slate-100 relative">
           {product.images?.length > 0 ? (
             <img 
-              src={product.images[0]} 
+              src={getImageUrl(product.images[0])} 
               alt={product.name} 
               className="w-full h-auto max-h-[450px] object-cover rounded-2xl shadow-xl border border-slate-200/50" 
             />
