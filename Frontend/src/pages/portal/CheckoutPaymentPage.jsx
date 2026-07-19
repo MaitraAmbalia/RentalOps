@@ -49,7 +49,7 @@ export default function CheckoutPaymentPage() {
 
   const mockAgreementData = {
     orderNumber: `SO_${Date.now().toString().slice(-4)}`,
-    vendorName: 'RentHub Direct Operations',
+    vendorName: 'RentalOps Direct Operations',
     clientName: shippingForm.fullName || 'Valued Client',
     rentalPeriod: cart.length > 0 ? `${new Date(cart[0].rentalStartDate).toLocaleDateString()} to ${new Date(cart[0].scheduledReturnDate).toLocaleDateString()}` : 'Standard Duration',
     items: cart.map(c => ({
@@ -65,7 +65,7 @@ export default function CheckoutPaymentPage() {
       { title: '1. Custody & Maintenance', text: 'Lessee agrees to use equipment for intended purposes only and return all enclosed accessories intact.' },
       { title: '2. Security Deposit Guarantee', text: `A refundable security deposit of ₹${(securityDeposit || 0).toFixed(2)} is held. Penalties for broken/missing parts will be deducted.` },
       { title: '3. Timely Return Policy', text: 'Equipment must be handed over by scheduled return date. Overdue charges apply daily.' },
-      { title: '4. Liability Disclaimer', text: 'RentHub holds no liability for damages or delays caused during operations.' }
+      { title: '4. Liability Disclaimer', text: 'RentalOps holds no liability for damages or delays caused during operations.' }
     ]
   };
 

@@ -39,7 +39,7 @@ export default function OrderConfirmationPage() {
         </p>
 
         <div className="pt-2 flex justify-center space-x-3 text-xs font-bold">
-          <button 
+          <button
             onClick={handlePrint}
             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl flex items-center space-x-1.5 transition-all shadow"
           >
@@ -47,7 +47,7 @@ export default function OrderConfirmationPage() {
             <span>Print Invoice Sheet</span>
           </button>
 
-          <Link 
+          <Link
             to="/orders"
             className="px-4 py-2 bg-white border border-slate-250 text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
           >
@@ -59,7 +59,7 @@ export default function OrderConfirmationPage() {
       <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6 print:border-0 print:shadow-none print:p-0">
         <div className="flex justify-between items-start border-b border-slate-100 pb-5">
           <div className="space-y-1">
-            <span className="font-extrabold text-lg text-slate-955">RentHub Ledger Sheet</span>
+            <span className="font-extrabold text-lg text-slate-955">RentalOps Ledger Sheet</span>
             <p className="text-[10px] text-slate-455 uppercase font-black tracking-wider">Storefront Purchase Confirmation</p>
           </div>
           <div className="text-right text-xs text-slate-400 space-y-0.5">
@@ -97,7 +97,7 @@ export default function OrderConfirmationPage() {
 
         <div className="space-y-3">
           <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">Rental Item Details</span>
-          
+
           <div className="border border-slate-200 rounded-2xl overflow-hidden text-xs">
             <table className="w-full border-collapse text-left">
               <thead>

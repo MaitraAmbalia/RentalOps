@@ -26,7 +26,7 @@ export default function DeliveryLayout() {
       <header className="h-16 bg-header-bg border-b border-border-main px-6 flex justify-between items-center sticky top-0 z-50 backdrop-blur-md transition-colors">
         <div className="flex items-center space-x-2">
           <Package className="h-6 w-6 text-primary" />
-          <span className="font-extrabold text-sm text-text-main tracking-wider">RentHub Courier Dispatcher</span>
+          <span className="font-extrabold text-sm text-text-main tracking-wider">RentalOps Courier Dispatcher</span>
         </div>
 
         <div className="flex items-center space-x-3">

@@ -59,7 +59,7 @@ export default function PortalHeader({ clientProfile }) {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm shadow-primary/20">
               <Package className="h-4.5 w-4.5 text-white" />
             </div>
-            <span className="font-extrabold text-xl tracking-tight text-text-main hidden sm:block">RentHub</span>
+            <span className="font-extrabold text-xl tracking-tight text-text-main hidden sm:block">RentalOps</span>
           </Link>
 
           {/* Nav Links */}

@@ -4,21 +4,21 @@ const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('renthub_cart');
+    const saved = localStorage.getItem('rentalops_cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('renthub_wishlist');
+    const saved = localStorage.getItem('rentalops_wishlist');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('renthub_cart', JSON.stringify(cart));
+    localStorage.setItem('rentalops_cart', JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('renthub_wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('rentalops_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
   const addToCart = (product, qty = 1, variant = null, start = null, end = null) => {

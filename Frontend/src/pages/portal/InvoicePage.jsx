@@ -10,7 +10,7 @@ export default function InvoicePage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Invoice state simulation
   const [invoiceState, setInvoiceState] = useState('DRAFT'); // 'DRAFT', 'POSTED', 'PAID'
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -27,11 +27,11 @@ export default function InvoicePage() {
       const data = await orderService.getOrderById(id);
       if (data) {
         setOrder(data);
-        
+
         // Generate pseudo invoice metadata
         setInvoiceNumber(`INV/2026/${id.slice(0, 4).toUpperCase()}`);
         setInvoiceDate(new Date(data.createdAt || Date.now()).toLocaleDateString());
-        
+
         // Check order status to simulate invoice state
         if (data.status === 'RETURNED') {
           setInvoiceState('PAID');
@@ -98,7 +98,7 @@ export default function InvoicePage() {
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-main pb-5 print:hidden">
         <div className="flex items-center space-x-4">
-          <button 
+          <button
             onClick={() => navigate(`/vendor/orders/${id}`)}
             className="p-2 text-text-muted hover:text-text-main bg-bg-card border border-border-main rounded-xl hover:bg-bg-main transition-colors"
           >
@@ -171,20 +171,20 @@ export default function InvoicePage() {
 
       {/* Invoice Document Layout (looks like a clean receipt/pdf) */}
       <div className="bg-bg-card p-8 sm:p-12 rounded-3xl border border-border-main text-text-main space-y-8 print:bg-white print:text-slate-900 print:border-none print:shadow-none print:p-0">
-        
+
         {/* Header Block */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-border-main pb-8">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-xl font-extrabold text-text-main tracking-wider print:text-black">RENTHUB VENDOR LOGISTICS</span>
+              <span className="text-xl font-extrabold text-text-main tracking-wider print:text-black">RENTALOPS VENDOR LOGISTICS</span>
             </div>
             <p className="text-xs text-text-muted max-w-xs leading-relaxed">
-              RentHub Platform Inc.<br />
+              RentalOps Platform Inc.<br />
               100 Technology Dr, Suite 500<br />
               San Francisco, CA, 94107
             </p>
           </div>
-          
+
           <div className="text-left sm:text-right space-y-1">
             <span className="text-xs text-text-muted uppercase tracking-widest block font-bold">Tax Invoice</span>
             <span className="text-2xl font-black text-text-main block print:text-black">{invoiceNumber}</span>

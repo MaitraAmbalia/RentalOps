@@ -43,13 +43,13 @@ export default function VendorSignupPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-700">
       <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-8 space-y-6 shadow-xl shadow-slate-200/50">
-        
+
         <div className="text-center space-y-2">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
             <Package className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Register Vendor Agency</h1>
-          <p className="text-xs text-slate-450">Join RentHub fleet and catalog rental channels.</p>
+          <p className="text-xs text-slate-450">Join RentalOps fleet and catalog rental channels.</p>
         </div>
 
         {error && (

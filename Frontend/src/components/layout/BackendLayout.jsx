@@ -134,7 +134,7 @@ export default function BackendLayout() {
               <Package className="h-7 w-7 text-primary shrink-0" />
               {!isCollapsed && (
                 <span className="font-extrabold text-xl tracking-tight text-text-main select-none">
-                  RentHub Admin
+                  RentalOps Admin
                 </span>
               )}
             </Link>

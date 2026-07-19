@@ -61,13 +61,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-700">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 space-y-6 shadow-xl shadow-slate-200/50">
-        
+
         {/* Title */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
             <Package className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900">Sign in to RentHub</h1>
+          <h1 className="text-2xl font-black text-slate-900">Sign in to RentalOps</h1>
           <p className="text-xs text-slate-450">Select your system login role to continue.</p>
         </div>
 
@@ -82,9 +82,8 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole('CLIENT')}
-            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${
-              role === 'CLIENT' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${role === 'CLIENT' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
           >
             <User className="h-4 w-4" />
             <span>Client</span>
@@ -93,9 +92,8 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole('VENDOR')}
-            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${
-              role === 'VENDOR' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${role === 'VENDOR' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
           >
             <Shield className="h-4 w-4" />
             <span>Vendor</span>
@@ -104,9 +102,8 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole('DELIVERY')}
-            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${
-              role === 'DELIVERY' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            className={`py-2 rounded-lg text-[10px] uppercase tracking-wider font-extrabold flex flex-col items-center justify-center space-y-1 transition-all ${role === 'DELIVERY' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
           >
             <Truck className="h-4 w-4" />
             <span>Courier</span>

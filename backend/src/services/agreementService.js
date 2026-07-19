@@ -23,7 +23,7 @@ const generateOrderAgreement = async (orderId) => {
   }
 
   const clientName = `${order.client.firstName} ${order.client.lastName}`;
-  const vendorName = order.vendor.companyName || "RentHub Operations";
+  const vendorName = order.vendor.companyName || "RentalOps Operations";
   const rentalStart = new Date(order.rentalStartDate).toLocaleString();
   const rentalReturn = new Date(order.scheduledReturnDate).toLocaleString();
 
@@ -49,7 +49,7 @@ const generateOrderAgreement = async (orderId) => {
     },
     {
       title: "4. Liability Waiver & Indemnity",
-      text: "RentHub and its vendors assume no liability for personal injury, property damage, or operational delays caused during the use of rented equipment.",
+      text: "RentalOps and its vendors assume no liability for personal injury, property damage, or operational delays caused during the use of rented equipment.",
     },
   ];
 
