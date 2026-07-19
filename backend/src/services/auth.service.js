@@ -312,7 +312,91 @@ const verifyEmailExists = async (email) => {
   return false;
 };
 
+
+const crypto = require("crypto");
+const { prisma } = require("../config/db");
+
+const requestPasswordReset = async (email) => {
+  let user = await clientRepository.findByEmail(email);
+  let type = "CLIENT";
+  if (!user) {
+    user = await vendorRepository.findByEmail(email);
+    type = "VENDOR";
+  }
+  
+  // Optionally check DeliveryPartner if they have email, but schema says DeliveryPartner has phone. 
+  // We'll stick to Client and Vendor for email reset.
+
+  if (!user) {
+    // We don't throw to avoid email enumeration, just return
+    return { success: true, message: "If the email exists, a reset link was sent." };
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = await bcrypt.hash(resetToken, 10);
+  const expiry = new Date();
+  expiry.setHours(expiry.getHours() + 1);
+
+  if (type === "CLIENT") {
+    await prisma.client.update({
+      where: { id: user.id },
+      data: { resetToken: tokenHash, resetTokenExpiry: expiry }
+    });
+  } else {
+    await prisma.vendor.update({
+      where: { id: user.id },
+      data: { resetToken: tokenHash, resetTokenExpiry: expiry }
+    });
+  }
+
+  // Simulate sending email
+  console.log(`[EMAIL SIMULATION] To: ${email}, Subject: Password Reset`);
+  console.log(`Link: http://localhost:5173/reset-password/confirm?token=${resetToken}&email=${email}&type=${type}`);
+
+  return { success: true, message: "If the email exists, a reset link was sent." };
+};
+
+const confirmPasswordReset = async (email, token, newPassword, type) => {
+  let user;
+  if (type === "CLIENT") {
+    user = await clientRepository.findByEmail(email);
+  } else {
+    user = await vendorRepository.findByEmail(email);
+  }
+
+  if (!user || !user.resetToken || !user.resetTokenExpiry) {
+    throw new ApiError(400, "Invalid or expired token");
+  }
+
+  if (new Date() > user.resetTokenExpiry) {
+    throw new ApiError(400, "Token has expired");
+  }
+
+  const isMatch = await bcrypt.compare(token, user.resetToken);
+  if (!isMatch) {
+    throw new ApiError(400, "Invalid token");
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  if (type === "CLIENT") {
+    await prisma.client.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExpiry: null }
+    });
+  } else {
+    await prisma.vendor.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExpiry: null }
+    });
+  }
+
+  return { success: true };
+};
+
 module.exports = {
+  requestPasswordReset,
+  confirmPasswordReset,
   registerVendor,
   loginVendor,
   registerClient,

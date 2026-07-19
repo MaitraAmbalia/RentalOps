@@ -50,7 +50,7 @@ export default function PortalHeader({ clientProfile }) {
     : 'My Account';
 
   return (
-    <header className="bg-header-bg border-b border-border-main sticky top-0 z-50 shadow-sm backdrop-blur-md transition-colors duration-200">
+    <header className="bg-header-bg border-b border-border-main sticky top-0 z-50 shadow-sm backdrop-blur-md transition-colors duration-200 print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4 font-sans">
           

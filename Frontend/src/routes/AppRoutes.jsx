@@ -13,6 +13,7 @@ import LoginPage from '../pages/portal/LoginPage';
 import SignupPage from '../pages/portal/SignupPage';
 import VendorSignupPage from '../pages/portal/VendorSignupPage';
 import ResetPasswordPage from '../pages/portal/ResetPasswordPage';
+import ResetPasswordConfirmPage from '../pages/portal/ResetPasswordConfirmPage';
 import HomePage from '../pages/portal/HomePage';
 import ProductDetailPage from '../pages/portal/ProductDetailPage';
 import CartPage from '../pages/portal/CartPage';
@@ -61,6 +62,7 @@ export default function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/vendor-signup" element={<VendorSignupPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/reset-password/confirm" element={<ResetPasswordConfirmPage />} />
 
       {/* Customer Storefront Portal */}
       <Route element={<MainLayout />}>

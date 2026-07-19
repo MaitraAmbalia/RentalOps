@@ -2,7 +2,7 @@ const paymentsService = require('../services/payments.service');
 
 exports.initiate = async (req, res, next) => {
   try {
-    const data = await paymentsService.initiatePayment(req.user.vendorId || req.user.id, req.params.orderId);
+    const data = await paymentsService.initiatePayment(req.user, req.params.orderId);
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);

@@ -12,8 +12,14 @@ const razorpay = (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
     })
   : null;
 
-exports.initiatePayment = async (vendorId, orderId) => {
-  const order = await orderRepo.findById(orderId, vendorId);
+exports.initiatePayment = async (user, orderId) => {
+  let order;
+  if (user.type === 'VENDOR') {
+    order = await orderRepo.findById(orderId, user.id);
+  } else {
+    order = await orderRepo.findByIdForClient(orderId, user.id);
+  }
+  
   if (!order) throw new ApiError(404, 'Order not found');
 
   const totalPayable = parseFloat(order.totalAmount) + parseFloat(order.securityDepositAmount);
@@ -71,6 +77,16 @@ exports.verifyWebhook = async (payload) => {
 exports.verifyPayment = async (data) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
   
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(body.toString())
+    .digest("hex");
+
+  if (expectedSignature !== razorpay_signature) {
+    throw new ApiError(400, 'Invalid payment signature');
+  }
+
   const payment = await paymentRepo.findByRazorpayOrderId(razorpay_order_id);
   if (!payment) throw new ApiError(404, 'Payment not found');
 

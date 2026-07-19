@@ -42,6 +42,10 @@ router.post(
   authController.loginDelivery
 );
 
+// Password Reset
+router.post("/reset-password/request", authController.requestReset);
+router.post("/reset-password/confirm", authController.confirmReset);
+
 // General Auth
 router.post("/refresh", authController.refresh);
 router.post("/logout", authController.logout);

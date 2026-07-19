@@ -101,7 +101,30 @@ const me = async (req, res, next) => {
   }
 };
 
+
+const requestReset = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.requestPasswordReset(email);
+    return ok(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const confirmReset = async (req, res, next) => {
+  try {
+    const { email, token, newPassword, type } = req.body;
+    const result = await authService.confirmPasswordReset(email, token, newPassword, type);
+    return ok(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
+  requestReset,
+  confirmReset,
   registerVendor,
   loginVendor,
   registerClient,

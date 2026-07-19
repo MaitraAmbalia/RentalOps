@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Package, RefreshCw } from 'lucide-react';
+import axiosInstance from '../../api/axiosInstance';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -12,11 +13,11 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Simulate sending recovery email
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await axiosInstance.post('/auth/reset-password/request', { email });
       setSuccess(true);
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
