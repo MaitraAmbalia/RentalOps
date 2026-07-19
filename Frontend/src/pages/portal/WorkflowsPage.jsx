@@ -4,8 +4,10 @@ import {
 } from 'lucide-react';
 import { workflowService } from '../../api/workflowService';
 import { deliveryPartnerService } from '../../api/deliveryPartnerService';
+import { useToast } from '../../context/ToastContext';
 
 export default function WorkflowsPage() {
+  const { success, error: toastError, warning } = useToast();
   const [workflows, setWorkflows] = useState([]);
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,17 +60,17 @@ export default function WorkflowsPage() {
       });
       // Refresh local state
       setWorkflows(prev => prev.map(w => w.id === workflowId ? { ...w, deliveryId: partnerId, deliveryPartnerName: partnerName } : w));
-      alert('Delivery partner assigned successfully!');
+      success('Delivery partner assigned successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to assign partner.');
+      toastError('Failed to assign partner.');
     }
   };
 
   const handleOnboardPartner = async (e) => {
     e.preventDefault();
     if (!partnerForm.firstName || !partnerForm.lastName || !partnerForm.phone) {
-      alert('Please fill out all required fields.');
+      warning('Please fill out all required fields.');
       return;
     }
     setOnboardLoading(true);
@@ -80,10 +82,10 @@ export default function WorkflowsPage() {
       setPartners(prev => [...prev, newDp]);
       setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '' });
       setOnboardOpen(false);
-      alert('Delivery partner onboarded successfully!');
+      success('Delivery partner onboarded successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to onboard partner.');
+      toastError('Failed to onboard partner.');
     } finally {
       setOnboardLoading(false);
     }

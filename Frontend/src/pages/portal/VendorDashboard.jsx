@@ -4,8 +4,10 @@ import {
   Calendar, ChevronRight, Eye, RefreshCw, Search, ArrowRightLeft, User, Phone
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
+import { useToast } from '../../context/ToastContext';
 
 export default function VendorDashboard() {
+  const { error: toastError } = useToast();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,7 +44,7 @@ export default function VendorDashboard() {
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
     } catch (err) {
       console.error(err);
-      alert('Failed to update status. Please check your permissions.');
+      toastError('Failed to update status. Please check your permissions.');
     }
   };
 

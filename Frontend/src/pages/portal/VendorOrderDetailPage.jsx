@@ -5,10 +5,12 @@ import {
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { quotationService } from '../../api/quotationService';
+import { useToast } from '../../context/ToastContext';
 
 export default function VendorOrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { success, error: toastError, warning } = useToast();
   
   const [record, setRecord] = useState(null);
   const [isQuotation, setIsQuotation] = useState(false);
@@ -62,12 +64,12 @@ export default function VendorOrderDetailPage() {
   const handleSendQuotation = async () => {
     setActionLoading(true);
     try {
-      const updated = await quotationService.updateQuotationStatus(id, 'SENT');
+      await quotationService.updateQuotationStatus(id, 'SENT');
       setRecord(prev => ({ ...prev, status: 'SENT' }));
-      alert('Quotation marked as Sent!');
+      success('Quotation marked as Sent!');
     } catch (err) {
       console.error(err);
-      alert('Failed to update quotation status.');
+      toastError('Failed to update quotation status.');
     } finally {
       setActionLoading(false);
     }
@@ -121,12 +123,11 @@ export default function VendorOrderDetailPage() {
       };
 
       const newOrder = await orderService.createOrder(orderPayload);
-      alert('Quotation successfully confirmed into a Sale Order!');
-      // Navigate to the newly created order
+      success('Quotation successfully confirmed into a Sale Order!');
       navigate(`/vendor/orders/${newOrder.id}`);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to confirm quotation. Check parameters.');
+      toastError(err.response?.data?.message || 'Failed to confirm quotation. Check parameters.');
     } finally {
       setActionLoading(false);
     }
@@ -137,10 +138,10 @@ export default function VendorOrderDetailPage() {
     try {
       await orderService.updateOrderStatus(id, newStatus);
       setRecord(prev => ({ ...prev, status: newStatus }));
-      alert(`Order status updated to ${newStatus}`);
+      success(`Order status updated to ${newStatus}`);
     } catch (err) {
       console.error(err);
-      alert('Failed to update order status.');
+      toastError('Failed to update order status.');
     } finally {
       setActionLoading(false);
     }
@@ -159,7 +160,7 @@ export default function VendorOrderDetailPage() {
   const handleSettleDeposit = () => {
     setSettled(true);
     setSettlementOpen(false);
-    alert('Security deposit refunded and settled successfully!');
+    success('Security deposit refunded and settled successfully!');
   };
 
   if (loading) {

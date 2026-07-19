@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Send, CreditCard, Check, X, ShieldAlert } from 'lucide-react';
 import { orderService } from '../../api/orderService';
+import { useToast } from '../../context/ToastContext';
 
 export default function InvoicePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { success, info } = useToast();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -53,12 +55,12 @@ export default function InvoicePage() {
 
   const handleConfirmInvoice = () => {
     setInvoiceState('POSTED');
-    alert('Invoice Posted and validated successfully!');
+    success('Invoice Posted and validated successfully!');
   };
 
   const handlePayInvoice = () => {
     setInvoiceState('PAID');
-    alert('Payment recorded! Invoice status updated to Paid.');
+    success('Payment recorded! Invoice status updated to Paid.');
   };
 
   const handlePrintInvoice = () => {
@@ -66,7 +68,7 @@ export default function InvoicePage() {
   };
 
   const handleCancelInvoice = () => {
-    alert('Invoice cancelled.');
+    info('Invoice cancelled.');
     navigate(`/vendor/orders/${id}`);
   };
 
@@ -143,7 +145,7 @@ export default function InvoicePage() {
                 <span>Register Payment (Pay)</span>
               </button>
               <button
-                onClick={() => alert('Invoice sent to customer email!')}
+                onClick={() => success('Invoice sent to customer email!')}
                 className="px-4 py-2 bg-bg-card hover:bg-bg-main border border-border-main text-text-muted text-sm font-semibold rounded-xl transition-all flex items-center space-x-2"
               >
                 <Send className="h-4 w-4" />

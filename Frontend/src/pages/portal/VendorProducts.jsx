@@ -5,10 +5,11 @@ import {
   HelpCircle, Trash, RefreshCw, X, Image as ImageIcon, Edit2 
 } from 'lucide-react';
 import { productService } from '../../api/productService';
-import { getImageUrl } from '../../api/endpoints';
+import { useToast } from '../../context/ToastContext';
 
 export default function VendorProducts() {
   const navigate = useNavigate();
+  const { success, error: toastError } = useToast();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,14 +33,14 @@ export default function VendorProducts() {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       await productService.deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
-      alert('Product deleted successfully.');
+      success('Product deleted successfully.');
     } catch (err) {
       console.error(err);
-      alert('Failed to delete product.');
+      toastError('Failed to delete product.');
     }
   };
 

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Truck, Store, ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 export default function CheckoutAddressPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { cart } = useCart();
+  const { warning } = useToast();
 
   const { couponCode, discountAmount = 0 } = location.state || {};
 
@@ -59,7 +61,7 @@ export default function CheckoutAddressPage() {
   const handleContinue = (e) => {
     e.preventDefault();
     if (!shippingForm.fullName.trim() || !shippingForm.address.trim()) {
-      alert('Please fill out all shipping details.');
+      warning('Please fill out all shipping details.');
       return;
     }
     navigate('/checkout/payment', {

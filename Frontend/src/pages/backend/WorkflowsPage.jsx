@@ -5,8 +5,10 @@ import {
 import { workflowService } from '../../api/workflowService';
 import { deliveryPartnerService } from '../../api/deliveryPartnerService';
 import { orderService } from '../../api/orderService';
+import { useToast } from '../../context/ToastContext';
 
 export default function WorkflowsPage() {
+  const { success, error: toastError, warning } = useToast();
   const [workflows, setWorkflows] = useState([]);
   const [partners, setPartners] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -70,17 +72,17 @@ export default function WorkflowsPage() {
         deliveryPartnerName: partnerName
       });
       setWorkflows(prev => prev.map(w => w.id === workflowId ? { ...w, deliveryId: partnerId, deliveryPartnerName: partnerName, deliveryPartner: partner } : w));
-      alert('Delivery partner assigned successfully!');
+      success('Delivery partner assigned successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to assign partner.');
+      toastError('Failed to assign partner.');
     }
   };
 
   const handleOnboardPartner = async (e) => {
     e.preventDefault();
     if (!partnerForm.firstName || !partnerForm.lastName || !partnerForm.phone) {
-      alert('Please fill out all required fields.');
+      warning('Please fill out all required fields.');
       return;
     }
     setOnboardLoading(true);
@@ -89,10 +91,10 @@ export default function WorkflowsPage() {
       setPartners(prev => [...prev, newDp]);
       setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '', password: 'password123' });
       setOnboardOpen(false);
-      alert(`Delivery partner onboarded successfully! (Login Password: ${partnerForm.password})`);
+      success(`Delivery partner onboarded! Login Password: ${partnerForm.password}`);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to onboard partner.');
+      toastError(err.response?.data?.message || 'Failed to onboard partner.');
     } finally {
       setOnboardLoading(false);
     }
@@ -101,7 +103,7 @@ export default function WorkflowsPage() {
   const handleScheduleWorkflow = async (e) => {
     e.preventDefault();
     if (!scheduleForm.orderId) {
-      alert('Please select an order to schedule.');
+      warning('Please select an order to schedule.');
       return;
     }
     setScheduleLoading(true);
@@ -120,10 +122,10 @@ export default function WorkflowsPage() {
         deliveryId: '',
         scheduledDate: new Date().toISOString().slice(0, 16)
       });
-      alert('Workflow task scheduled successfully!');
+      success('Workflow task scheduled successfully!');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to schedule task.');
+      toastError(err.response?.data?.message || 'Failed to schedule task.');
     } finally {
       setScheduleLoading(false);
     }

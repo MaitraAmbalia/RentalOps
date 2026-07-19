@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Package, RefreshCw } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
+import { useToast } from '../../context/ToastContext';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { error: toastError } = useToast();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,7 +19,7 @@ export default function ResetPasswordPage() {
       setSuccess(true);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }

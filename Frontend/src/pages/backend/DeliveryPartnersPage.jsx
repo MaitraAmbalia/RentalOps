@@ -3,8 +3,10 @@ import {
   Plus, User, Search, RefreshCw, X, Shield, Phone, Key, Truck
 } from 'lucide-react';
 import { deliveryPartnerService } from '../../api/deliveryPartnerService';
+import { useToast } from '../../context/ToastContext';
 
 export default function DeliveryPartnersPage() {
+  const { success, error: toastError, warning } = useToast();
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function DeliveryPartnersPage() {
   const handleOnboardPartner = async (e) => {
     e.preventDefault();
     if (!partnerForm.firstName || !partnerForm.lastName || !partnerForm.phone) {
-      alert('Please fill out all required fields.');
+      warning('Please fill out all required fields.');
       return;
     }
     setOnboardLoading(true);
@@ -50,10 +52,10 @@ export default function DeliveryPartnersPage() {
       setPartners(prev => [...prev, newDp]);
       setPartnerForm({ firstName: '', lastName: '', phone: '', companyName: '', password: 'password123' });
       setOnboardOpen(false);
-      alert('Delivery courier partner onboarded successfully!');
+      success('Delivery courier partner onboarded successfully!');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to onboard courier.');
+      toastError(err.response?.data?.message || 'Failed to onboard courier.');
     } finally {
       setOnboardLoading(false);
     }

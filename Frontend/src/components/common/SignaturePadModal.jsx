@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, CheckCircle, RefreshCw, FileText, Shield, PenTool, Upload, Image } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 export default function SignaturePadModal({ isOpen, onClose, agreementData, onSignSuccess, readOnly = false }) {
+  const { success, error: toastError, warning } = useToast();
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const [signMode, setSignMode] = useState('DRAW'); // 'DRAW' | 'UPLOAD'
@@ -76,7 +78,7 @@ export default function SignaturePadModal({ isOpen, onClose, agreementData, onSi
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please upload a valid image file (PNG, JPG, SVG).');
+      warning('Please upload a valid image file (PNG, JPG, SVG).');
       return;
     }
 
@@ -91,7 +93,7 @@ export default function SignaturePadModal({ isOpen, onClose, agreementData, onSi
 
   const handleSubmit = async () => {
     if (!readOnly && (!isSignatureReady || !acceptedCheckbox)) {
-      alert('Please read terms, check acceptance, and provide your signature.');
+      warning('Please read terms, check acceptance, and provide your signature.');
       return;
     }
 
@@ -106,7 +108,7 @@ export default function SignaturePadModal({ isOpen, onClose, agreementData, onSi
       await onSignSuccess(dataUrl);
     } catch (err) {
       console.error(err);
-      alert('Failed to save signature.');
+      toastError('Failed to save signature.');
     } finally {
       setSubmitting(false);
     }

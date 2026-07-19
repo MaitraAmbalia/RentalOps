@@ -8,6 +8,7 @@ import { orderService } from '../../api/orderService';
 import { depositInvoiceService } from '../../api/depositInvoiceService';
 import { agreementService } from '../../api/agreementService';
 import SignaturePadModal from '../../components/common/SignaturePadModal';
+import { useToast } from '../../context/ToastContext';
 
 const STATUS_CONFIG = {
   PROCESSING:  { badge: 'bg-primary/10 text-primary border border-primary/20',               label: 'Processing' },
@@ -29,6 +30,7 @@ const fmtMoney = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { minimumFr
 export default function OrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { error: toastError } = useToast();
   const [order, setOrder] = useState(null);
   const [deposit, setDeposit] = useState(null);
   const [agreementData, setAgreementData] = useState(null);
@@ -196,7 +198,7 @@ export default function OrderDetailPage() {
                       setShowAgreementModal(true);
                     } catch (err) {
                       console.error(err);
-                      alert('Failed to load agreement document.');
+                      toastError('Failed to load agreement document.');
                     }
                   }}
                   className="px-3 py-1.5 bg-bg-card border border-border-main text-text-main text-xs font-bold rounded-xl hover:bg-bg-main shadow-sm"
