@@ -23,12 +23,7 @@ export default function CheckoutPaymentPage() {
     total
   } = location.state || {};
 
-  const [paymentForm, setPaymentForm] = useState({
-    cardNumber: '',
-    cardholderName: '',
-    expiryDate: '',
-    cvv: ''
-  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [signatureData, setSignatureData] = useState(null);
@@ -43,10 +38,7 @@ export default function CheckoutPaymentPage() {
     );
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPaymentForm(prev => ({ ...prev, [name]: value }));
-  };
+
 
   const calculateDays = (start, end) => {
     const s = new Date(start);
@@ -88,71 +80,108 @@ export default function CheckoutPaymentPage() {
     setError('');
 
     try {
-      const createdOrders = [];
-
-      for (const item of cart) {
-        // 1. Create Order
-        const orderPayload = {
+      // 1. Create Order
+      const orderPayload = {
+        fulfillmentType: deliveryMethod,
+        orderSource: 'ONLINE',
+        rentalStartDate: new Date(cart[0].rentalStartDate).toISOString(),
+        scheduledReturnDate: new Date(cart[0].scheduledReturnDate).toISOString(),
+        untaxedAmount: subtotal,
+        totalAmount: total,
+        securityDepositAmount: securityDeposit,
+        items: cart.map(item => ({
           productId: item.product.id,
-          quantity: item.qty,
-          fulfillmentType: deliveryMethod,
-          orderSource: 'ONLINE',
-          rentalStartDate: new Date(item.rentalStartDate),
-          scheduledReturnDate: new Date(item.scheduledReturnDate),
-          untaxedAmount: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
-          totalAmount: ((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)) + (item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2)),
-          securityDepositAmount: item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2),
-        };
-        if (couponCode) {
-          orderPayload.couponCode = couponCode;
-        }
+          productVariantId: item.productVariantId || undefined,
+          quantity: Number(item.qty),
+          unitPrice: Number(item.product.rentalPrice || item.product.dailyCharge || 0),
+          amount: Number(item.product.rentalPrice || item.product.dailyCharge || 0) * Number(item.qty) * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
+          rentalStart: new Date(item.rentalStartDate).toISOString(),
+          rentalEnd: new Date(item.scheduledReturnDate).toISOString()
+        }))
+      };
 
-        const orderRes = await orderService.createOrder(orderPayload);
-        const orderId = orderRes.id;
-        const orderNo = orderRes.orderNumber || `SO_GEN_${Date.now().toString().slice(-4)}`;
-
-        // Attach E-Signature to Order
-        try {
-          await agreementService.signAgreement(orderId, signatureData);
-        } catch (signErr) {
-          console.warn("Signature attachment warning:", signErr);
-        }
-
-        // 2. Razorpay Order details
-        const payRes = await paymentService.createRazorpayOrder(orderId);
-
-        // 3. Confirm payment verification
-        await paymentService.verifyPayment({
-          razorpay_order_id: payRes.razorpayOrderId,
-          razorpay_payment_id: payRes.paymentId || `pay_sim_${Date.now()}`,
-          razorpay_signature: 'signature_ok'
-        });
-
-        createdOrders.push({
-          id: orderId,
-          orderNumber: orderNo,
-          productName: item.product.name,
-          qty: item.qty,
-          subtotal: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty
-        });
+      if (couponCode) {
+        orderPayload.couponCode = couponCode;
       }
 
-      clearCart();
+      const orderRes = await orderService.createOrder(orderPayload);
+      const orderId = orderRes.id || orderRes.order?.id;
+      const orderNo = orderRes.orderNumber || orderRes.order?.orderNumber || `SO_GEN_${Date.now().toString().slice(-4)}`;
 
-      navigate('/checkout/confirmation', {
-        state: {
-          orders: createdOrders,
-          shippingForm,
-          deliveryMethod,
-          subtotal,
-          securityDeposit,
-          total
+      // Attach E-Signature to Order
+      try {
+        await agreementService.signAgreement(orderId, signatureData);
+      } catch (signErr) {
+        console.warn("Signature attachment warning:", signErr);
+      }
+
+      // 2. Razorpay Order details
+      const payRes = await paymentService.createRazorpayOrder(orderId);
+      const { razorpayOrderId, amount, keyId } = payRes.data || payRes;
+
+      // 3. Initialize Razorpay Checkout
+      const options = {
+        key: keyId,
+        amount: amount,
+        currency: 'USD',
+        name: 'Equipment Rental Portal',
+        description: `Order ${orderNo}`,
+        order_id: razorpayOrderId,
+        handler: async function (response) {
+          try {
+            // 4. Confirm payment verification on success
+            await paymentService.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            clearCart();
+            
+            navigate('/checkout/confirmation', {
+              state: {
+                orders: [orderRes], // The confirmation page expects an array of orders
+                shippingForm,
+                deliveryMethod,
+                subtotal,
+                securityDeposit,
+                total
+              }
+            });
+          } catch (verifyErr) {
+            console.error(verifyErr);
+            setError('Payment verification failed.');
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: shippingForm?.fullName || 'User',
+          contact: shippingForm?.phone || '9999999999'
+        },
+        theme: {
+          color: '#2563eb'
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
         }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        setError(response.error.description || 'Payment failed.');
+        setLoading(false);
       });
+      rzp.open();
+
     } catch (err) {
       console.error(err);
-      setError('Payment gateway error. Please verify card credentials.');
-    } finally {
+      let errMsg = 'Failed to initiate checkout. Please verify details and try again.';
+      if (err.response && err.response.data && err.response.data.message) {
+        errMsg = typeof err.response.data.message === 'string' ? err.response.data.message : JSON.stringify(err.response.data.message);
+      }
+      setError(errMsg);
       setLoading(false);
     }
   };
@@ -175,68 +204,7 @@ export default function CheckoutPaymentPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <form onSubmit={handlePaymentSubmit} className="lg:col-span-2 space-y-6 text-xs">
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-base font-extrabold text-slate-900 flex items-center space-x-1.5">
-              <CreditCard className="h-5 w-5 text-blue-600" />
-              <span>Standard Bank Card</span>
-            </h2>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Card Number</label>
-                <input
-                  type="text"
-                  name="cardNumber"
-                  required
-                  placeholder="0000 0000 0000 0000"
-                  value={paymentForm.cardNumber}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-mono text-sm focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Expiry Date</label>
-                  <input
-                    type="text"
-                    name="expiryDate"
-                    required
-                    placeholder="MM/YY"
-                    value={paymentForm.expiryDate}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Security CVV</label>
-                  <input
-                    type="password"
-                    name="cvv"
-                    required
-                    placeholder="***"
-                    maxLength="3"
-                    value={paymentForm.cvv}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cardholder Name</label>
-                <input
-                  type="text"
-                  name="cardholderName"
-                  required
-                  placeholder="John Doe"
-                  value={paymentForm.cardholderName}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none"
-                />
-              </div>
-            </div>
-          </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h2 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">

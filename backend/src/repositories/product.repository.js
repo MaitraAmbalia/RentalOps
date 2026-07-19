@@ -7,7 +7,7 @@ exports.findAllByVendor = (vendorId) => prisma.product.findMany({
 });
 
 exports.findAllPublished = (filters = {}) => {
-  const where = { isPublished: true };
+  const where = { isPublished: true, type: 'GOODS' };
   
   if (filters.category && filters.category !== 'All') {
     where.category = { name: filters.category };

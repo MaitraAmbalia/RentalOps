@@ -163,6 +163,8 @@ model Vendor {
   address                String?                         // company address
   role                   String   @default("ADMIN")        // "organization-wide rental management" owner
   isActive               Boolean  @default(true)
+  resetToken             String?
+  resetTokenExpiry       DateTime?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
@@ -210,6 +212,8 @@ model Client {
   phone        String
   passwordHash String
   profileImage String?
+  resetToken   String?
+  resetTokenExpiry DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -255,6 +259,8 @@ model DeliveryPartner {
   currentStatus  DeliveryStatus @default(AVAILABLE)
   currentOrderId String?
   currentOrder   Order?         @relation(fields: [currentOrderId], references: [id])
+  resetToken     String?
+  resetTokenExpiry DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
