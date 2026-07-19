@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, Shield, Clock, Info, CheckCircle2, Heart, ShoppingCart, X } from 'lucide-react';
+import { ArrowLeft, Star, Shield, Clock, Info, CheckCircle2, Heart, ShoppingCart, X, FileText } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { productService } from '../../api/productService';
 
@@ -83,6 +83,19 @@ export default function ProductDetailPage() {
     setVariantModalOpen(false);
     alert('Product added to shopping cart!');
     navigate('/cart');
+  };
+
+  const handleRfqClick = () => {
+    navigate('/orders', {
+      state: {
+        openRfq: true,
+        categoryId: product.categoryId,
+        rfqQuantity: quantity,
+        rfqRentalStart: startDate,
+        rfqRentalEnd: endDate,
+        rfqDescription: `Custom request based on product: ${product.name}`
+      }
+    });
   };
 
   if (loading) {
@@ -257,6 +270,14 @@ export default function ProductDetailPage() {
             >
               <ShoppingCart className="h-4.5 w-4.5" />
               <span>Add to Cart / Rent</span>
+            </button>
+
+            <button
+              onClick={handleRfqClick}
+              className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 font-bold rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-sm"
+            >
+              <FileText className="h-4.5 w-4.5" />
+              <span>Request Custom Quote (RFQ)</span>
             </button>
           </div>
         </div>

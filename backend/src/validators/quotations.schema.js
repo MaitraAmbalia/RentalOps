@@ -10,16 +10,23 @@ const quotationItemSchema = z.object({
 });
 
 const quotationSchema = z.object({
-  clientId: z.string().uuid(),
+  clientId: z.string().uuid().optional(),
+  vendorId: z.string().uuid().optional(),
   quotationTemplateId: z.string().uuid().optional(),
   priceListId: z.string().uuid().optional(),
   quotationValidityDays: z.number().int().min(1).default(7),
   paymentTermsPercent: z.number().min(0).max(100).default(100),
-  items: z.array(quotationItemSchema).min(1),
+  items: z.array(quotationItemSchema).optional(),
+  categoryId: z.string().uuid().optional(),
+  rfqDescription: z.string().optional(),
+  rfqQuantity: z.number().int().min(1).optional(),
+  rfqRentalStart: z.string().optional(),
+  rfqRentalEnd: z.string().optional(),
+  status: z.enum(['RFQ', 'DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED']).optional(),
 });
 
 const quotationStatusUpdateSchema = z.object({
-  status: z.enum(['DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED']),
+  status: z.enum(['RFQ', 'DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED']),
 });
 
 module.exports = { quotationSchema, quotationStatusUpdateSchema };

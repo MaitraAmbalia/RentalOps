@@ -32,6 +32,16 @@ export const quotationService = {
     }
   },
 
+  updateQuotation: async (id, quotationData) => {
+    try {
+      const response = await axiosInstance.put(`${ENDPOINTS.QUOTATIONS.BASE}/${id}`, quotationData);
+      return response.quotation || response;
+    } catch (error) {
+      console.error(`Failed to update quotation ${id}:`, error);
+      throw error;
+    }
+  },
+
   updateQuotationStatus: async (id, status) => {
     try {
       const response = await axiosInstance.patch(ENDPOINTS.QUOTATIONS.UPDATE_STATUS(id), { status });

@@ -20,6 +20,90 @@ exports.createQuotation = async (vendorId, data) => {
   });
 };
 
+exports.createClientRFQ = async (data) => {
+  const { categoryId, vendorId, clientId, rfqDescription, rfqQuantity, rfqRentalStart, rfqRentalEnd } = data;
+  
+  if (!vendorId) {
+    throw new ApiError(400, 'Vendor ID is required for RFQ');
+  }
+
+  const rfq = await repo.create({
+    clientId,
+    vendorId,
+    categoryId,
+    rfqDescription,
+    rfqQuantity: rfqQuantity ? Number(rfqQuantity) : 1,
+    rfqRentalStart: rfqRentalStart ? new Date(rfqRentalStart) : null,
+    rfqRentalEnd: rfqRentalEnd ? new Date(rfqRentalEnd) : null,
+    status: 'RFQ',
+    paymentTermsPercent: 100,
+    quotationValidityDays: 7
+  });
+
+  try {
+    await notificationService.createNotification(
+      vendorId,
+      'VENDOR',
+      'GENERAL',
+      'New RFQ Received',
+      `You have received a new Request for Quotation #${rfq.id.slice(0, 8).toUpperCase()} from client.`
+    );
+  } catch (err) {
+    console.error('Failed to notify vendor about RFQ:', err);
+  }
+
+  return rfq;
+};
+
+exports.updateQuotation = async (vendorId, id, data) => {
+  const quotation = await repo.findById(id, vendorId);
+  if (!quotation) {
+    throw new ApiError(404, 'Quotation not found');
+  }
+
+  const { items, ...quotationData } = data;
+
+  await prisma.quotationItem.deleteMany({
+    where: { quotationId: id }
+  });
+
+  const updateData = {
+    ...quotationData,
+    status: data.status || quotation.status,
+  };
+
+  if (items && items.length > 0) {
+    updateData.items = {
+      create: items.map(item => ({
+        productId: item.productId,
+        productVariantId: item.productVariantId || null,
+        quantity: Number(item.quantity || 1),
+        unit: item.unit || 'Unit',
+        rentalStart: new Date(item.rentalStart),
+        rentalEnd: new Date(item.rentalEnd),
+      }))
+    };
+  }
+
+  const updated = await repo.update(id, updateData);
+
+  if (data.status === 'SENT' && quotation.status !== 'SENT') {
+    try {
+      await notificationService.createNotification(
+        updated.clientId,
+        'CLIENT',
+        'QUOTATION_SENT',
+        'New Quotation Received',
+        `You have received a new quotation proposal #${updated.id.slice(0, 8).toUpperCase()} from ${updated.vendor?.companyName || 'Vendor'}.`
+      );
+    } catch (notifErr) {
+      console.error('Failed to create notification on quote send:', notifErr);
+    }
+  }
+
+  return updated;
+};
+
 const pdfGenerator = require('../utils/pdfGenerator');
 const emailService = require('./emailService');
 const notificationService = require('./notification.service');

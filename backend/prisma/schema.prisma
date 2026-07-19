@@ -63,6 +63,7 @@ enum OrderSource {
 }
 
 enum QuotationStatus {
+  RFQ
   DRAFT
   SENT
   CONFIRMED
@@ -278,6 +279,7 @@ model ProductCategory {
   name      String                                  // Electronics, Furniture, etc.
   createdAt DateTime  @default(now())
   products  Product[]
+  quotations Quotation[]
 
   @@unique([vendorId, name])
 }
@@ -540,6 +542,13 @@ model Quotation {
   paymentTermsPercent   Decimal         @db.Decimal(5, 2) @default(100)
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
+
+  categoryId            String?
+  category              ProductCategory? @relation(fields: [categoryId], references: [id])
+  rfqDescription        String?
+  rfqQuantity           Int?             @default(1)
+  rfqRentalStart        DateTime?
+  rfqRentalEnd          DateTime?
 
   items QuotationItem[]
 }

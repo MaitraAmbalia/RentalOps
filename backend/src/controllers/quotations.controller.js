@@ -2,8 +2,30 @@ const service = require('../services/quotations.service');
 
 exports.create = async (req, res, next) => {
   try {
-    const quotation = await service.createQuotation(req.user.vendorId || req.user.id, req.body);
+    let quotation;
+    if (req.user.role === 'CLIENT') {
+      const rfqData = {
+        ...req.body,
+        clientId: req.user.id
+      };
+      quotation = await service.createClientRFQ(rfqData);
+    } else {
+      quotation = await service.createQuotation(req.user.vendorId || req.user.id, req.body);
+    }
     res.status(201).json({ success: true, quotation });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const quotation = await service.updateQuotation(
+      req.user.vendorId || req.user.id,
+      req.params.id,
+      req.body
+    );
+    res.status(200).json({ success: true, quotation });
   } catch (error) {
     next(error);
   }

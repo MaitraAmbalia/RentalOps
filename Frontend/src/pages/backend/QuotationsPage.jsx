@@ -23,6 +23,8 @@ export default function QuotationsPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [validityDays, setValidityDays] = useState(7);
   const [paymentTermsPercent, setPaymentTermsPercent] = useState(100);
+  const [editQuotationId, setEditQuotationId] = useState(null);
+  const [rfqInfo, setRfqInfo] = useState(null);
   const [items, setItems] = useState([
     {
       productId: '',
@@ -95,7 +97,81 @@ export default function QuotationsPage() {
     setItems(prev => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
   };
 
-  const handleCreateQuotation = async (e) => {
+  const handleEditClick = (q) => {
+    setEditQuotationId(q.id);
+    setSelectedClientId(q.clientId || '');
+    setSelectedTemplateId(q.quotationTemplateId || '');
+    setValidityDays(q.quotationValidityDays || 7);
+    setPaymentTermsPercent(q.paymentTermsPercent || 100);
+    
+    if (q.status === 'RFQ') {
+      setRfqInfo({
+        categoryName: q.category?.name || 'Any Category',
+        description: q.rfqDescription || 'No description provided',
+        quantity: q.rfqQuantity || 1,
+        rentalStart: q.rfqRentalStart ? q.rfqRentalStart.split('T')[0] : '',
+        rentalEnd: q.rfqRentalEnd ? q.rfqRentalEnd.split('T')[0] : '',
+      });
+      setItems([
+        {
+          productId: '',
+          quantity: q.rfqQuantity || 1,
+          unit: 'Unit',
+          rentalStart: q.rfqRentalStart ? q.rfqRentalStart.split('T')[0] : new Date().toISOString().split('T')[0],
+          rentalEnd: q.rfqRentalEnd ? q.rfqRentalEnd.split('T')[0] : new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        }
+      ]);
+    } else {
+      setRfqInfo(null);
+      if (q.items && q.items.length > 0) {
+        setItems(q.items.map(it => ({
+          productId: it.productId,
+          quantity: it.quantity,
+          unit: it.unit || 'Unit',
+          rentalStart: it.rentalStart ? it.rentalStart.split('T')[0] : new Date().toISOString().split('T')[0],
+          rentalEnd: it.rentalEnd ? it.rentalEnd.split('T')[0] : new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        })));
+      } else {
+        setItems([
+          {
+            productId: '',
+            quantity: 1,
+            unit: 'Unit',
+            rentalStart: new Date().toISOString().split('T')[0],
+            rentalEnd: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+          }
+        ]);
+      }
+    }
+    setShowModal(true);
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditQuotationId(null);
+    setRfqInfo(null);
+    setSelectedClientId('');
+    setSelectedTemplateId('');
+    setValidityDays(7);
+    setPaymentTermsPercent(100);
+    setItems([
+      {
+        productId: '',
+        quantity: 1,
+        unit: 'Unit',
+        rentalStart: new Date().toISOString().split('T')[0],
+        rentalEnd: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      }
+    ]);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditQuotationId(null);
+    setRfqInfo(null);
+  };
+
+  const handleSaveSubmit = async (e, targetStatus) => {
     e.preventDefault();
     if (!selectedClientId) {
       showToast('Please select a client', 'error');
@@ -115,6 +191,7 @@ export default function QuotationsPage() {
         quotationTemplateId: selectedTemplateId || undefined,
         quotationValidityDays: Number(validityDays),
         paymentTermsPercent: Number(paymentTermsPercent),
+        status: targetStatus || 'DRAFT',
         items: validItems.map(it => ({
           productId: it.productId,
           quantity: Number(it.quantity),
@@ -124,13 +201,21 @@ export default function QuotationsPage() {
         }))
       };
 
-      const created = await quotationService.createQuotation(payload);
-      setQuotations(prev => [created, ...prev]);
+      if (editQuotationId) {
+        const updated = await quotationService.updateQuotation(editQuotationId, payload);
+        setQuotations(prev => prev.map(q => q.id === editQuotationId ? updated : q));
+        showToast(targetStatus === 'SENT' ? 'Quotation sent successfully!' : 'Quotation saved as draft!');
+      } else {
+        const created = await quotationService.createQuotation(payload);
+        setQuotations(prev => [created, ...prev]);
+        showToast('Quotation created successfully!');
+      }
       setShowModal(false);
-      showToast('Quotation created successfully!');
+      setEditQuotationId(null);
+      setRfqInfo(null);
     } catch (err) {
       console.error(err);
-      showToast('Failed to create quotation', 'error');
+      showToast('Failed to save quotation', 'error');
     } finally {
       setSaving(false);
     }
@@ -175,6 +260,8 @@ export default function QuotationsPage() {
         return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center space-x-1"><Send className="h-3 w-3" /><span>Sent via Email</span></span>;
       case 'CANCELLED':
         return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center space-x-1"><XCircle className="h-3 w-3" /><span>Cancelled</span></span>;
+      case 'RFQ':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center space-x-1"><FileText className="h-3 w-3" /><span>RFQ</span></span>;
       default:
         return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center space-x-1"><Clock className="h-3 w-3" /><span>Draft</span></span>;
     }
@@ -209,7 +296,7 @@ export default function QuotationsPage() {
             <RefreshCw className="h-4 w-4" />
           </button>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={handleOpenCreateModal}
             className="flex items-center space-x-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-primary/20"
           >
             <Plus className="h-4 w-4" />
@@ -232,7 +319,7 @@ export default function QuotationsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-          {['ALL', 'DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED'].map(st => (
+          {['ALL', 'RFQ', 'DRAFT', 'SENT', 'CONFIRMED', 'CANCELLED'].map(st => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
@@ -286,10 +373,21 @@ export default function QuotationsPage() {
                       <div className="text-[11px] text-text-muted">{q.client?.email || 'No email attached'}</div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="font-semibold text-text-main">{q.items?.length || 0} product(s)</span>
-                      <div className="text-[11px] text-text-muted truncate max-w-[180px]">
-                        {q.items?.map(it => it.product?.name).filter(Boolean).join(', ') || 'N/A'}
-                      </div>
+                      {q.status === 'RFQ' ? (
+                        <div>
+                          <span className="font-bold text-purple-500">RFQ Quote Request</span>
+                          <div className="text-[11px] text-text-muted truncate max-w-[180px]">
+                            {q.category?.name || 'Any Category'} - {q.rfqDescription}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="font-semibold text-text-main">{q.items?.length || 0} product(s)</span>
+                          <div className="text-[11px] text-text-muted truncate max-w-[180px]">
+                            {q.items?.map(it => it.product?.name).filter(Boolean).join(', ') || 'N/A'}
+                          </div>
+                        </>
+                      )}
                     </td>
                     <td className="px-5 py-4 text-text-muted">
                       <div>Validity: <strong className="text-text-main">{q.quotationValidityDays || 7} days</strong></div>
@@ -300,24 +398,39 @@ export default function QuotationsPage() {
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => handleDownloadPDF(q.id)}
-                          className="px-2.5 py-1.5 bg-bg-main hover:bg-bg-main/80 border border-border-main rounded-lg text-text-muted hover:text-text-main font-bold transition-all flex items-center space-x-1"
-                          title="Download PDF"
-                        >
-                          <Download className="h-3.5 w-3.5" />
-                          <span className="hidden sm:inline">PDF</span>
-                        </button>
+                        {['RFQ', 'DRAFT'].includes(q.status) && (
+                          <button
+                            onClick={() => handleEditClick(q)}
+                            className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all flex items-center space-x-1"
+                            title="Build or Edit Quotation"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            <span>{q.status === 'RFQ' ? 'Build' : 'Edit'}</span>
+                          </button>
+                        )}
+                        
+                        {q.status !== 'RFQ' && (
+                          <>
+                            <button
+                              onClick={() => handleDownloadPDF(q.id)}
+                              className="px-2.5 py-1.5 bg-bg-main hover:bg-bg-main/80 border border-border-main rounded-lg text-text-muted hover:text-text-main font-bold transition-all flex items-center space-x-1"
+                              title="Download PDF"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">PDF</span>
+                            </button>
 
-                        <button
-                          onClick={() => handleSendEmail(q.id)}
-                          disabled={sendingId === q.id}
-                          className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg font-bold transition-all flex items-center space-x-1.5 disabled:opacity-50"
-                          title="Send PDF to Client Email"
-                        >
-                          <Send className="h-3.5 w-3.5" />
-                          <span>{sendingId === q.id ? 'Sending...' : 'Send Email'}</span>
-                        </button>
+                            <button
+                              onClick={() => handleSendEmail(q.id)}
+                              disabled={sendingId === q.id}
+                              className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg font-bold transition-all flex items-center space-x-1.5 disabled:opacity-50"
+                              title="Send PDF to Client Email"
+                            >
+                              <Send className="h-3.5 w-3.5" />
+                              <span>{sendingId === q.id ? 'Sending...' : 'Send Email'}</span>
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -335,17 +448,33 @@ export default function QuotationsPage() {
             <div className="flex items-center justify-between border-b border-border-main pb-4">
               <h2 className="text-lg font-extrabold text-text-main flex items-center space-x-2">
                 <FileText className="h-5 w-5 text-primary" />
-                <span>New Quotation Proposal</span>
+                <span>{editQuotationId ? (rfqInfo ? 'Build Quote Proposal from RFQ' : 'Edit Quotation Proposal') : 'New Quotation Proposal'}</span>
               </h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
                 className="p-1 text-text-muted hover:text-text-main rounded-lg hover:bg-bg-main"
               >
                 <XCircle className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateQuotation} className="space-y-4">
+            <form className="space-y-4">
+              {rfqInfo && (
+                <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-text-main space-y-2">
+                  <div className="font-extrabold uppercase text-purple-400 tracking-wider flex items-center space-x-1.5">
+                    <FileText className="h-4 w-4" />
+                    <span>Client Request for Quotation (RFQ)</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-text-muted">
+                    <div>Category: <strong className="text-text-main">{rfqInfo.categoryName}</strong></div>
+                    <div>Requested Qty: <strong className="text-text-main">{rfqInfo.quantity}</strong></div>
+                    <div className="col-span-2">Rental Dates: <strong className="text-text-main">{rfqInfo.rentalStart} to {rfqInfo.rentalEnd}</strong></div>
+                  </div>
+                  <div className="border-t border-purple-500/10 pt-2 text-text-muted">
+                    Details: <span className="italic">"{rfqInfo.description}"</span>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Client Selection */}
                 <div>
@@ -490,17 +619,26 @@ export default function QuotationsPage() {
               <div className="flex items-center justify-end space-x-3 border-t border-border-main pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 border border-border-main text-text-muted hover:text-text-main rounded-xl text-xs font-bold"
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => handleSaveSubmit(e, 'DRAFT')}
+                  disabled={saving}
+                  className="px-4 py-2 bg-bg-main hover:bg-bg-main/80 border border-border-main text-text-main rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save as Draft'}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveSubmit(e, 'SENT')}
                   disabled={saving}
                   className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                 >
-                  {saving ? 'Creating...' : 'Save as Draft'}
+                  {saving ? 'Sending...' : 'Send Quote'}
                 </button>
               </div>
             </form>

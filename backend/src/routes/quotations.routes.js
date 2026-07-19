@@ -12,6 +12,7 @@ router.use(authenticate);
 router.post('/', authorize('VENDOR', 'CLIENT'), validate(quotationSchema), controller.create);
 router.get('/', authorize('VENDOR', 'CLIENT'), controller.getAll);
 router.get('/:id', authorize('VENDOR', 'CLIENT'), controller.getById);
+router.put('/:id', authorize('VENDOR'), validate(quotationSchema), controller.update);
 router.get('/:id/pdf', authorize('VENDOR', 'CLIENT'), controller.downloadPDF);
 router.post('/:id/send-email', authorize('VENDOR'), controller.sendEmail);
 router.post('/:id/accept', authorize('CLIENT'), controller.acceptByClient);
