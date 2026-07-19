@@ -87,7 +87,7 @@ export default function CheckoutPaymentPage() {
         rentalStartDate: new Date(cart[0].rentalStartDate).toISOString(),
         scheduledReturnDate: new Date(cart[0].scheduledReturnDate).toISOString(),
         untaxedAmount: subtotal,
-        totalAmount: total,
+        totalAmount: total - securityDeposit,
         securityDepositAmount: securityDeposit,
         items: cart.map(item => ({
           productId: item.product.id,
@@ -122,9 +122,9 @@ export default function CheckoutPaymentPage() {
       // 3. Initialize Razorpay Checkout
       const options = {
         key: keyId,
-        amount: amount,
-        currency: 'USD',
-        name: 'Equipment Rental Portal',
+        amount: Math.round(amount * 100),
+        currency: 'INR',
+        name: 'RentalOps Portal',
         description: `Order ${orderNo}`,
         order_id: razorpayOrderId,
         handler: async function (response) {

@@ -120,12 +120,11 @@ export default function NewOrderPage() {
     const updated = [...orderLines];
     updated[index][field] = value;
 
-    // Handle product auto-fill
+    // Handle product auto-fill — rentalPrice is the only price field (Prisma Decimal comes back as string)
     if (field === 'productId') {
       const prod = products.find(p => p.id === value);
       if (prod) {
-        // use dailyCharge or rentalPrice
-        const rate = parseFloat(prod.dailyCharge || prod.rentalPrice || 0);
+        const rate = Number(prod.rentalPrice) || 0;
         updated[index].unitPrice = rate;
       }
     }
@@ -219,6 +218,8 @@ export default function NewOrderPage() {
           items: orderLines.map(line => ({
             productId: line.productId,
             quantity: parseInt(line.quantity),
+            unitPrice: Number(line.unitPrice) || 0,
+            amount: Number(line.amount) || 0,
             unit: line.unit,
             rentalStart: new Date(rentalStart).toISOString(),
             rentalEnd: new Date(rentalEnd).toISOString()

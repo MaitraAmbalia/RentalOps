@@ -100,7 +100,7 @@ export default function CartPage() {
           rentalStartDate: new Date(item.rentalStartDate),
           scheduledReturnDate: new Date(item.scheduledReturnDate),
           untaxedAmount: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
-          totalAmount: ((item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate)) + (item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2)),
+          totalAmount: (item.product.rentalPrice || item.product.dailyCharge || 0) * item.qty * calculateDays(item.rentalStartDate, item.scheduledReturnDate),
           securityDepositAmount: item.product.securityDepositValue || ((item.product.rentalPrice || item.product.dailyCharge || 0) * 2),
         };
         if (isValidCoupon && couponCode) {

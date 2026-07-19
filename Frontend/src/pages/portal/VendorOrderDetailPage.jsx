@@ -86,7 +86,7 @@ export default function VendorOrderDetailPage() {
       const rentalEnd = firstItem.rentalEnd || new Date(Date.now() + 86400000 * 3).toISOString();
 
       const itemsPrice = record.items?.reduce((sum, item) => {
-        const price = parseFloat(item.product?.dailyCharge || item.product?.rentalPrice || 0);
+        const price = Number(item.product?.rentalPrice) || 0;
         return sum + (price * (item.quantity || 1));
       }, 0) || 0;
 
@@ -113,8 +113,8 @@ export default function VendorOrderDetailPage() {
           productId: item.productId,
           productVariantId: item.productVariantId || undefined,
           quantity: item.quantity || 1,
-          unitPrice: parseFloat(item.product?.dailyCharge || item.product?.rentalPrice || 0),
-          amount: parseFloat(item.product?.dailyCharge || item.product?.rentalPrice || 0) * (item.quantity || 1) * duration,
+          unitPrice: Number(item.product?.rentalPrice) || 0,
+          amount: (Number(item.product?.rentalPrice) || 0) * (item.quantity || 1) * duration,
           rentalStart,
           rentalEnd
         }))
@@ -295,7 +295,7 @@ export default function VendorOrderDetailPage() {
                     <tr key={idx}>
                       <td className="py-3 text-slate-200 font-semibold">{item.product?.name || 'Rentable item'}</td>
                       <td className="py-3 text-center text-slate-300">{item.quantity}</td>
-                      <td className="py-3 text-right text-slate-300">₹{parseFloat(item.unitPrice || item.product?.dailyCharge || item.product?.rentalPrice || 0).toFixed(2)}</td>
+                      <td className="py-3 text-right text-slate-300">₹{(Number(item.unitPrice || item.product?.rentalPrice) || 0).toFixed(2)}</td>
                       <td className="py-3 text-right text-slate-100 font-bold">₹{parseFloat(item.amount || (item.quantity * (item.product?.dailyCharge || 0))).toFixed(2)}</td>
                     </tr>
                   ))}
