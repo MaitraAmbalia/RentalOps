@@ -35,9 +35,16 @@ export default function ProductCard({ product }) {
           <div className="w-full h-full flex items-center justify-center text-text-muted font-semibold text-xs bg-bg-main">No Image</div>
         )}
 
-        {/* Category tag */}
-        <div className="absolute top-3 left-3 bg-bg-card/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-black text-text-main shadow-sm uppercase tracking-wider">
-          {category}
+        {/* Category & Brand tags */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap max-w-[85%]">
+          <span className="bg-bg-card/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-black text-text-main shadow-sm uppercase tracking-wider">
+            {category}
+          </span>
+          {product.brand && (
+            <span className="bg-primary/90 text-white backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm">
+              {product.brand}
+            </span>
+          )}
         </div>
 
         {/* Out of Stock overlay overlay */}
@@ -71,17 +78,30 @@ export default function ProductCard({ product }) {
           </span>
         </div>
 
-        {/* Variant color preview dots (blue and orange sofa indicator details) */}
+        {/* Color preview */}
         <div className="flex items-center space-x-1.5 mb-4">
-          {variantColors.map((col, idx) => (
+          {product.color && {
+            'Light Blue': '#38bdf8',
+            'Purple': '#a855f7',
+            'Orange': '#f97316',
+            'Amber': '#f59e0b'
+          }[product.color] && (
             <span 
-              key={idx} 
-              style={{ backgroundColor: col.value }}
-              className="w-3.5 h-3.5 rounded-full border border-bg-card shadow-sm"
-              title={`${col.name} variant`}
+              style={{ 
+                backgroundColor: {
+                  'Light Blue': '#38bdf8',
+                  'Purple': '#a855f7',
+                  'Orange': '#f97316',
+                  'Amber': '#f59e0b'
+                }[product.color] 
+              }}
+              className="w-3.5 h-3.5 rounded-full border border-border-main shadow-sm shrink-0"
+              title={`Color: ${product.color}`}
             />
-          ))}
-          <span className="text-[10px] text-text-muted font-bold ml-1">2 Variants</span>
+          )}
+          <span className="text-[11px] text-text-muted font-medium">
+            {product.color ? `${product.color}` : 'Standard Edition'}
+          </span>
         </div>
 
         {/* Bottom Price tags and triggers */}
