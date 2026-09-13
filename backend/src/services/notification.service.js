@@ -1,5 +1,6 @@
 const { prisma } = require("../config/db");
 const ApiError = require("../utils/apiError");
+const { emitToUser } = require("../config/socket");
 
 const getNotifications = async (recipientId, recipientType) => {
   const [notifications, unreadCount] = await prisma.$transaction([
@@ -43,7 +44,7 @@ const markAllAsRead = async (recipientId, recipientType) => {
 };
 
 const createNotification = async (recipientId, recipientType, type, title, message) => {
-  return await prisma.notification.create({
+  const notification = await prisma.notification.create({
     data: {
       recipientId,
       recipientType,
@@ -52,6 +53,14 @@ const createNotification = async (recipientId, recipientType, type, title, messa
       message,
     },
   });
+
+  try {
+    emitToUser(recipientId, "notification", notification);
+  } catch (err) {
+    // Fail silently without interrupting database operation
+  }
+
+  return notification;
 };
 
 module.exports = {

@@ -1,5 +1,6 @@
 const { prisma } = require("../config/db");
 const ApiError = require("../utils/apiError");
+const { emitToVendor, emitToUser } = require("../config/socket");
 
 const createWorkflow = async (data) => {
   const deliveryId = (data.deliveryId && String(data.deliveryId).trim()) ? String(data.deliveryId).trim() : null;
@@ -60,6 +61,16 @@ const createWorkflow = async (data) => {
 
     return workflow;
   });
+
+  if (deliveryId) {
+    try {
+      emitToUser(deliveryId, "workflow:assigned", workflow);
+    } catch (e) {
+      console.warn("Socket emit error:", e.message);
+    }
+  }
+
+  return workflow;
 };
 
 const getWorkflows = async (user, filters = {}) => {
@@ -271,6 +282,19 @@ const completeWorkflow = async (id, data, user) => {
 
     return { workflow: updatedWorkflow, order: updatedOrder };
   });
+
+  try {
+    if (result?.order?.vendorId) {
+      emitToVendor(result.order.vendorId, "workflow:completed", result);
+    }
+    if (result?.order?.clientId) {
+      emitToUser(result.order.clientId, "workflow:completed", result);
+    }
+  } catch (e) {
+    console.warn("Socket emit error:", e.message);
+  }
+
+  return result;
 };
 
 const updateWorkflow = async (id, data, user = { type: 'VENDOR' }) => {
@@ -286,7 +310,7 @@ const updateWorkflow = async (id, data, user = { type: 'VENDOR' }) => {
   if (data.workflowStatus !== undefined) updateData.workflowStatus = data.workflowStatus;
   if (data.routeSequence !== undefined) updateData.routeSequence = Number(data.routeSequence);
 
-  return await prisma.$transaction(async (tx) => {
+  const updatedResult = await prisma.$transaction(async (tx) => {
     const workflow = await tx.pickupReturnWorkflow.update({
       where: { id },
       data: updateData,
@@ -313,6 +337,19 @@ const updateWorkflow = async (id, data, user = { type: 'VENDOR' }) => {
 
     return workflow;
   });
+
+  try {
+    if (updatedResult?.order?.vendorId) {
+      emitToVendor(updatedResult.order.vendorId, "workflow:updated", updatedResult);
+    }
+    if (updatedResult?.deliveryId) {
+      emitToUser(updatedResult.deliveryId, "workflow:updated", updatedResult);
+    }
+  } catch (e) {
+    console.warn("Socket emit error:", e.message);
+  }
+
+  return updatedResult;
 };
 
 module.exports = {

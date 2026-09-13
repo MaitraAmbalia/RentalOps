@@ -6,11 +6,13 @@ import {
 import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useSocket } from '../../context/SocketContext';
 import { notificationService } from '../../api/notificationService';
 
 export default function PortalHeader({ clientProfile }) {
   const { cart } = useCart();
   const { theme, toggleTheme } = useTheme();
+  const { subscribeToNotifications } = useSocket() || {};
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -29,9 +31,19 @@ export default function PortalHeader({ clientProfile }) {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    const interval = setInterval(fetchNotifications, 60000);
+
+    const unsubscribe = subscribeToNotifications
+      ? subscribeToNotifications((newNotif) => {
+          setNotifications((prev) => [newNotif, ...prev]);
+        })
+      : null;
+
+    return () => {
+      clearInterval(interval);
+      if (unsubscribe) unsubscribe();
+    };
+  }, [subscribeToNotifications]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

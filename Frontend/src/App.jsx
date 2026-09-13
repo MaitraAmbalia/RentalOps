@@ -3,16 +3,19 @@ import AppRoutes from './routes/AppRoutes';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { SocketProvider } from './context/SocketContext';
 
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <CartProvider>
-          <Router>
-            <AppRoutes />
-          </Router>
-        </CartProvider>
+        <SocketProvider>
+          <CartProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </CartProvider>
+        </SocketProvider>
       </ToastProvider>
     </ThemeProvider>
   );

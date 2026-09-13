@@ -8,11 +8,13 @@ import { useState, useEffect } from 'react';
 import { vendorService } from '../../api/vendorService';
 import { notificationService } from '../../api/notificationService';
 import { useTheme } from '../../context/ThemeContext';
+import { useSocket } from '../../context/SocketContext';
 
 export default function BackendLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { subscribeToNotifications } = useSocket() || {};
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -81,6 +83,18 @@ export default function BackendLayout() {
       console.error("Layout failed to load notifications:", err);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = subscribeToNotifications
+      ? subscribeToNotifications((newNotif) => {
+          setNotifications((prev) => [newNotif, ...prev]);
+        })
+      : null;
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [subscribeToNotifications]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

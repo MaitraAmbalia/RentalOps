@@ -42,7 +42,7 @@ const setRefreshTokenCookie = (res, token) => {
   res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "lax",       // "lax" allows the cookie to be sent cross-origin (5173 → 5000)
+    sameSite: "lax",       // "lax" allows the cookie to be sent cross-origin (5173 → 5001)
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   });
 };
