@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
-  ArrowLeft, FileText, Send, Check, RefreshCw, X, ShieldAlert, Truck, RotateCcw, DollarSign
+  ArrowLeft, FileText, Send, Check, RefreshCw, X, ShieldAlert, Truck, RotateCcw, DollarSign,
+  Store, MapPin, Clock
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { quotationService } from '../../api/quotationService';
+import { depositInvoiceService } from '../../api/depositInvoiceService';
 import { useToast } from '../../context/ToastContext';
 
 export default function OrderDetailPage() {
@@ -37,6 +39,10 @@ export default function OrderDetailPage() {
         const orderData = await orderService.getOrderById(id);
         if (orderData) {
           setRecord(orderData);
+          if (orderData.depositInvoice?.depositStatus === 'REFUNDED' || orderData.depositInvoice?.depositStatus === 'PARTIAL_REFUND') {
+            setSettled(true);
+            setPenaltyAmount(parseFloat(orderData.depositInvoice?.penaltyAmountDeducted || 0));
+          }
           setIsQuotation(false);
           setLoading(false);
           return;
@@ -156,10 +162,26 @@ export default function OrderDetailPage() {
     setPenaltyAmount(Math.min(calc, maxDeposit));
   };
 
-  const handleSettleDeposit = () => {
-    setSettled(true);
-    setSettlementOpen(false);
-    success('Security deposit refunded and settled successfully!');
+  const handleSettleDeposit = async () => {
+    setActionLoading(true);
+    try {
+      const res = await depositInvoiceService.settleDeposit(id, {
+        penaltyAmountDeducted: penaltyAmount
+      });
+      const updatedDeposit = res.deposit || res.depositInvoice || res;
+      setRecord(prev => ({
+        ...prev,
+        depositInvoice: updatedDeposit
+      }));
+      setSettled(true);
+      setSettlementOpen(false);
+      success('Security deposit refunded and settled successfully!');
+    } catch (err) {
+      console.error(err);
+      toastError(err.response?.data?.message || 'Failed to settle security deposit.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -267,6 +289,42 @@ export default function OrderDetailPage() {
                   </span>
                 )}
               </div>
+            </div>
+
+            {/* Fulfillment Mode & Pickup Dispatch Details */}
+            <div className="bg-bg-main/40 p-4 rounded-xl border border-border-main text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-muted uppercase font-semibold">Fulfillment Logistics</span>
+                <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                  record.fulfillmentType === 'COLLECT_FROM_STORE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-bg-card text-text-main border border-border-main'
+                }`}>
+                  {record.fulfillmentType === 'COLLECT_FROM_STORE' ? 'Store Pickup (Depot Handover)' : 'Doorstep Courier Delivery'}
+                </span>
+              </div>
+
+              {record.fulfillmentType === 'COLLECT_FROM_STORE' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-[11px] text-text-muted">
+                  <div className="flex items-start space-x-2">
+                    <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-text-main block">Pickup Depot Hub</strong>
+                      <span>Plot 42, Metro Industrial Corridor, Phase 2</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <Clock className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-text-main block">Counter Operational Hours</strong>
+                      <span>10:00 AM – 07:00 PM daily (Gov ID required)</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 pt-1 text-[11px] text-text-muted">
+                  <Truck className="h-4 w-4 text-primary shrink-0" />
+                  <span>Dispatched to client shipping address via designated delivery courier partner.</span>
+                </div>
+              )}
             </div>
           </div>
 

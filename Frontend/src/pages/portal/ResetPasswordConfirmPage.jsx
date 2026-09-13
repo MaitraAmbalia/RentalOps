@@ -54,46 +54,46 @@ export default function ResetPasswordConfirmPage() {
             <ShieldCheck className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Set New Password</h1>
-          <p className="text-xs text-slate-450">Please enter a strong new password for your account.</p>
+          <p className="text-xs text-slate-400">Please enter a strong new password for your account.</p>
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-650 rounded-xl text-xs font-bold text-center">
+          <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl text-xs font-bold text-center">
             {error}
           </div>
         )}
 
         {success ? (
           <div className="space-y-4 text-center">
-            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-650 rounded-xl text-xs font-bold">
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-bold">
               Password has been successfully reset!
             </div>
-            <Link to="/login" className="inline-block text-xs font-bold text-blue-600 hover:underline">
+            <Link to="/login" className="inline-block text-xs font-bold text-primary hover:underline">
               Proceed to login
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">New Password</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">New Password</label>
               <input
                 type="password"
                 required
                 placeholder="••••••••"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-805 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Confirm Password</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Confirm Password</label>
               <input
                 type="password"
                 required
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-805 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 

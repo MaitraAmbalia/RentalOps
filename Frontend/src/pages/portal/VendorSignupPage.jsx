@@ -12,6 +12,7 @@ export default function VendorSignupPage() {
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     companyName: '',
     companyProductCategory: '',
@@ -27,8 +28,19 @@ export default function VendorSignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       await authService.vendorSignup(formData);
@@ -36,7 +48,13 @@ export default function VendorSignupPage() {
       navigate('/login');
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to complete vendor registration.');
+      const data = err.response?.data;
+      if (data?.errors && typeof data.errors === 'object') {
+        const fieldMsgs = Object.values(data.errors).flat().filter(Boolean).join(' • ');
+        setError(fieldMsgs || data.message || 'Failed to complete vendor registration.');
+      } else {
+        setError(data?.message || 'Failed to complete vendor registration.');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,15 +65,15 @@ export default function VendorSignupPage() {
       <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-8 space-y-6 shadow-xl shadow-slate-200/50">
 
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
+          <div className="w-12 h-12 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
             <Package className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Register Vendor Agency</h1>
-          <p className="text-xs text-slate-450">Join RentalOps fleet and catalog rental channels.</p>
+          <p className="text-xs text-slate-400">Join RentalOps fleet and catalog rental channels.</p>
         </div>
 
         {error && (
-          <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-455 rounded-xl text-xs font-bold text-center">
+          <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-bold text-center">
             {error}
           </div>
         )}
@@ -63,32 +81,32 @@ export default function VendorSignupPage() {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">First Name</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">First Name</label>
               <input
                 type="text"
                 name="firstName"
                 required
                 value={formData.firstName}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Last Name</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Last Name</label>
               <input
                 type="text"
                 name="lastName"
                 required
                 value={formData.lastName}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Email Address</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
               <input
                 type="email"
                 name="email"
@@ -96,11 +114,11 @@ export default function VendorSignupPage() {
                 placeholder="vendor@domain.com"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Phone Number</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone Number</label>
               <input
                 type="text"
                 name="phone"
@@ -108,27 +126,44 @@ export default function VendorSignupPage() {
                 placeholder="e.g. 9876543210"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Password</label>
-            <input
-              type="password"
-              name="password"
-              required
-              placeholder="Min 6 characters..."
-              value={formData.password}
-              onChange={handleInputChange}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="Pass@123_"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                required
+                placeholder="Repeat password..."
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
+              />
+            </div>
           </div>
+          <p className="text-[11px] text-slate-400">
+            Must include at least 6 characters, uppercase, lowercase, and a special character (e.g. <span className="font-mono font-semibold">@, $, &, _, !</span>).
+          </p>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Company Name</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Company Name</label>
               <input
                 type="text"
                 name="companyName"
@@ -136,11 +171,11 @@ export default function VendorSignupPage() {
                 placeholder="e.g. Acme Rentals"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Line of Business</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Line of Business</label>
               <input
                 type="text"
                 name="companyProductCategory"
@@ -148,13 +183,13 @@ export default function VendorSignupPage() {
                 placeholder="Heavy Machinery, Cameras..."
                 value={formData.companyProductCategory}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">GST Registration No</label>
+            <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">GST Registration No</label>
             <input
               type="text"
               name="gstNo"
@@ -162,14 +197,14 @@ export default function VendorSignupPage() {
               placeholder="e.g. 22AAAAA0000A1Z5"
               value={formData.gstNo}
               onChange={handleInputChange}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-855 outline-none"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-blue-600/10 flex items-center justify-center space-x-1.5"
+            className="w-full py-3.5 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-primary/10 flex items-center justify-center space-x-1.5"
           >
             {loading ? (
               <>
@@ -184,7 +219,7 @@ export default function VendorSignupPage() {
 
         <div className="border-t border-slate-100 pt-4 text-center text-[10px]">
           Already have an account?{' '}
-          <Link to="/login" className="font-bold text-blue-600 hover:underline">Log in here</Link>
+          <Link to="/login" className="font-bold text-primary hover:underline">Log in here</Link>
         </div>
 
       </div>

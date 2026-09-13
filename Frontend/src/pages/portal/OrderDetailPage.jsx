@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Info, AlertTriangle, Printer,
-  Package, CreditCard, Clock, MapPin, ShieldCheck, FileText, CheckCircle
+  Package, CreditCard, Clock, MapPin, ShieldCheck, FileText, CheckCircle,
+  Store, Truck
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { depositInvoiceService } from '../../api/depositInvoiceService';
@@ -246,16 +247,37 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Fulfillment info */}
+          {/* Fulfillment & Handover info */}
           {order.fulfillmentType && (
-            <div className="flex items-start space-x-2 pt-2 border-t border-border-main text-xs">
-              <MapPin className="h-4 w-4 text-text-muted shrink-0 mt-0.5" />
-              <div>
-                <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block">Fulfillment</span>
-                <span className="font-bold text-text-main capitalize">
-                  {order.fulfillmentType.replace('_', ' ').toLowerCase()}
+            <div className="pt-3 border-t border-border-main space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider">Fulfillment Method</span>
+                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                  order.fulfillmentType === 'COLLECT_FROM_STORE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-bg-main text-text-main border border-border-main'
+                }`}>
+                  {order.fulfillmentType === 'COLLECT_FROM_STORE' ? 'Store Pickup' : 'Home Delivery'}
                 </span>
               </div>
+
+              {order.fulfillmentType === 'COLLECT_FROM_STORE' ? (
+                <div className="bg-bg-main/60 p-3 rounded-xl border border-border-main space-y-1.5 text-[11px]">
+                  <div className="flex items-start space-x-2 text-text-main font-bold">
+                    <Store className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                    <span>Regional Central Depot Hub</span>
+                  </div>
+                  <p className="text-text-muted text-[10px]">Plot 42, Metro Industrial Corridor, Phase 2</p>
+                  <p className="text-text-muted text-[10px]">Hours: <strong className="text-text-main">10:00 AM – 07:00 PM</strong> daily</p>
+                  <p className="text-amber-500 font-semibold text-[10px] pt-1 border-t border-border-main/50">Bring matching Gov Photo ID for collection</p>
+                </div>
+              ) : (
+                <div className="bg-bg-main/60 p-3 rounded-xl border border-border-main space-y-1 text-[11px]">
+                  <div className="flex items-center space-x-2 text-text-main font-bold">
+                    <Truck className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span>Doorstep Courier Delivery</span>
+                  </div>
+                  <p className="text-text-muted text-[10px]">Dispatched for scheduled start date with tracked courier delivery.</p>
+                </div>
+              )}
             </div>
           )}
         </div>

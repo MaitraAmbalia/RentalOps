@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { productService } from '../../api/productService';
 import { useToast } from '../../context/ToastContext';
+import { getImageUrl } from '../../api/endpoints';
 
 export default function VendorProducts() {
   const navigate = useNavigate();
@@ -76,12 +77,12 @@ export default function VendorProducts() {
 
       {/* Main product display grid */}
       {loading ? (
-        <div className="py-20 text-center text-slate-450">
+        <div className="py-20 text-center text-slate-400">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <span>Loading products and categories...</span>
         </div>
       ) : error ? (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-455 p-4 rounded-xl text-center">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl text-center">
           {error}
         </div>
       ) : products.length === 0 ? (
@@ -99,11 +100,11 @@ export default function VendorProducts() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {products.map((p) => (
-            <div key={p.id} className="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-6 hover:border-slate-750 transition-all flex flex-col justify-between">
+            <div key={p.id} className="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-6 hover:border-slate-700 transition-all flex flex-col justify-between">
               
               {/* Product Top info */}
               <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl bg-slate-900 border border-slate-850 shrink-0 overflow-hidden flex items-center justify-center">
+                <div className="w-20 h-20 rounded-xl bg-slate-900 border border-slate-800 shrink-0 overflow-hidden flex items-center justify-center">
                   {p.images && p.images.length > 0 ? (
                     <img src={getImageUrl(p.images[0])} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
@@ -117,21 +118,21 @@ export default function VendorProducts() {
                       {p.isPublished ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 border border-primary/20 text-primary">Published</span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-850 border border-slate-800 text-slate-500">Draft</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 border border-slate-800 text-slate-500">Draft</span>
                       )}
                     </div>
 
                     <div className="flex items-center space-x-1">
                       <button
                         onClick={() => navigate(`/vendor/products/${p.id}`)}
-                        className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg transition-colors"
                         title="Edit product info"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(p.id)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 bg-slate-900 hover:bg-rose-500/10 border border-slate-850 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-rose-400 bg-slate-900 hover:bg-rose-500/10 border border-slate-800 rounded-lg transition-colors"
                         title="Delete product"
                       >
                         <Trash className="h-3.5 w-3.5" />
@@ -140,12 +141,12 @@ export default function VendorProducts() {
                   </div>
                   
                   <h3 className="font-extrabold text-white text-base truncate" title={p.name}>{p.name}</h3>
-                  <p className="text-xs text-slate-455 line-clamp-2">{p.productDefinition || 'No description provided.'}</p>
+                  <p className="text-xs text-slate-400 line-clamp-2">{p.productDefinition || 'No description provided.'}</p>
                 </div>
               </div>
 
               {/* Fee Structure Details */}
-              <div className="bg-slate-900/40 rounded-xl border border-slate-850 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-400">
+              <div className="bg-slate-900/40 rounded-xl border border-slate-800 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-400">
                 <div className="space-y-1">
                   <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Base Rental</span>
                   <span className="font-bold text-slate-200 block">₹{Number(p.rentalPrice).toLocaleString()} / {p.periodicity}</span>

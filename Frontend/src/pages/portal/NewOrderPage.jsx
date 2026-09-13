@@ -155,13 +155,28 @@ export default function NewOrderPage() {
     setOrderLines(orderLines.filter((_, i) => i !== index));
   };
 
+  const nowDateTimeLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+  const handleStartDateChange = (val) => {
+    setRentalStart(val);
+    if (!val) return;
+    if (!rentalEnd || new Date(rentalEnd) <= new Date(val)) {
+      const nextDay = new Date(new Date(val).getTime() + 24 * 60 * 60 * 1000);
+      setRentalEnd(nextDay.toISOString().slice(0, 16));
+    }
+  };
+
+  const handleEndDateChange = (val) => {
+    setRentalEnd(val);
+  };
+
   // Recalculate all amounts if dates change
   useEffect(() => {
     if (rentalStart && rentalEnd) {
       const start = new Date(rentalStart);
       const end = new Date(rentalEnd);
-      const diffTime = end - start;
-      const durationDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      const diffTime = end.getTime() - start.getTime();
+      const durationDays = diffTime > 0 ? Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24))) : 1;
 
       setOrderLines(prev => prev.map(line => ({
         ...line,
@@ -181,7 +196,8 @@ export default function NewOrderPage() {
     if (!rentalStart || !rentalEnd) return 1;
     const start = new Date(rentalStart);
     const end = new Date(rentalEnd);
-    const diffTime = Math.abs(end - start);
+    const diffTime = end.getTime() - start.getTime();
+    if (isNaN(diffTime) || diffTime <= 0) return 1;
     return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
   };
 
@@ -193,6 +209,11 @@ export default function NewOrderPage() {
     }
     if (!rentalStart || !rentalEnd) {
       setError('Please select rental start and end dates.');
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (new Date(rentalEnd) <= new Date(rentalStart)) {
+      setError('Rental return date and time must be strictly after the start date.');
       window.scrollTo(0, 0);
       return;
     }
@@ -307,7 +328,7 @@ export default function NewOrderPage() {
           <button
             onClick={() => handleSubmit('SENT')}
             disabled={submitLoading}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition-all flex items-center space-x-2"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition-all flex items-center space-x-2"
           >
             <Send className="h-4 w-4" />
             <span>Send Quotation</span>
@@ -408,21 +429,29 @@ export default function NewOrderPage() {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Start Date</label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Start Date & Time</label>
+                <span className="text-[10px] text-slate-500">Min: Today</span>
+              </div>
               <input
                 type="datetime-local"
                 value={rentalStart}
-                onChange={(e) => setRentalStart(e.target.value)}
+                min={nowDateTimeLocal}
+                onChange={(e) => handleStartDateChange(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:border-primary focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">End Date</label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Return Date & Time</label>
+                <span className="text-[10px] text-primary font-semibold">After start date</span>
+              </div>
               <input
                 type="datetime-local"
                 value={rentalEnd}
-                onChange={(e) => setRentalEnd(e.target.value)}
+                min={rentalStart || nowDateTimeLocal}
+                onChange={(e) => handleEndDateChange(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:border-primary focus:outline-none transition-colors"
               />
             </div>
@@ -447,9 +476,17 @@ export default function NewOrderPage() {
                 className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:border-primary"
               >
                 <option value="HOME_DELIVERY">Home Delivery</option>
-                <option value="COLLECT_FROM_STORE">Collect from Store</option>
+                <option value="COLLECT_FROM_STORE">Collect from Store (Hub Pickup)</option>
               </select>
             </div>
+
+            {fulfillmentType === 'COLLECT_FROM_STORE' && (
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                <p className="font-bold text-slate-200">Central Depot Self-Collection Hub</p>
+                <p className="text-[10px]">Plot 42, Metro Industrial Corridor, Phase 2</p>
+                <p className="text-[10px] text-primary font-semibold">Operating Hours: 10:00 AM – 07:00 PM</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -463,7 +500,7 @@ export default function NewOrderPage() {
           </h2>
           <button
             onClick={addLine}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all"
+            className="flex items-center space-x-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Product Line</span>
@@ -483,7 +520,7 @@ export default function NewOrderPage() {
                 <th className="pb-3 w-12"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-850">
+            <tbody className="divide-y divide-slate-800">
               {orderLines.map((line, index) => (
                 <tr key={index} className="group">
                   <td className="py-3 pr-4">
@@ -552,7 +589,7 @@ export default function NewOrderPage() {
 
       {/* Aggregate calculations display */}
       <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-        <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 text-slate-400 text-xs max-w-md">
+        <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 text-slate-400 text-xs max-w-md">
           <p className="font-semibold text-slate-300 mb-1">Rental Period Calculations:</p>
           <p>The total duration is <span className="text-white font-bold">{getDurationDays()} days</span>. Line subtotals are calculated as: <span className="font-mono text-white">Quantity × Daily Price × Duration</span>.</p>
           <p className="mt-2 font-semibold text-slate-300">Security Deposit Settlement Policy:</p>

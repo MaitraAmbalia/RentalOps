@@ -304,9 +304,9 @@ export default function RentalSchedulerPage() {
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-text-main text-sm">#{evt.orderNumber}</span>
                       <span className={`inline-flex px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold ${
-                        evt.type === 'BOOKED' ? 'bg-emerald-500/10 text-emerald-455' :
+                        evt.type === 'BOOKED' ? 'bg-emerald-500/10 text-emerald-400' :
                         evt.type === 'PICKUP' ? 'bg-red-500/10 text-red-400' :
-                        evt.type === 'LATE_PICKUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-455'
+                        evt.type === 'LATE_PICKUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
                       }`}>
                         {evt.type.replace('_', ' ')}
                       </span>

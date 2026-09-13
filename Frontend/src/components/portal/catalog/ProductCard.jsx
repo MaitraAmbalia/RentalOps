@@ -53,7 +53,7 @@ export default function ProductCard({ product }) {
       {/* Info Card Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-1">
-          <h3 className="text-base font-extrabold text-text-main line-clamp-1 group-hover:text-blue-600 transition-colors" title={product.name}>
+          <h3 className="text-base font-extrabold text-text-main line-clamp-1 group-hover:text-primary transition-colors" title={product.name}>
             {product.name}
           </h3>
         </div>
@@ -88,7 +88,7 @@ export default function ProductCard({ product }) {
         <div className="mt-auto flex items-end justify-between border-t border-border-main pt-3">
           <div>
             <p className="text-[10px] text-text-muted uppercase font-black tracking-wider mb-0.5">Rental price</p>
-            <p className="text-lg font-black text-blue-600">
+            <p className="text-lg font-black text-primary">
               ₹{Number(displayPrice).toFixed(2)}
               <span className="text-xs font-semibold text-text-muted"> / per {periodicityLabel}</span>
             </p>

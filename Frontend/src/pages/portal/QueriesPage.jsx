@@ -171,12 +171,12 @@ export default function QueriesPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm py-2">
               <div className="md:col-span-2 space-y-2">
                 <span className="text-xs text-slate-500 uppercase font-bold block">Incident Report Description</span>
-                <p className="text-slate-200 bg-slate-900/60 p-4 rounded-xl border border-slate-850 text-sm leading-relaxed">
+                <p className="text-slate-200 bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-sm leading-relaxed">
                   "{q.description}"
                 </p>
               </div>
 
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850 space-y-2.5 text-xs text-slate-400 self-stretch md:self-auto">
+              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800 space-y-2.5 text-xs text-slate-400 self-stretch md:self-auto">
                 <span className="text-xs text-slate-500 uppercase font-bold block mb-1">Customer / Order Reference</span>
                 <p><span className="font-semibold text-slate-300">Customer Name:</span> {q.clientName}</p>
                 <p><span className="font-semibold text-slate-300">Contact Email:</span> {q.clientEmail}</p>
@@ -190,7 +190,7 @@ export default function QueriesPage() {
                 {q.status === 'OPEN' && (
                   <button
                     onClick={() => handleStatusChange(q.id, 'IN_PROGRESS')}
-                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800 text-xs font-bold rounded-lg transition-colors"
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-lg transition-colors"
                   >
                     Mark In Progress
                   </button>

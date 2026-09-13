@@ -64,15 +64,15 @@ export default function LoginPage() {
 
         {/* Title */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
+          <div className="w-12 h-12 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
             <Package className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Sign in to RentalOps</h1>
-          <p className="text-xs text-slate-450">Select your system login role to continue.</p>
+          <p className="text-xs text-slate-400">Select your system login role to continue.</p>
         </div>
 
         {error && (
-          <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-455 rounded-xl text-xs font-bold text-center">
+          <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-bold text-center">
             {error}
           </div>
         )}
@@ -113,7 +113,7 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block font-bold text-slate-550 uppercase tracking-wider mb-1.5">
+            <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               {role === 'DELIVERY' ? 'Mobile Phone Number' : 'Email Address'}
             </label>
             <input
@@ -122,15 +122,15 @@ export default function LoginPage() {
               placeholder={role === 'DELIVERY' ? '9876543210' : 'name@domain.com'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 font-semibold"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary font-semibold"
             />
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-1.5">
-              <label className="block font-bold text-slate-550 uppercase tracking-wider">Password</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider">Password</label>
               {role !== 'DELIVERY' && (
-                <Link to="/reset-password" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot password?</Link>
+                <Link to="/reset-password" className="text-[10px] font-bold text-primary hover:underline">Forgot password?</Link>
               )}
             </div>
             <input
@@ -139,14 +139,14 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-blue-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-blue-600/10 flex items-center justify-center space-x-1.5"
+            className="w-full py-3.5 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-primary/10 flex items-center justify-center space-x-1.5"
           >
             {loading ? (
               <>
@@ -163,12 +163,12 @@ export default function LoginPage() {
           {role === 'CLIENT' ? (
             <p>
               New Client?{' '}
-              <Link to="/signup" className="font-bold text-blue-600 hover:underline">Create a client account</Link>
+              <Link to="/signup" className="font-bold text-primary hover:underline">Create a client account</Link>
             </p>
           ) : role === 'VENDOR' ? (
             <p>
               New Vendor?{' '}
-              <Link to="/vendor-signup" className="font-bold text-blue-600 hover:underline">Register your business</Link>
+              <Link to="/vendor-signup" className="font-bold text-primary hover:underline">Register your business</Link>
             </p>
           ) : (
             <div className="space-y-1.5">
@@ -176,7 +176,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => { setEmail('9876543210'); setPassword('password123'); }}
-                className="text-blue-600 font-bold hover:underline block mx-auto text-[11px]"
+                className="text-primary font-bold hover:underline block mx-auto text-[11px]"
               >
                 Auto-fill Courier Demo (9876543210 / password123)
               </button>

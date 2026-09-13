@@ -8,6 +8,14 @@ const orderItemSchema = z.object({
   amount: z.number().min(0), // Pre-computed by frontend for now
   rentalStart: z.string().datetime().optional(),
   rentalEnd: z.string().datetime().optional(),
+}).refine((item) => {
+  if (item.rentalStart && item.rentalEnd) {
+    return new Date(item.rentalEnd) > new Date(item.rentalStart);
+  }
+  return true;
+}, {
+  message: 'Item rental end date must be strictly after rental start date',
+  path: ['rentalEnd']
 });
 
 const orderSchema = z.object({
@@ -23,6 +31,22 @@ const orderSchema = z.object({
   securityDepositAmount: z.number().min(0).default(0),
   couponCode: z.string().optional(),
   items: z.array(orderItemSchema).min(1, 'Order must contain at least one item'),
+}).refine((data) => {
+  const start = new Date(data.rentalStartDate);
+  const end = new Date(data.scheduledReturnDate);
+  return end > start;
+}, {
+  message: 'Scheduled return date must be strictly after rental start date',
+  path: ['scheduledReturnDate']
+}).refine((data) => {
+  const start = new Date(data.rentalStartDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today.getTime() - 12 * 60 * 60 * 1000);
+  return start >= yesterday;
+}, {
+  message: 'Rental start date cannot be in the past',
+  path: ['rentalStartDate']
 });
 
 const orderStatusUpdateSchema = z.object({

@@ -96,7 +96,7 @@ export default function TaskDetailPage() {
     return (
       <div className="text-center py-20 text-slate-500 font-bold space-y-4">
         <p>{error || 'Task not found.'}</p>
-        <button onClick={() => navigate('/delivery/dashboard')} className="text-blue-600 hover:underline">Back to dashboard</button>
+        <button onClick={() => navigate('/delivery/dashboard')} className="text-primary hover:underline">Back to dashboard</button>
       </div>
     );
   }

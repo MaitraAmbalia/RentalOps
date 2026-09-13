@@ -49,7 +49,7 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
                   name="category"
                   checked={(filters.category || 'All') === cat}
                   onChange={() => onFilterChange('category', cat)}
-                  className="h-4.5 w-4.5 text-blue-600 focus:ring-blue-500 border-border-main"
+                  className="h-4.5 w-4.5 text-primary focus:ring-primary border-border-main"
                 />
                 <span className="font-medium text-text-main">{cat}</span>
               </label>
@@ -69,7 +69,7 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
                     type="checkbox"
                     checked={isChecked}
                     onChange={(e) => handleBrandChange(brand, e.target.checked)}
-                    className="h-4.5 w-4.5 rounded text-blue-600 focus:ring-blue-500 border-border-main"
+                    className="h-4.5 w-4.5 rounded text-primary focus:ring-primary border-border-main"
                   />
                   <span className="font-medium text-text-main">{brand}</span>
                 </label>
@@ -106,7 +106,7 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
           <select
             value={filters.duration || ''}
             onChange={(e) => onFilterChange('duration', e.target.value)}
-            className="w-full bg-bg-main border border-border-main rounded-xl px-3 py-2 text-xs text-text-main focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 cursor-pointer"
+            className="w-full bg-bg-main border border-border-main rounded-xl px-3 py-2 text-xs text-text-main focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
           >
             <option value="">All Duration</option>
             <option value="1M">1 Month</option>
@@ -127,7 +127,7 @@ export default function FiltersSidebar({ filters, onFilterChange }) {
               max="10000"
               value={filters.maxPrice || 10000}
               onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-              className="w-full h-1 bg-border-main rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-1 bg-border-main rounded-lg appearance-none cursor-pointer accent-primary"
             />
             <div className="flex justify-between items-center text-[10px] text-text-muted font-semibold">
               <span>₹13</span>

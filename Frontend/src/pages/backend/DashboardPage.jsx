@@ -71,7 +71,7 @@ export default function DashboardPage() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-455 rounded-xl text-sm font-semibold">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-semibold">
           {error}
         </div>
       )}
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             <div className="bg-bg-card p-6 rounded-2xl border border-border-main space-y-4 flex flex-col justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-text-main flex items-center space-x-2">
-                  <HelpCircle className="h-5 w-5 text-rose-455" />
+                  <HelpCircle className="h-5 w-5 text-rose-400" />
                   <span>Resolution Disputes</span>
                 </h3>
                 <p className="text-text-muted mt-1 leading-relaxed text-xs">Customer issues regarding missing parts or product damages requiring immediate settlement checks.</p>
@@ -142,12 +142,12 @@ export default function DashboardPage() {
               <div className="bg-bg-main border border-border-main rounded-xl p-4 flex justify-between items-center">
                 <div>
                   <span className="text-[10px] text-text-muted font-bold block uppercase">Open Disputes</span>
-                  <span className="text-xl font-black text-rose-455">{stats.openDisputesCount} Tickets</span>
+                  <span className="text-xl font-black text-rose-400">{stats.openDisputesCount} Tickets</span>
                 </div>
 
                 <Link 
                   to="/vendor/queries"
-                  className="px-3.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-455 font-bold rounded-lg hover:bg-rose-500/20 transition-all text-xs"
+                  className="px-3.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold rounded-lg hover:bg-rose-500/20 transition-all text-xs"
                 >
                   Manage Disputes
                 </Link>

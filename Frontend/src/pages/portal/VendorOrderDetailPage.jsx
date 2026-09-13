@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { orderService } from '../../api/orderService';
 import { quotationService } from '../../api/quotationService';
+import { depositInvoiceService } from '../../api/depositInvoiceService';
 import { useToast } from '../../context/ToastContext';
 
 export default function VendorOrderDetailPage() {
@@ -37,6 +38,10 @@ export default function VendorOrderDetailPage() {
         const orderData = await orderService.getOrderById(id);
         if (orderData) {
           setRecord(orderData);
+          if (orderData.depositInvoice?.depositStatus === 'REFUNDED' || orderData.depositInvoice?.depositStatus === 'PARTIAL_REFUND') {
+            setSettled(true);
+            setPenaltyAmount(parseFloat(orderData.depositInvoice?.penaltyAmountDeducted || 0));
+          }
           setIsQuotation(false);
           setLoading(false);
           return;
@@ -157,10 +162,26 @@ export default function VendorOrderDetailPage() {
     setPenaltyAmount(Math.min(calc, maxDeposit));
   };
 
-  const handleSettleDeposit = () => {
-    setSettled(true);
-    setSettlementOpen(false);
-    success('Security deposit refunded and settled successfully!');
+  const handleSettleDeposit = async () => {
+    setActionLoading(true);
+    try {
+      const res = await depositInvoiceService.settleDeposit(id, {
+        penaltyAmountDeducted: penaltyAmount
+      });
+      const updatedDeposit = res.deposit || res.depositInvoice || res;
+      setRecord(prev => ({
+        ...prev,
+        depositInvoice: updatedDeposit
+      }));
+      setSettled(true);
+      setSettlementOpen(false);
+      success('Security deposit refunded and settled successfully!');
+    } catch (err) {
+      console.error(err);
+      toastError(err.response?.data?.message || 'Failed to settle security deposit.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -226,7 +247,7 @@ export default function VendorOrderDetailPage() {
         </div>
 
         {/* Dynamic Status Badges / Process Bar */}
-        <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-850">
+        <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
           {steps.map((step, idx) => (
             <div key={idx} className="flex items-center space-x-2">
               {idx > 0 && <span className="text-slate-700">➔</span>}
@@ -254,14 +275,14 @@ export default function VendorOrderDetailPage() {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-850">
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
                 <span className="text-xs text-slate-500 uppercase font-semibold block mb-1">Client Profile</span>
                 <span className="text-slate-100 font-bold block text-base">{clientName}</span>
                 <span className="text-slate-400 block">{record.client?.email}</span>
                 <span className="text-slate-400 block">{record.client?.phone}</span>
               </div>
 
-              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-850">
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
                 <span className="text-xs text-slate-500 uppercase font-semibold block mb-1">Rental Timeline</span>
                 <span className="text-slate-200 block">
                   <span className="font-semibold text-slate-400">Start:</span> {new Date(record.rentalStartDate || record.items?.[0]?.rentalStart).toLocaleString()}
@@ -321,7 +342,7 @@ export default function VendorOrderDetailPage() {
                 </span>
               </div>
 
-              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-850 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <span className="text-xs text-slate-500 block mb-1">Held Security Deposit</span>
                   <span className="text-xl font-bold text-white">₹{parseFloat(record.securityDepositAmount || 0).toFixed(2)}</span>
@@ -360,7 +381,7 @@ export default function VendorOrderDetailPage() {
                         </div>
                         <div>
                           <label className="block text-xs text-slate-400 mb-1.5 uppercase font-bold">Calculated Overdue Penalty</label>
-                          <span className="block p-2 bg-slate-950 border border-slate-850 rounded-lg text-rose-400 font-bold">
+                          <span className="block p-2 bg-slate-950 border border-slate-800 rounded-lg text-rose-400 font-bold">
                             ₹{penaltyAmount.toFixed(2)}
                           </span>
                         </div>
@@ -376,7 +397,7 @@ export default function VendorOrderDetailPage() {
                   ) : (
                     <button
                       onClick={() => setSettlementOpen(true)}
-                      className="px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 text-sm font-bold rounded-xl"
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-bold rounded-xl"
                     >
                       Process Late Fee Deductions & Settlement
                     </button>
@@ -426,7 +447,7 @@ export default function VendorOrderDetailPage() {
                   <button
                     onClick={handleSendQuotation}
                     disabled={actionLoading}
-                    className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 font-bold rounded-xl text-sm"
+                    className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 font-bold rounded-xl text-sm"
                   >
                     <Send className="h-4 w-4" />
                     <span>Send Quotation to Client</span>
@@ -449,7 +470,7 @@ export default function VendorOrderDetailPage() {
                   <>
                     <Link
                       to={`/vendor/invoices/${id}`}
-                      className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 font-bold rounded-xl text-sm text-center"
+                      className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 font-bold rounded-xl text-sm text-center"
                     >
                       <FileText className="h-4 w-4" />
                       <span>Create / View Invoice</span>
@@ -489,7 +510,7 @@ export default function VendorOrderDetailPage() {
                 )}
 
                 {['RETURNED', 'CANCELLED'].includes(record.status) && (
-                  <div className="p-3 bg-slate-900 rounded-xl text-slate-500 text-xs text-center border border-slate-850 font-semibold">
+                  <div className="p-3 bg-slate-900 rounded-xl text-slate-500 text-xs text-center border border-slate-800 font-semibold">
                     No further workflow transitions available.
                   </div>
                 )}

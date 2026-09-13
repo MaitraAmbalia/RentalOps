@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { 
   Package, User, LogOut, History, ShoppingCart, Search, Sun, Moon,
-  Bell, Heart, ChevronDown, HelpCircle, Settings
+  Bell, Heart, ChevronDown, HelpCircle, Settings, ShieldCheck, Calendar,
+  RotateCcw, Truck, X, Sparkles
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
@@ -76,9 +77,30 @@ export default function PortalHeader({ clientProfile }) {
 
           {/* Nav Links */}
           <nav className="hidden lg:flex items-center space-x-1 text-xs font-bold text-text-muted bg-bg-main border border-border-main rounded-full px-1.5 py-1.5 shadow-sm absolute left-1/2 -translate-x-1/2">
-            <Link to="/dashboard" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">Products</Link>
-            <Link to="/" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">About Us</Link>
-            <Link to="/account/support" className="hover:text-primary hover:bg-primary/10 px-4 py-1.5 rounded-full transition-all">Contact</Link>
+            <NavLink 
+              to="/dashboard" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-full transition-all ${isActive ? 'text-primary bg-primary/10 font-black' : 'hover:text-primary hover:bg-primary/5'}`
+              }
+            >
+              Explore Equipment
+            </NavLink>
+            <NavLink 
+              to="/orders" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-full transition-all ${isActive ? 'text-primary bg-primary/10 font-black' : 'hover:text-primary hover:bg-primary/5'}`
+              }
+            >
+              My Rentals
+            </NavLink>
+            <NavLink 
+              to="/account/support" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-full transition-all ${isActive ? 'text-primary bg-primary/10 font-black' : 'hover:text-primary hover:bg-primary/5'}`
+              }
+            >
+              Help & Support
+            </NavLink>
           </nav>
 
 

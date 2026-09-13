@@ -132,7 +132,7 @@ export default function VendorDashboard() {
         </div>
         <button
           onClick={fetchOrders}
-          className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl hover:bg-slate-750 transition-colors text-sm font-semibold self-start md:self-auto"
+          className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl hover:bg-slate-700 transition-colors text-sm font-semibold self-start md:self-auto"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
@@ -179,7 +179,7 @@ export default function VendorDashboard() {
       <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           {/* Ongoing/Past tabs */}
-          <div className="flex space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-850 self-start">
+          <div className="flex space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 self-start">
             <button
               onClick={() => { setActiveTab('ongoing'); setStatusFilter('all'); }}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
@@ -254,7 +254,7 @@ export default function VendorDashboard() {
             </div>
 
             {/* Layout Toggle */}
-            <div className="flex border border-slate-850 p-1 rounded-xl bg-slate-900">
+            <div className="flex border border-slate-800 p-1 rounded-xl bg-slate-900">
               <button
                 onClick={() => setViewMode('kanban')}
                 className={`p-1.5 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-slate-800 text-primary' : 'text-slate-500'}`}
@@ -285,7 +285,7 @@ export default function VendorDashboard() {
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="py-20 text-center text-slate-500">
-            <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-slate-650" />
+            <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-slate-600" />
             <p className="text-base font-bold">No orders found</p>
             <p className="text-sm mt-1">Try clearing filters or search query.</p>
           </div>
@@ -306,7 +306,7 @@ export default function VendorDashboard() {
                     <th className="px-6 py-4 text-center">Quick Move</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-850 text-sm text-slate-300">
+                <tbody className="divide-y divide-slate-800 text-sm text-slate-300">
                   {filteredOrders.map((o) => (
                     <tr key={o.id} className="hover:bg-slate-900/40 transition-colors">
                       <td className="px-6 py-4">
@@ -375,7 +375,7 @@ export default function VendorDashboard() {
                 return (
                   <div key={colStatus} className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-3 min-h-[450px]">
                     {/* Column Header */}
-                    <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                       <div className="flex items-center space-x-2">
                         <span className={`w-2.5 h-2.5 rounded-full ${
                           colStatus === 'PROCESSING' ? 'bg-blue-500' :
@@ -391,12 +391,12 @@ export default function VendorDashboard() {
                     {/* Column Cards */}
                     <div className="flex flex-col gap-3 overflow-y-auto max-h-[500px]">
                       {colOrders.length === 0 ? (
-                        <div className="text-center py-10 text-xs text-slate-600 border border-dashed border-slate-850 rounded-lg">
+                        <div className="text-center py-10 text-xs text-slate-600 border border-dashed border-slate-800 rounded-lg">
                           No {colStatus.toLowerCase()} orders
                         </div>
                       ) : (
                         colOrders.map(o => (
-                          <div key={o.id} className="bg-slate-950 p-4 rounded-xl border border-slate-850 hover:border-slate-700/80 hover:shadow-lg transition-all space-y-3 group relative">
+                          <div key={o.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-slate-700/80 hover:shadow-lg transition-all space-y-3 group relative">
                             {/* Card Header */}
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-bold text-white block group-hover:text-primary transition-colors">{o.orderNumber}</span>
@@ -416,7 +416,7 @@ export default function VendorDashboard() {
                             {/* Dates */}
                             <div className="text-[10px] text-slate-400 border-t border-slate-900 pt-2 flex items-center justify-between">
                               <span>{new Date(o.rentalStartDate).toLocaleDateString()}</span>
-                              <ChevronRight className="h-3 w-3 text-slate-650" />
+                              <ChevronRight className="h-3 w-3 text-slate-600" />
                               <span>{new Date(o.scheduledReturnDate).toLocaleDateString()}</span>
                             </div>
 

@@ -447,7 +447,7 @@ export default function ProductFormPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Product Type</label>
-                  <div className="flex space-x-4 bg-slate-900 p-1.5 rounded-xl border border-slate-850">
+                  <div className="flex space-x-4 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, type: 'GOODS' }))}
@@ -525,12 +525,12 @@ export default function ProductFormPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Publish Status</label>
-                  <div className="flex items-center space-x-3 bg-slate-900 p-3 rounded-xl border border-slate-850">
+                  <div className="flex items-center space-x-3 bg-slate-900 p-3 rounded-xl border border-slate-800">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, isPublished: !prev.isPublished }))}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${
-                        formData.isPublished ? 'bg-primary' : 'bg-slate-850'
+                        formData.isPublished ? 'bg-primary' : 'bg-slate-800'
                       }`}
                     >
                       <div className={`bg-white w-4.5 h-4.5 rounded-full shadow transform transition-all ${
@@ -574,7 +574,7 @@ export default function ProductFormPage() {
                     <button
                       type="button"
                       onClick={handleAddImage}
-                      className="px-3 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all"
+                      className="px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition-all"
                     >
                       Add URL
                     </button>
@@ -619,7 +619,7 @@ export default function ProductFormPage() {
               {attributes.map(attr => {
                 const isChecked = !!selectedAttrValues[attr.id];
                 return (
-                  <div key={attr.id} className="bg-slate-900 p-4 rounded-xl border border-slate-850 space-y-3">
+                  <div key={attr.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
                     <div className="flex items-center space-x-3">
                       <input
                         type="checkbox"
@@ -629,7 +629,7 @@ export default function ProductFormPage() {
                       />
                       <div>
                         <span className="font-bold text-white text-sm">{attr.name}</span>
-                        <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-950 border border-slate-850 px-2 py-0.5 rounded ml-2">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded ml-2">
                           {attr.displayType}
                         </span>
                       </div>
@@ -643,7 +643,7 @@ export default function ProductFormPage() {
                           </span>
                         ))}
                         {(attr.values || []).length === 0 && (
-                          <span className="text-xs text-slate-650 italic">No values configured in settings.</span>
+                          <span className="text-xs text-slate-600 italic">No values configured in settings.</span>
                         )}
                       </div>
                     )}
@@ -652,7 +652,7 @@ export default function ProductFormPage() {
               })}
 
               {attributes.length === 0 && (
-                <div className="col-span-2 text-center p-8 bg-slate-900/60 border border-slate-850 text-slate-500 text-xs font-semibold rounded-xl">
+                <div className="col-span-2 text-center p-8 bg-slate-900/60 border border-slate-800 text-slate-500 text-xs font-semibold rounded-xl">
                   Go to Settings ➔ Attributes to create configurable options.
                 </div>
               )}
@@ -722,7 +722,7 @@ export default function ProductFormPage() {
               </div>
 
               {/* Fees and Deposits */}
-              <div className="space-y-4 bg-slate-900/40 p-5 rounded-xl border border-slate-850">
+              <div className="space-y-4 bg-slate-900/40 p-5 rounded-xl border border-slate-800">
                 <span className="text-xs text-slate-500 uppercase font-bold block mb-2">Deposit & Penalty Escrow</span>
 
                 <div>
@@ -763,7 +763,7 @@ export default function ProductFormPage() {
                     />
                   </div>
                 ) : (
-                  <div className="p-3 bg-slate-900 rounded-lg text-slate-500 text-xs border border-slate-850 font-semibold leading-relaxed">
+                  <div className="p-3 bg-slate-900 rounded-lg text-slate-500 text-xs border border-slate-800 font-semibold leading-relaxed">
                     Late return fees are currently deactivated in global configurations. Enable them in Settings ➔ Pricing to override hourly penalties here.
                   </div>
                 )}

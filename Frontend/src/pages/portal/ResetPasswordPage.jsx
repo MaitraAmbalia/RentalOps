@@ -30,40 +30,40 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 space-y-6 shadow-xl shadow-slate-200/50">
         
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
+          <div className="w-12 h-12 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mx-auto border border-blue-200/50">
             <Package className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Reset Password</h1>
-          <p className="text-xs text-slate-450">We will send recovery links to access your workspace.</p>
+          <p className="text-xs text-slate-400">We will send recovery links to access your workspace.</p>
         </div>
 
         {success ? (
           <div className="space-y-4 text-center">
-            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-650 rounded-xl text-xs font-bold">
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-bold">
               Check your inbox for a recovery link!
             </div>
-            <Link to="/login" className="inline-block text-xs font-bold text-blue-600 hover:underline">
+            <Link to="/login" className="inline-block text-xs font-bold text-primary hover:underline">
               Back to login screen
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-555 uppercase tracking-wider mb-1.5">Registered Email</label>
+              <label className="block font-bold text-slate-500 uppercase tracking-wider mb-1.5">Registered Email</label>
               <input
                 type="email"
                 required
                 placeholder="name@domain.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-805 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:border-primary"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md flex items-center justify-center space-x-1.5"
+              className="w-full py-3.5 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-primary/10 flex items-center justify-center space-x-1.5"
             >
               {loading ? (
                 <>

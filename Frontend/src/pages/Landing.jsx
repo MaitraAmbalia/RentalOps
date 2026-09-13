@@ -21,13 +21,13 @@ export default function Landing() {
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/dashboard" className="text-sm font-semibold text-slate-650 hover:text-primary transition-colors">Rent Catalog</Link>
-            <Link to="/login?role=VENDOR" className="text-sm font-semibold text-slate-650 hover:text-primary transition-colors">Vendor Control</Link>
-            <Link to="/login?role=DELIVERY" className="text-sm font-semibold text-slate-650 hover:text-primary transition-colors">Delivery Drivers</Link>
+            <Link to="/dashboard" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Rent Catalog</Link>
+            <Link to="/login?role=VENDOR" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Vendor Control</Link>
+            <Link to="/login?role=DELIVERY" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Delivery Drivers</Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link to="/login" className="text-sm font-bold text-slate-705 hover:text-slate-950 transition-colors px-4 py-2">
+            <Link to="/login" className="text-sm font-bold text-slate-700 hover:text-slate-950 transition-colors px-4 py-2">
               Sign In
             </Link>
             <Link 
@@ -59,7 +59,7 @@ export default function Landing() {
             </Link>
             <Link 
               to="/dashboard" 
-              className="w-full sm:w-auto px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-750 font-extrabold rounded-2xl border border-slate-200 transition-all hover:scale-[1.02] flex items-center justify-center"
+              className="w-full sm:w-auto px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold rounded-2xl border border-slate-200 transition-all hover:scale-[1.02] flex items-center justify-center"
             >
               Browse Catalog
             </Link>
@@ -80,7 +80,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Save time, <span className="text-primary underline decoration-blue-300 decoration-3 underline-offset-4">rent online</span>
             </h2>
-            <p className="text-sm md:text-base text-slate-655 leading-relaxed font-medium">
+            <p className="text-sm md:text-base text-slate-600 leading-relaxed font-medium">
               Online booking and reservations have never been easier. Clients can browse category catalogs, pick accurate start and end dates, and complete checkouts instantly on the web.
             </p>
           </div>
@@ -88,17 +88,17 @@ export default function Landing() {
           <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-1.5">
-                <span className="w-3.5 h-3.5 rounded-full bg-rose-455"></span>
-                <span className="w-3.5 h-3.5 rounded-full bg-amber-455"></span>
-                <span className="w-3.5 h-3.5 rounded-full bg-emerald-455"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-rose-400"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-amber-400"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
               </div>
-              <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Storefront Booking Console</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Storefront Booking Console</span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50 space-y-3">
                 <div className="h-32 bg-slate-200 rounded-xl overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-blue-600/5 flex items-center justify-center font-bold text-slate-500">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary/5 flex items-center justify-center font-bold text-slate-500">
                     Premium Laptop
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default function Landing() {
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Select Rental Period</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Select Rental Period</label>
                   <div className="grid grid-cols-2 gap-1.5">
                     <div className="p-2 border border-slate-200 rounded-xl bg-slate-50 text-center">
                       <span className="block text-[8px] font-extrabold text-slate-400 uppercase">Start</span>
@@ -185,7 +185,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Time is money... <span className="text-primary italic">literally</span>
             </h2>
-            <p className="text-sm md:text-base text-slate-655 leading-relaxed font-medium">
+            <p className="text-sm md:text-base text-slate-600 leading-relaxed font-medium">
               Create flexible, customizable pricing for every product. Configure dynamic rules for hourly, weekly, monthly, or customized packages, and automate late return penalties on a clean workspace dashboard.
             </p>
           </div>
@@ -202,23 +202,23 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Signature requests <span className="text-primary">on request</span>
             </h2>
-            <p className="text-sm md:text-base text-slate-655 leading-relaxed font-medium">
+            <p className="text-sm md:text-base text-slate-600 leading-relaxed font-medium">
               Upload rental agreements, policy terms, insurance waivers, and custom quotes. Request client e-signatures digitally and receive legally compliant signed agreements before dispatching items.
             </p>
           </div>
 
           <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wider flex items-center space-x-1"><Shield className="h-3.5 w-3.5 text-primary" /><span>E-Signature Agreement</span></span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1"><Shield className="h-3.5 w-3.5 text-primary" /><span>E-Signature Agreement</span></span>
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">Ready to Sign</span>
             </div>
 
             <div className="p-4 border border-dashed border-slate-200 rounded-2xl bg-slate-50 space-y-3">
               <h4 className="font-extrabold text-slate-800 text-sm">Rental Terms & Conditions</h4>
-              <p className="text-[10px] text-slate-550 leading-relaxed">
+              <p className="text-[10px] text-slate-500 leading-relaxed">
                 1. Equipment Return: Client agrees to return all rented materials in clean, undamaged condition by the scheduled return time.
               </p>
-              <p className="text-[10px] text-slate-550 leading-relaxed border-t border-slate-150 pt-2">
+              <p className="text-[10px] text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
                 2. Security Deposit: A refundable deposit will be held and returned only after verification by our warehouse inspection workflow.
               </p>
 
@@ -242,8 +242,8 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 order-last lg:order-first bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wider flex items-center space-x-1.5"><Truck className="h-4 w-4 text-primary" /><span>Dispatch Scheduler</span></span>
-              <span className="text-[10px] font-bold text-primary bg-blue-100 px-2 py-0.5 rounded">Today's Fleet</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5"><Truck className="h-4 w-4 text-primary" /><span>Dispatch Scheduler</span></span>
+              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Today's Fleet</span>
             </div>
 
             <div className="space-y-2">
@@ -252,7 +252,7 @@ export default function Landing() {
                   <span className="font-bold text-slate-800 block text-xs">Deco Addict (#SO0023)</span>
                   <span className="text-[10px] text-slate-500">Pick-up: Nov 6, 2026</span>
                 </div>
-                <span className="px-2 py-0.5 bg-blue-500/10 text-blue-600 rounded text-[9px] font-bold border border-blue-500/20">Reserved</span>
+                <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-bold border border-primary/20">Reserved</span>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
@@ -280,7 +280,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Automate your <span className="text-primary decoration-blue-300 underline underline-offset-4">to-do list</span>
             </h2>
-            <p className="text-sm md:text-base text-slate-655 leading-relaxed font-medium">
+            <p className="text-sm md:text-base text-slate-600 leading-relaxed font-medium">
               Know exactly who is picking up and who is dropping off in one click. Track driver dispatch assignments, vehicle status, and warehouse check-in workflows from a single cohesive command center.
             </p>
           </div>

@@ -23,8 +23,8 @@ const registerVendor = async (data) => {
 
   const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
   
-  // Exclude password and confirmPassword from the data to save
-  const { password, confirmPassword, ...vendorData } = data;
+  // Exclude password, confirmPassword, phone from the data to save
+  const { password, confirmPassword, phone, ...vendorData } = data;
 
   const vendor = await vendorRepository.create({
     ...vendorData,
@@ -94,7 +94,7 @@ const registerClient = async (data) => {
   }
 
   const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
-  const { password, confirmPassword, couponCode, ...clientData } = data;
+  const { password, confirmPassword, couponCode, shippingAddress, ...clientData } = data;
 
   const client = await clientRepository.create({
     ...clientData,
